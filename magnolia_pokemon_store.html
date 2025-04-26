@@ -9,37 +9,70 @@
     body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background-color: #f6f6f6; color: #333; }
     header { background-color: #2c3e50; color: white; padding: 1em 2em; text-align: center; position: relative; }
     .cart-button { position: absolute; right: 2em; top: 1.2em; background-color: #e67e22; color: white; border: none; padding: 0.5em 1em; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    .category-bar { background-color: #ffe600; padding: 1em; text-align: center; font-weight: bold; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-    .category-bar span { display: inline-block; margin: 0 5px; padding: 0.5em 1em; border-radius: 5px; background-color: #fffbe6; cursor: pointer; }
+    .category-bar-wrapper { display: flex; align-items: center; background: #fff; padding: 0.5em; border-bottom: 1px solid #ddd; }
+    .category-bar { display: flex; overflow-x: auto; white-space: nowrap; gap: 10px; flex: 1; }
+    .category-bar span { padding: 0.5em 1em; border-radius: 999px; border: 1px solid #ccc; background: white; cursor: pointer; font-weight: bold; }
+    .category-bar span.active { background-color: orange; color: white; }
+    .toggle-expand { font-size: 1.5em; background: none; border: none; cursor: pointer; margin-left: 10px; }
+    .category-expand {
+  display: none;
+  background: white;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  flex-direction: column;
+  z-index: 9999;
+}
+    .category-expand.show { display: flex; flex-direction: column; }
+    .category-expand .header { display: flex; justify-content: space-between; align-items: center; padding: 1em; border-bottom: 1px solid #ccc; }
+    .category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5em;
+  padding: 1em;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+    .category-grid-item { text-align: center; cursor: pointer; }
+    .category-grid-item img { width: 100%; border-radius: 8px; }
     .container { max-width: 1200px; margin: auto; padding: 2em 1em; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5em; }
-    .card { background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.3s; }
-    .card:hover { transform: translateY(-5px); }
-    .card img { width: 100%; height: 200px; object-fit: cover; }
-    .card-body { padding: 1em; }
-    .card-title { font-size: 1.2em; font-weight: bold; }
-    .price { color: #e67e22; margin-top: 0.5em; }
-    .add-to-cart { margin-top: 1em; padding: 0.5em 1em; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1em; }
+    .card { background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+    .card img { width: 100%; height: auto; }
+    .card-title { font-weight: bold; margin-top: 0.5em; }
+    .price { color: #e67e22; font-weight: bold; margin: 0.3em 0; }
+    .variant { font-size: 0.85em; color: #777; }
     footer { text-align: center; padding: 2em; background-color: #34495e; color: white; }
-    @media (max-width: 768px) {
-      .grid { grid-template-columns: repeat(2, 1fr); }
-      .card { height: 50vh; display: flex; flex-direction: column; justify-content: space-between; }
-      .card img { height: 40%; }
-      .card-body { padding: 0.5em; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    }
   </style>
 </head>
 <body>
   <header>
     <h1>寶可夢卡磚專賣店</h1>
-    <p>限量收藏・立即入手</p>
-    <button class="cart-button" onclick="toggleModal()">🛒 購物車</button>
+    <button class="cart-button">🛒 購物車</button>
   </header>
 
-  <div class="category-bar" id="category-bar"></div>
+  <div class="category-bar-wrapper">
+    <div class="category-bar" id="categoryBar"></div>
+    <button class="toggle-expand" onclick="toggleExpand()">▾</button>
+  </div>
+  <div class="category-expand" id="categoryExpand">
+    <div class="header">
+      <strong>選擇分類</strong>
+      <button onclick="toggleExpand()">✕</button>
+    </div>
+    <div class="category-grid" id="categoryGrid"></div>
+  </div>
+
   <div class="container">
-    <h2>商品清單</h2>
-    <div class="grid" id="product-grid"></div>
+    <h2 id="current-category">太晶慶典-伊布</h2>
+    <div class="grid" id="productGrid"></div>
   </div>
 
   <footer>
@@ -49,67 +82,73 @@
   <script>
     const categoryList = [
       "太晶慶典-伊布", "皮卡丘系列", "噴火龍系列", "奇樹系列", "莉莉艾系列",
-      "151系列", "熱門V&Vmax系列", "SV9對戰夥伴", "SV8超電/太晶", "SV7龍騰/星晶"
+      "151系列", "熱門V&Vmax系列", "SV9對戰夥伴", "SV8超電/太晶", "SV7龍騰/星晶",
+      "SV6變幻假面", "SV5緋紅/異度狂野", "SV4a 閃色寶藏", "SV3 黯炎/激狂",
+      "SV2 碟旋/冰雪", "SV1 朱紫/音爆", "Vstar天地萬物", "伊布英雄系列"
     ];
 
-    const allProducts = [];
-    categoryList.forEach((cat, ci) => {
-      for (let i = 1; i <= 10; i++) {
-        allProducts.push({
-          category: cat,
-          name: `${cat} 商品 ${i}`,
-          price: 1000 + ci * 10 + i,
-          image: "https://i.imgur.com/TwmxhlC.jpg"
-        });
-      }
-    });
-
-    const categoryBar = document.getElementById('category-bar');
-    const productGrid = document.getElementById('product-grid');
+    const productList = categoryList.flatMap(cat => Array.from({ length: 5 }, (_, i) => ({
+      cat,
+      name: `${cat} Demo商品${i + 1}`,
+      price: `${500 + i * 20}-${600 + i * 20}`,
+      image: `https://placehold.co/300x400?text=${encodeURIComponent(cat)}+${i + 1}`
+    })));
 
     function renderCategories() {
-      categoryBar.innerHTML = '<span onclick="filterCategory(\'all\')">全部</span>';
+      const bar = document.getElementById('categoryBar');
+      const grid = document.getElementById('categoryGrid');
+      bar.innerHTML = '';
+      grid.innerHTML = '';
       categoryList.forEach(cat => {
         const span = document.createElement('span');
         span.textContent = cat;
-        span.onclick = () => filterCategory(cat);
-        categoryBar.appendChild(span);
+        span.onclick = () => selectCategory(cat);
+        bar.appendChild(span);
+
+        const gridItem = document.createElement('div');
+        gridItem.className = 'category-grid-item';
+        gridItem.innerHTML = `<img src="https://placehold.co/300x200?text=${encodeURIComponent(cat)}"><div>${cat}</div>`;
+        gridItem.onclick = () => {
+          selectCategory(cat);
+          toggleExpand();
+        };
+        grid.appendChild(gridItem);
       });
     }
 
-    function renderProducts(filter = 'all') {
-      productGrid.innerHTML = '';
-      allProducts.filter(p => filter === 'all' || p.category === filter)
-        .forEach(p => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
-            <img src="${p.image}" alt="${p.name}">
-            <div class="card-body">
-              <div class="card-title">${p.name}</div>
-              <div class="price">NT$ ${p.price}</div>
-              <button class="add-to-cart" onclick="addToCart('${p.name}', ${p.price}, '${p.image}')">加入購物車</button>
-            </div>`;
-          productGrid.appendChild(card);
-        });
+    function renderProducts(category) {
+      const grid = document.getElementById('productGrid');
+      const title = document.getElementById('current-category');
+      title.textContent = category;
+      grid.innerHTML = '';
+      productList.filter(p => p.cat === category).forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${p.image}" alt="${p.name}">
+          <div class="card-title">${p.name}</div>
+          <div class="variant">選擇款式</div>
+          <div class="price">$${p.price}</div>`;
+        grid.appendChild(card);
+      });
     }
 
-    function filterCategory(category) {
-      renderProducts(category);
+    function selectCategory(cat) {
+      document.querySelectorAll('.category-bar span').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.category-bar span').forEach(s => {
+        if (s.textContent === cat) s.classList.add('active');
+      });
+      renderProducts(cat);
     }
 
-    function addToCart(name, price, image) {
-      alert(`加入購物車：${name} - NT$${price}`);
-    }
-
-    function toggleModal() {
-      alert("購物車功能尚未啟用");
+    function toggleExpand() {
+      document.getElementById('categoryExpand').classList.toggle('show');
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-  renderCategories();
-  renderProducts();
-});
+      renderCategories();
+      selectCategory('太晶慶典-伊布');
+    });
   </script>
 </body>
 </html>
