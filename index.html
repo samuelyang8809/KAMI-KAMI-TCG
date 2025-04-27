@@ -93,11 +93,26 @@
 }
     .category-expand.show { display: flex; flex-direction: column; }
     .category-expand .header { display: flex; justify-content: space-between; align-items: center; padding: 1em; border-bottom: 1px solid #ccc; }
-    
+    .fade-out {
+    animation: fadeOut 0.5s forwards;
+  }
+  .fade-in {
+    animation: fadeIn 0.5s forwards;
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
   </style>
 </head>
 <body>
-<header>
+<header class="mainheader">
   <h1>KAMI KAMI TCG</h1>
 </header>
 <div class="category-bar-wrapper">
@@ -151,27 +166,24 @@
   </div>
 </div>
 
-<div id="cartPage" style="display: none; padding: 2em;">
-  <h2>購物車明細</h2>
-  <div id="cartItems"></div>
-
-  <div style="margin-top: 2em;">
-    <input type="text" id="discountCodeInput" placeholder="輸入折扣碼" style="width: 60%; padding: 0.5em; border-radius: 5px; border: 1px solid #ccc;">
-    <button onclick="applyDiscount()" style="padding: 0.5em 1em; margin-left: 1em; border-radius: 5px; background: #27ae60; color: white; border: none;">套用折扣</button>
-    <button onclick="backToHome()" style="margin-top: 2em; padding: 0.5em 1em; background: gray; color: white; border: none; border-radius: 5px;">回到首頁</button>
-
+<!-- ✅ 改版後的購物車頁面 -->
+<div id="cartPage" style="display: none; padding: 1em; background: #ffffff; min-height: 100vh;">
+  <div style="display: flex; align-items: center; background: #fff; padding: 1em; border-bottom: 1px solid #eee;">
+    <button onclick="backToHome()" style="background: none; border: none; font-size: 1.5em; margin-right: 1em;">←</button>
+    <h2 style="flex: 1; text-align: center; margin: 0; font-size: 1.3em;">購物車</h2>
+    <div style="width: 2em;"></div> <!-- 右側留空，讓標題置中 -->
   </div>
+  <!-- 商品列表 -->
+  <div id="cartItems" style="margin-bottom: 7em;"></div>
 
-  <div style="margin-top: 2em; font-size: 1.2em;">
-    <p>商品總金額：$<span id="totalAmount">0</span></p>
-    <p>折扣金額：$<span id="discountAmount">0</span></p>
-    <p><strong>折扣後金額：$<span id="finalAmount">0</span></strong></p>
-  </div>
-  <div style="margin-top: 2em; text-align: center;">
-    <button onclick="submitOrder()" style="padding: 0.8em 2em; font-size: 1em; border-radius: 999px; background: orange; color: white; border: none;">送出訂單</button>
+  <!-- 總金額+結帳按鈕 -->
+  <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 1em 1em; border-top: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center;">
+    <div style="font-size: 1em;">
+      總金額：<span id="finalAmount" style="color: #e67e22; font-weight: bold;">0</span> 元
+    </div>
+    <button onclick="submitOrder()" style="background: #ff5c00; color: white; padding: 0.8em 2em; border-radius: 999px; font-size: 1em; border: none;">去下單</button>
   </div>
 </div>
-
 <div class="fixed-bottom-bar">
   <button onclick="goToIntro()" id="introBtn" style="display:none; background: orange;">其他周邊・卡磚</button>
   <button id="cartButton" onclick="toggleCartList()">購物車 (0)</button>
@@ -189,76 +201,136 @@
   let currentVariants = [];
   let currentItem = {};
   let cart = [];
-  
+  let currentDiscount = 0;
+
   const data = {
-    "商品大項": [
-      ...[
-        "太晶慶典-伊布", "皮卡丘系列", "噴火龍系列", "奇樹系列", "莉莉艾系列",
-        "151系列", "熱門V&Vmax系列", "SV9對戰夥伴", "SV8超電/太晶", "SV7龍騰/星晶",
-        "SV6變幻假面", "SV5緋紅/異度狂野", "SV4a 閃色寶藏", "SV3 黯炎/激狂",
-        "SV2 碟旋/冰雪", "SV1 朱紫/音爆", "Vstar天地萬物", "伊布英雄系列"
-      ].map(cat => ({
-        "商品大項名稱": cat,
-        "商品大項圖片": `./img/demo1.png`,
-        "小項價格範圍": "$100–$300",
-        "商品小項": [
-          { "商品小項名稱": `${cat} Demo商品1`, "商品小項價格": 100, "商品小項圖片": `./img/demo1.png` },
-          { "商品小項名稱": `${cat} Demo商品2`, "商品小項價格": 150, "商品小項圖片": `./img/demo2.png` },
-          { "商品小項名稱": `${cat} Demo商品3`, "商品小項價格": 200, "商品小項圖片": `./img/demo3.png` }
-        ]
-      }))
-    ]
-  };
+  "商品大項": [
+    {
+      大項名稱: "擴散式卡磚",
+      大項代號: "spread-frame",
+      中項列表: [
+        ...[
+          "太晶慶典-伊布",
+          "皮卡丘系列",
+          "噴火龍系列",
+          "奇樹系列",
+          "莉莉艾系列",
+          "151系列",
+          "熱門V&Vmax系列",
+          "SV9對戰夥伴",
+          "SV8超電/太晶",
+          "SV7龍騰/星晶",
+          "SV6變幻假面",
+          "SV5緋紅/異度狂野",
+          "SV4a 閃色寶藏",
+          "SV3 黯炎/激狂",
+          "SV2 碟旋/冰雪",
+          "SV1 朱紫/音爆",
+          "Vstar天地萬物",
+          "伊布英雄系列"
+        ].map(cat => ({
+          中項名稱: cat,
+          中項代號: cat.replace(/\s/g, '-').toLowerCase(), // 中項代號自動轉小寫、dash
+          中項圖片: './img/demo1.png',
+          小項列表: [
+            { 商品小項名稱: `${cat} Demo商品1`, 商品小項價格: 100, 商品小項圖片: './img/demo1.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
+            { 商品小項名稱: `${cat} Demo商品2`, 商品小項價格: 150, 商品小項圖片: './img/demo2.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
+            { 商品小項名稱: `${cat} Demo商品3`, 商品小項價格: 200, 商品小項圖片: './img/demo3.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" }
+          ]
+        }))
+      ]
+    },
+    {
+      大項名稱: "卡牌周邊",
+      大項代號: "card-accessory",
+      中項列表: [
+        {
+          中項名稱: "卡牌周邊",
+          中項代號: "card-accessory-general",
+          中項圖片: './img/demo3.png',
+          小項列表: [
+            { 商品小項名稱: "鑑定卡收納箱", 商品小項價格: 750, 商品小項圖片: './img/demo3.png', 商品分類名稱: "卡牌周邊", 商品分類代號: "card-accessory" }
+          ]
+        }
+      ]
+    },
+    {
+      大項名稱: "擴散式鑑定卡殼",
+      大項代號: "spread-slab",
+      中項列表: [
+        {
+          中項名稱: "擴散式鑑定卡殼",
+          中項代號: "spread-slab-general",
+          中項圖片: './img/demo4.png',
+          小項列表: [
+            // 可自行補上鑑定卡殼商品
+          ]
+        }
+      ]
+    }
+  ]
+};
+
   
-  function loadCategories() {
-    const introSpan = document.createElement('span');
-    introSpan.textContent = '介紹';
-    introSpan.onclick = goToIntro;
-    categoryBar.appendChild(introSpan);
-  
-    data.商品大項.forEach(cat => {
+function loadCategories() {
+  const categoryBar = document.getElementById('categoryBar');
+  categoryBar.innerHTML = '';
+
+  const introSpan = document.createElement('span');
+  introSpan.textContent = '介紹';
+  introSpan.onclick = goToIntro;
+  categoryBar.appendChild(introSpan);
+
+  data.商品大項.forEach(major => {
+    major.中項列表.forEach(mid => {
       const span = document.createElement('span');
-      span.textContent = cat.商品大項名稱;
-      span.onclick = () => renderCategory(cat);
+      span.textContent = mid.中項名稱;
+      span.onclick = () => renderCategory(major, mid);
       categoryBar.appendChild(span);
     });
-  }
+  });
+}
   
-  function renderCategory(category) {
-    document.getElementById('current-category').innerText = category.商品大項名稱;
-    document.querySelectorAll('.category-bar span').forEach(s => s.classList.remove('active'));
-    [...categoryBar.children].forEach(s => {
-      if (s.textContent === category.商品大項名稱) s.classList.add('active');
-    });
-    productGrid.innerHTML = '';
-    category.商品小項.forEach((item) => {
-      const div = document.createElement('div');
-      div.className = 'card';
-      div.innerHTML = `
-        <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border: 4px solid black; border-radius: 10px;">
-        <h4>${item.商品小項名稱}</h4>
-        <div onclick='openVariantModal(${JSON.stringify(category)}, ${JSON.stringify(item)})' style="color: gray; font-size: 0.9em;">選擇款式</div>
-        <div class="price">$${item.商品小項價格}–680</div>
-      `;
-      productGrid.appendChild(div);
-    });
-    document.getElementById('introBtn').style.display = 'inline-block';
-  }
-  
-  function openVariantModal(category, item) {
-    currentVariants = category.商品小項;
-    currentItem = item;
-    modal.classList.add('show');
-    updateModal(item);
-    variantSelect.innerHTML = '';
-    currentVariants.forEach((variant, idx) => {
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.textContent = variant.商品小項名稱;
-      if (variant.商品小項名稱 === item.商品小項名稱) opt.selected = true;
-      variantSelect.appendChild(opt);
-    });
-  }
+function renderCategory(majorCategory, midCategory) {
+  document.getElementById('current-category').innerText = midCategory.中項名稱;
+  document.querySelectorAll('.category-bar span').forEach(s => s.classList.remove('active'));
+  [...categoryBar.children].forEach(s => {
+    if (s.textContent === midCategory.中項名稱) s.classList.add('active');
+  });
+
+  productGrid.innerHTML = '';
+  midCategory.小項列表.forEach((item) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border: 4px solid black; border-radius: 10px;">
+      <h4>${item.商品小項名稱}</h4>
+      <div onclick='openVariantModal(${JSON.stringify(majorCategory)}, ${JSON.stringify(midCategory)}, ${JSON.stringify(item)})' style="color: gray; font-size: 0.9em;">選擇款式</div>
+      <div class="price">$${item.商品小項價格}</div>
+      
+    `;
+    productGrid.appendChild(div);
+  });
+
+  document.getElementById('introBtn').style.display = 'inline-block';
+}
+
+
+function openVariantModal(majorCategory, midCategory, item) {
+  currentVariants = midCategory.小項列表;  // 要從「中項」撈小項列表
+  currentItem = item;
+  modal.classList.add('show');
+  updateModal(item);
+  variantSelect.innerHTML = '';
+  currentVariants.forEach((variant, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = variant.商品小項名稱;
+    if (variant.商品小項名稱 === item.商品小項名稱) opt.selected = true;
+    variantSelect.appendChild(opt);
+  });
+}
+
   
   function updateModal(item) {
     modalTitle.innerText = item.商品小項名稱;
@@ -278,11 +350,24 @@
   }
   
   function addToCart() {
-    cart.push(currentItem);
-    cartButton.innerText = `購物車 (${cart.length})`;
-    alert(`已加入購物車：${currentItem.商品小項名稱}`);
-    closeModal();
+  const existIndex = cart.findIndex(p => p.商品小項名稱 === currentItem.商品小項名稱);
+
+  if (existIndex !== -1) {
+    cart[existIndex].數量 += 1;
+  } else {
+    cart.push({ 
+      ...currentItem, 
+      數量: 1,
+      variants: [...currentVariants]  // 🔥 把當時的選項列表也存進去
+    });
   }
+
+  cartButton.innerText = `購物車 (${cart.reduce((sum, item) => sum + item.數量, 0)})`;
+  showAlertModal(`已加入購物車：${currentItem.商品小項名稱}`, true);
+  closeModal();
+}
+
+
   
   function goToIntro() {
     document.getElementById('current-category').innerText = '介紹';
@@ -297,8 +382,47 @@
   }
   
   function toggleCartList() {
-    alert(`目前購物車有 ${cart.length} 項商品`);
+  if (cart.length === 0) {
+    showAlertModal("購物車是空的喔！", true);
+    return;
   }
+
+  const container = document.querySelector('.container');
+  const categoryBarWrapper = document.querySelector('.category-bar-wrapper');
+  const introBtn = document.getElementById('introBtn');
+  const cartPage = document.getElementById('cartPage');
+  const fixedBottomBar = document.querySelector('.fixed-bottom-bar');
+
+  // 🔥 首頁淡出
+  container.classList.add('fade-out');
+  categoryBarWrapper.classList.add('fade-out');
+
+  setTimeout(() => {
+    // 淡出完後隱藏首頁元素
+    container.style.display = 'none';
+    categoryBarWrapper.style.display = 'none';
+    introBtn.style.display = 'none';
+    fixedBottomBar.style.display = 'none';
+
+    // 移除fade-out class
+    container.classList.remove('fade-out');
+    categoryBarWrapper.classList.remove('fade-out');
+
+    // 顯示購物車頁
+    cartPage.style.display = 'block';
+    cartPage.classList.add('fade-in');
+
+    // 1秒後清掉fade-in class
+    setTimeout(() => {
+      cartPage.classList.remove('fade-in');
+    }, 1000);
+
+    // 渲染購物車內容
+    renderCartItems();
+  }, 500); // 首頁淡出動畫時間
+}
+
+
   const categoryModal = document.getElementById('categoryModal');
 const categoryModalGrid = document.getElementById('categoryModalGrid');
 
@@ -313,18 +437,21 @@ function closeCategoryModal() {
 
 function loadCategoryModal() {
   categoryModalGrid.innerHTML = '';
-  data.商品大項.forEach(cat => {
-    const div = document.createElement('div');
-    div.className = 'category-card';
-    div.innerHTML = `
-      <img src="./img/decks.png" alt="${cat.商品大項名稱}">
-      <div>${cat.商品大項名稱}</div>
-    `;
-    div.onclick = () => {
-      closeCategoryModal();
-      renderCategory(cat);
-    };
-    categoryModalGrid.appendChild(div);
+
+  data.商品大項.forEach(major => {
+    major.中項列表.forEach(mid => {
+      const div = document.createElement('div');
+      div.className = 'category-card';
+      div.innerHTML = `
+        <img src="${mid.中項圖片}" alt="${mid.中項名稱}">
+        <div>${mid.中項名稱}</div>
+      `;
+      div.onclick = () => {
+        closeCategoryModal();
+        renderCategory(major, mid);
+      };
+      categoryModalGrid.appendChild(div);
+    });
   });
 }
 
@@ -338,7 +465,7 @@ function showAlertModal(message, autoClose = false) {
   if (autoClose) {
     setTimeout(() => {
       closeAlertModal();
-    }, 2000); // 2秒後自動關閉
+    }, 500); // 2秒後自動關閉
   }
 }
 
@@ -355,68 +482,138 @@ function closeCheckoutModal() {
   document.getElementById('checkoutModal').classList.remove('show');
 }
 
-// ✅ 修改原本加入購物車的函數
-function addToCart() {
-  cart.push(currentItem);
-  cartButton.innerText = `購物車 (${cart.length})`;
-  showAlertModal(`已加入購物車：${currentItem.商品小項名稱}`, true); // 2秒後自動關
-  closeModal();
-}
-
 function toggleCartList() {
   if (cart.length === 0) {
     showAlertModal("購物車是空的喔！", true);
-    return;
+    return; // 🔥 沒商品直接結束，不做下面的事
   }
+
+  // 🔥 只有購物車有商品時才開始切換畫面
+  document.querySelector('.fixed-bottom-bar').style.display = 'none';
+  document.querySelector('.mainheader').style.display = 'none';
   document.querySelector('.container').style.display = 'none'; 
   document.querySelector('.category-bar-wrapper').style.display = 'none';
   document.getElementById('cartPage').style.display = 'block';
-  document.getElementById('introBtn').style.display = 'none'; // ← 新增這行
-  
+  document.getElementById('introBtn').style.display = 'none'; 
+
   renderCartItems();
 }
+
 function renderCartItems() {
   const cartItems = document.getElementById('cartItems');
   cartItems.innerHTML = '';
 
   if (cart.length === 0) {
+    cartButton.innerText = `購物車 (0)`;
     showAlertModal("購物車清空，返回首頁。", true);
     setTimeout(() => {
       backToHome();
-    }, 2000); // 2秒後回首頁
+    }, 500);
     return;
   }
 
-  cart.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.style.display = 'flex';
-    div.style.justifyContent = 'space-between';
-    div.style.alignItems = 'center';
-    div.style.padding = '1em 0';
-    div.style.borderBottom = '1px solid #ddd';
-    div.innerHTML = `
-      <div>
-        <strong>${item.商品小項名稱}</strong><br>
-        <small>$${item.商品小項價格}</small>
-      </div>
-      <button onclick="removeCartItem(${idx})" style="padding: 0.3em 0.6em; border-radius: 5px; background: red; color: white; border: none;">移除</button>
-    `;
-    cartItems.appendChild(div);
+  const grouped = {};
+  cart.forEach(item => {
+    if (!grouped[item.商品分類名稱]) {
+      grouped[item.商品分類名稱] = [];
+    }
+    grouped[item.商品分類名稱].push(item);
   });
+
+  for (const majorName in grouped) {
+    const majorDiv = document.createElement('div');
+    majorDiv.style.marginBottom = '1.5em';
+
+    const majorHeader = document.createElement('div');
+    majorHeader.textContent = majorName;
+    majorHeader.style.fontWeight = 'bold';
+    majorHeader.style.fontSize = '1.2em';
+    majorHeader.style.margin = '1em 0 0.5em 0';
+    majorDiv.appendChild(majorHeader);
+
+    grouped[majorName].forEach((item, idx) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.style.display = 'flex';
+      itemDiv.style.alignItems = 'center';
+      itemDiv.style.padding = '1em 0';
+      itemDiv.style.borderBottom = '1px solid #eee';
+
+      itemDiv.innerHTML = `
+  <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 1em;">
+  <div style="flex: 1;">
+    <div style="font-weight: bold;">${item.商品小項名稱}</div>
+<select onchange="changeCartVariant(this, ${cart.indexOf(item)})" 
+  style="min-width: 160px; font-size: 0.9em; padding: 0.4em; border-radius: 5px;">
+  ${item.variants.map((variant, vIdx) => `
+    <option value="${vIdx}" ${variant.商品小項名稱 === item.商品小項名稱 ? 'selected' : ''}>${variant.商品小項名稱}</option>
+  `).join('')}
+</select>
+    <div style="color: #e67e22; font-weight: bold;">$${item.商品小項價格}</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+    <div style="display: flex; align-items: center;">
+      <button onclick="decreaseItem(${cart.indexOf(item)})" style="width:30px;height:30px;background:#eee;border:none;border-radius:5px;">–</button>
+      <div style="width:30px;text-align:center;">${item.數量}</div>
+      <button onclick="increaseItem(${cart.indexOf(item)})" style="width:30px;height:30px;background:#eee;border:none;border-radius:5px;">＋</button>
+    </div>
+  </div>
+`;
+
+      majorDiv.appendChild(itemDiv);
+    });
+
+    cartItems.appendChild(majorDiv);
+  }
 
   updateCartSummary();
 }
 
+function changeCartVariant(selectElement, itemIndex) {
+  const selectedIdx = parseInt(selectElement.value, 10);
+  const selectedItem = cart[itemIndex];
+  const newVariant = selectedItem.variants[selectedIdx];
+
+  if (newVariant) {
+    selectedItem.商品小項名稱 = newVariant.商品小項名稱;
+    selectedItem.商品小項價格 = newVariant.商品小項價格;
+    selectedItem.商品小項圖片 = newVariant.商品小項圖片;
+    selectedItem.商品小項規格 = newVariant.商品小項規格 || '單一規格';
+  }
+
+  renderCartItems(); // 更新畫面
+}
+
+function toggleGroup(button) {
+  const midGroup = button.parentElement.nextElementSibling;
+  if (midGroup.style.display === 'none') {
+    midGroup.style.display = 'block';
+    button.textContent = '收合';
+  } else {
+    midGroup.style.display = 'none';
+    button.textContent = '展開';
+  }
+}
+
+function increaseItem(index) {
+  cart[index].數量 += 1;
+  renderCartItems();
+}
+
+function decreaseItem(index) {
+  cart[index].數量 -= 1;
+  if (cart[index].數量 <= 0) {
+    cart.splice(index, 1); // 數量小於1就刪掉
+  }
+  renderCartItems();
+}
+
 function updateCartSummary() {
-  const total = cart.reduce((sum, item) => sum + item.商品小項價格, 0);
+  const total = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
   const discount = total * currentDiscount;
   const finalTotal = total - discount;
 
-  document.getElementById('totalAmount').innerText = total.toFixed(0);
-  document.getElementById('discountAmount').innerText = discount.toFixed(0);
   document.getElementById('finalAmount').innerText = finalTotal.toFixed(0);
-
-  cartButton.innerText = `購物車 (${cart.length})`;
+  cartButton.innerText = `購物車 (${cart.reduce((sum, item) => sum + item.數量, 0)})`;
 }
 
 function applyDiscount() {
@@ -439,12 +636,39 @@ function removeCartItem(index) {
   renderCartItems();
 }
 function backToHome() {
-  document.getElementById('cartPage').style.display = 'none';
-  document.querySelector('.container').style.display = 'block';
-  document.querySelector('.category-bar-wrapper').style.display = 'flex';
-  document.getElementById('introBtn').style.display = 'inline-block'; // 恢復橘色按鈕
-  loadCategories(); // 重載分類
-  goToIntro(); // 回首頁商品
+  const cartPage = document.getElementById('cartPage');
+  const container = document.querySelector('.container');
+  const categoryBarWrapper = document.querySelector('.category-bar-wrapper');
+  const introBtn = document.getElementById('introBtn');
+  const fixedBottomBar = document.querySelector('.fixed-bottom-bar');
+
+  // 🔥 先讓購物車頁 fadeOut
+  cartPage.classList.add('fade-out');
+
+  // 🔥 動畫跑完後 0.5秒，做切換
+  setTimeout(() => {
+    cartPage.style.display = 'none';
+    cartPage.classList.remove('fade-out');
+
+    container.style.display = 'block';
+    categoryBarWrapper.style.display = 'flex';
+    introBtn.style.display = 'inline-block';
+    fixedBottomBar.style.display = 'flex';
+
+    // 🔥 首頁加上 fadeIn
+    container.classList.add('fade-in');
+    categoryBarWrapper.classList.add('fade-in');
+
+    // 🔥 1秒後清除 class（不然重複進來會沒效果）
+    setTimeout(() => {
+      container.classList.remove('fade-in');
+      categoryBarWrapper.classList.remove('fade-in');
+    }, 1000);
+
+    // 回首頁重新載入商品分類
+    loadCategories();
+    goToIntro();
+  }, 500);
 }
 
 function submitOrder() {
@@ -453,17 +677,14 @@ function submitOrder() {
     return;
   }
 
-  showCheckoutModal(); // ✅ 呼叫原本的訂單完成Modal
-
-  // 可選：這邊可以加上 "清空購物車"
+  showCheckoutModal();
   cart = [];
   cartButton.innerText = `購物車 (0)`;
 
-  // 回到首頁
   setTimeout(() => {
     closeCheckoutModal();
     backToHome();
-  }, 3000); // 3秒後自動回首頁
+  }, 500);
 }
   </script>
   
