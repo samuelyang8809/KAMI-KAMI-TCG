@@ -133,6 +133,45 @@
     <button onclick="addToCart()">加入購物車</button>
   </div>
 </div>
+<!-- ✅ 通用提示用 Modal -->
+<div class="modal" id="alertModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAlertModal()">✕</span>
+    <h3 id="alertModalMessage"></h3>
+  </div>
+</div>
+
+<!-- ✅ 結帳成功 Modal -->
+<div class="modal" id="checkoutModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeCheckoutModal()">✕</span>
+    <h3>訂購完成！</h3>
+    <p>請查看您的 LINE 確認訂單資訊。</p>
+    <button onclick="closeCheckoutModal()">關閉</button>
+  </div>
+</div>
+
+<div id="cartPage" style="display: none; padding: 2em;">
+  <h2>購物車明細</h2>
+  <div id="cartItems"></div>
+
+  <div style="margin-top: 2em;">
+    <input type="text" id="discountCodeInput" placeholder="輸入折扣碼" style="width: 60%; padding: 0.5em; border-radius: 5px; border: 1px solid #ccc;">
+    <button onclick="applyDiscount()" style="padding: 0.5em 1em; margin-left: 1em; border-radius: 5px; background: #27ae60; color: white; border: none;">套用折扣</button>
+    <button onclick="backToHome()" style="margin-top: 2em; padding: 0.5em 1em; background: gray; color: white; border: none; border-radius: 5px;">回到首頁</button>
+
+  </div>
+
+  <div style="margin-top: 2em; font-size: 1.2em;">
+    <p>商品總金額：$<span id="totalAmount">0</span></p>
+    <p>折扣金額：$<span id="discountAmount">0</span></p>
+    <p><strong>折扣後金額：$<span id="finalAmount">0</span></strong></p>
+  </div>
+  <div style="margin-top: 2em; text-align: center;">
+    <button onclick="submitOrder()" style="padding: 0.8em 2em; font-size: 1em; border-radius: 999px; background: orange; color: white; border: none;">送出訂單</button>
+  </div>
+</div>
+
 <div class="fixed-bottom-bar">
   <button onclick="goToIntro()" id="introBtn" style="display:none; background: orange;">其他周邊・卡磚</button>
   <button id="cartButton" onclick="toggleCartList()">購物車 (0)</button>
@@ -198,9 +237,8 @@
       div.innerHTML = `
         <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border: 4px solid black; border-radius: 10px;">
         <h4>${item.商品小項名稱}</h4>
-        <div style="color: gray; font-size: 0.9em;">選擇款式</div>
+        <div onclick='openVariantModal(${JSON.stringify(category)}, ${JSON.stringify(item)})' style="color: gray; font-size: 0.9em;">選擇款式</div>
         <div class="price">$${item.商品小項價格}–680</div>
-        <button onclick='openVariantModal(${JSON.stringify(category)}, ${JSON.stringify(item)})'>選擇款式</button>
       `;
       productGrid.appendChild(div);
     });
@@ -292,6 +330,141 @@ function loadCategoryModal() {
 
   loadCategories();
   goToIntro();
+
+  // ✅ 通用 alert Modal 顯示
+function showAlertModal(message, autoClose = false) {
+  document.getElementById('alertModalMessage').innerText = message;
+  document.getElementById('alertModal').classList.add('show');
+  if (autoClose) {
+    setTimeout(() => {
+      closeAlertModal();
+    }, 2000); // 2秒後自動關閉
+  }
+}
+
+function closeAlertModal() {
+  document.getElementById('alertModal').classList.remove('show');
+}
+
+// ✅ 結帳成功 Modal
+function showCheckoutModal() {
+  document.getElementById('checkoutModal').classList.add('show');
+}
+
+function closeCheckoutModal() {
+  document.getElementById('checkoutModal').classList.remove('show');
+}
+
+// ✅ 修改原本加入購物車的函數
+function addToCart() {
+  cart.push(currentItem);
+  cartButton.innerText = `購物車 (${cart.length})`;
+  showAlertModal(`已加入購物車：${currentItem.商品小項名稱}`, true); // 2秒後自動關
+  closeModal();
+}
+
+function toggleCartList() {
+  if (cart.length === 0) {
+    showAlertModal("購物車是空的喔！", true);
+    return;
+  }
+  document.querySelector('.container').style.display = 'none'; 
+  document.querySelector('.category-bar-wrapper').style.display = 'none';
+  document.getElementById('cartPage').style.display = 'block';
+  document.getElementById('introBtn').style.display = 'none'; // ← 新增這行
+  
+  renderCartItems();
+}
+function renderCartItems() {
+  const cartItems = document.getElementById('cartItems');
+  cartItems.innerHTML = '';
+
+  if (cart.length === 0) {
+    showAlertModal("購物車清空，返回首頁。", true);
+    setTimeout(() => {
+      backToHome();
+    }, 2000); // 2秒後回首頁
+    return;
+  }
+
+  cart.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.justifyContent = 'space-between';
+    div.style.alignItems = 'center';
+    div.style.padding = '1em 0';
+    div.style.borderBottom = '1px solid #ddd';
+    div.innerHTML = `
+      <div>
+        <strong>${item.商品小項名稱}</strong><br>
+        <small>$${item.商品小項價格}</small>
+      </div>
+      <button onclick="removeCartItem(${idx})" style="padding: 0.3em 0.6em; border-radius: 5px; background: red; color: white; border: none;">移除</button>
+    `;
+    cartItems.appendChild(div);
+  });
+
+  updateCartSummary();
+}
+
+function updateCartSummary() {
+  const total = cart.reduce((sum, item) => sum + item.商品小項價格, 0);
+  const discount = total * currentDiscount;
+  const finalTotal = total - discount;
+
+  document.getElementById('totalAmount').innerText = total.toFixed(0);
+  document.getElementById('discountAmount').innerText = discount.toFixed(0);
+  document.getElementById('finalAmount').innerText = finalTotal.toFixed(0);
+
+  cartButton.innerText = `購物車 (${cart.length})`;
+}
+
+function applyDiscount() {
+  const code = document.getElementById('discountCodeInput').value.trim();
+  if (code === "PIKA10") {
+    currentDiscount = 0.1;
+    showAlertModal("成功套用 PIKA10 折扣碼！", true);
+  } else if (code === "DRAGON20") {
+    currentDiscount = 0.2;
+    showAlertModal("成功套用 DRAGON20 折扣碼！", true);
+  } else {
+    currentDiscount = 0;
+    showAlertModal("無效的折扣碼，請重新輸入。", true);
+  }
+  updateCartSummary();
+}
+
+function removeCartItem(index) {
+  cart.splice(index, 1);
+  renderCartItems();
+}
+function backToHome() {
+  document.getElementById('cartPage').style.display = 'none';
+  document.querySelector('.container').style.display = 'block';
+  document.querySelector('.category-bar-wrapper').style.display = 'flex';
+  document.getElementById('introBtn').style.display = 'inline-block'; // 恢復橘色按鈕
+  loadCategories(); // 重載分類
+  goToIntro(); // 回首頁商品
+}
+
+function submitOrder() {
+  if (cart.length === 0) {
+    showAlertModal("購物車是空的，無法送出訂單。", true);
+    return;
+  }
+
+  showCheckoutModal(); // ✅ 呼叫原本的訂單完成Modal
+
+  // 可選：這邊可以加上 "清空購物車"
+  cart = [];
+  cartButton.innerText = `購物車 (0)`;
+
+  // 回到首頁
+  setTimeout(() => {
+    closeCheckoutModal();
+    backToHome();
+  }, 3000); // 3秒後自動回首頁
+}
   </script>
   
 </body>
