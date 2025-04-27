@@ -1,0 +1,173 @@
+<html lang="zh-Hant"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>寶可夢卡磚專賣店</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background-color: #f6f6f6; color: #333; }
+    header { background-color: #2c3e50; color: white; padding: 1em 2em; text-align: center; position: relative; }
+    .cart-button { position: absolute; right: 2em; top: 1.2em; background-color: #e67e22; color: white; border: none; padding: 0.5em 1em; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .category-bar-wrapper { display: flex; align-items: center; background: #fff; padding: 0.5em; border-bottom: 1px solid #ddd; }
+    .category-bar { display: flex; overflow-x: auto; white-space: nowrap; gap: 10px; flex: 1; }
+    .category-bar span { padding: 0.5em 1em; border-radius: 999px; border: 1px solid #ccc; background: white; cursor: pointer; font-weight: bold; }
+    .category-bar span.active { background-color: orange; color: white; }
+    .toggle-expand { font-size: 1.5em; background: none; border: none; cursor: pointer; margin-left: 10px; }
+    .category-expand {
+  display: none;
+  background: white;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  flex-direction: column;
+  z-index: 9999;
+}
+    .category-expand.show { display: flex; flex-direction: column; }
+    .category-expand .header { display: flex; justify-content: space-between; align-items: center; padding: 1em; border-bottom: 1px solid #ccc; }
+    .category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5em;
+  padding: 1em;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+    .category-grid-item { text-align: center; cursor: pointer; }
+    .category-grid-item img { width: 100%; border-radius: 8px; }
+    .container { max-width: 1200px; margin: auto; padding: 2em 1em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1em; }
+    .card { background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+    .card img { width: 100%; height: auto; }
+    .card-title { font-weight: bold; margin-top: 0.5em; }
+    .price { color: #e67e22; font-weight: bold; margin: 0.3em 0; }
+    .variant { font-size: 0.85em; color: #777; }
+    footer { text-align: center; padding: 2em; background-color: #34495e; color: white; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>寶可夢卡磚專賣店</h1>
+    <button class="cart-button">🛒 購物車</button>
+  </header>
+
+  <div class="category-bar-wrapper">
+    <div class="category-bar" id="categoryBar"><span class="active">太晶慶典-伊布</span><span>皮卡丘系列</span><span>噴火龍系列</span><span>奇樹系列</span><span>莉莉艾系列</span><span>151系列</span><span>熱門V&amp;Vmax系列</span><span>SV9對戰夥伴</span><span>SV8超電/太晶</span><span>SV7龍騰/星晶</span><span>SV6變幻假面</span><span>SV5緋紅/異度狂野</span><span>SV4a 閃色寶藏</span><span>SV3 黯炎/激狂</span><span>SV2 碟旋/冰雪</span><span>SV1 朱紫/音爆</span><span>Vstar天地萬物</span><span>伊布英雄系列</span></div>
+    <button class="toggle-expand" onclick="toggleExpand()">▾</button>
+  </div>
+  <div class="category-expand" id="categoryExpand">
+    <div class="header">
+      <strong>選擇分類</strong>
+      <button onclick="toggleExpand()">✕</button>
+    </div>
+    <div class="category-grid" id="categoryGrid"><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%A4%AA%E6%99%B6%E6%85%B6%E5%85%B8-%E4%BC%8A%E5%B8%83"><div>太晶慶典-伊布</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E7%9A%AE%E5%8D%A1%E4%B8%98%E7%B3%BB%E5%88%97"><div>皮卡丘系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%99%B4%E7%81%AB%E9%BE%8D%E7%B3%BB%E5%88%97"><div>噴火龍系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%A5%87%E6%A8%B9%E7%B3%BB%E5%88%97"><div>奇樹系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E8%8E%89%E8%8E%89%E8%89%BE%E7%B3%BB%E5%88%97"><div>莉莉艾系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=151%E7%B3%BB%E5%88%97"><div>151系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E7%86%B1%E9%96%80V%26Vmax%E7%B3%BB%E5%88%97"><div>熱門V&amp;Vmax系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV9%E5%B0%8D%E6%88%B0%E5%A4%A5%E4%BC%B4"><div>SV9對戰夥伴</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV8%E8%B6%85%E9%9B%BB%2F%E5%A4%AA%E6%99%B6"><div>SV8超電/太晶</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV7%E9%BE%8D%E9%A8%B0%2F%E6%98%9F%E6%99%B6"><div>SV7龍騰/星晶</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV6%E8%AE%8A%E5%B9%BB%E5%81%87%E9%9D%A2"><div>SV6變幻假面</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV5%E7%B7%8B%E7%B4%85%2F%E7%95%B0%E5%BA%A6%E7%8B%82%E9%87%8E"><div>SV5緋紅/異度狂野</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV4a%20%E9%96%83%E8%89%B2%E5%AF%B6%E8%97%8F"><div>SV4a 閃色寶藏</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV3%20%E9%BB%AF%E7%82%8E%2F%E6%BF%80%E7%8B%82"><div>SV3 黯炎/激狂</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV2%20%E7%A2%9F%E6%97%8B%2F%E5%86%B0%E9%9B%AA"><div>SV2 碟旋/冰雪</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV1%20%E6%9C%B1%E7%B4%AB%2F%E9%9F%B3%E7%88%86"><div>SV1 朱紫/音爆</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=Vstar%E5%A4%A9%E5%9C%B0%E8%90%AC%E7%89%A9"><div>Vstar天地萬物</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E4%BC%8A%E5%B8%83%E8%8B%B1%E9%9B%84%E7%B3%BB%E5%88%97"><div>伊布英雄系列</div></div></div>
+  </div>
+
+  <div class="container">
+    <h2 id="current-category">太晶慶典-伊布</h2>
+    <div class="grid" id="productGrid"><div class="card">
+          <img src="https://placehold.co/300x400?text=%E5%A4%AA%E6%99%B6%E6%85%B6%E5%85%B8-%E4%BC%8A%E5%B8%83+1" alt="太晶慶典-伊布 Demo商品1">
+          <div class="card-title">太晶慶典-伊布 Demo商品1</div>
+          <div class="variant">選擇款式</div>
+          <div class="price">$500-600</div></div><div class="card">
+          <img src="https://placehold.co/300x400?text=%E5%A4%AA%E6%99%B6%E6%85%B6%E5%85%B8-%E4%BC%8A%E5%B8%83+2" alt="太晶慶典-伊布 Demo商品2">
+          <div class="card-title">太晶慶典-伊布 Demo商品2</div>
+          <div class="variant">選擇款式</div>
+          <div class="price">$520-620</div></div><div class="card">
+          <img src="https://placehold.co/300x400?text=%E5%A4%AA%E6%99%B6%E6%85%B6%E5%85%B8-%E4%BC%8A%E5%B8%83+3" alt="太晶慶典-伊布 Demo商品3">
+          <div class="card-title">太晶慶典-伊布 Demo商品3</div>
+          <div class="variant">選擇款式</div>
+          <div class="price">$540-640</div></div><div class="card">
+          <img src="https://placehold.co/300x400?text=%E5%A4%AA%E6%99%B6%E6%85%B6%E5%85%B8-%E4%BC%8A%E5%B8%83+4" alt="太晶慶典-伊布 Demo商品4">
+          <div class="card-title">太晶慶典-伊布 Demo商品4</div>
+          <div class="variant">選擇款式</div>
+          <div class="price">$560-660</div></div><div class="card">
+          <img src="https://placehold.co/300x400?text=%E5%A4%AA%E6%99%B6%E6%85%B6%E5%85%B8-%E4%BC%8A%E5%B8%83+5" alt="太晶慶典-伊布 Demo商品5">
+          <div class="card-title">太晶慶典-伊布 Demo商品5</div>
+          <div class="variant">選擇款式</div>
+          <div class="price">$580-680</div></div></div>
+  </div>
+
+  <footer>
+    聯絡我們：LINE ID / IG / Email | 版權所有 © 2025 寶可夢卡磚專賣店
+  </footer>
+
+  <script>
+    const categoryList = [
+      "太晶慶典-伊布", "皮卡丘系列", "噴火龍系列", "奇樹系列", "莉莉艾系列",
+      "151系列", "熱門V&Vmax系列", "SV9對戰夥伴", "SV8超電/太晶", "SV7龍騰/星晶",
+      "SV6變幻假面", "SV5緋紅/異度狂野", "SV4a 閃色寶藏", "SV3 黯炎/激狂",
+      "SV2 碟旋/冰雪", "SV1 朱紫/音爆", "Vstar天地萬物", "伊布英雄系列"
+    ];
+
+    const productList = categoryList.flatMap(cat => Array.from({ length: 5 }, (_, i) => ({
+      cat,
+      name: `${cat} Demo商品${i + 1}`,
+      price: `${500 + i * 20}-${600 + i * 20}`,
+      image: `https://placehold.co/300x400?text=${encodeURIComponent(cat)}+${i + 1}`
+    })));
+
+    function renderCategories() {
+      const bar = document.getElementById('categoryBar');
+      const grid = document.getElementById('categoryGrid');
+      bar.innerHTML = '';
+      grid.innerHTML = '';
+      categoryList.forEach(cat => {
+        const span = document.createElement('span');
+        span.textContent = cat;
+        span.onclick = () => selectCategory(cat);
+        bar.appendChild(span);
+
+        const gridItem = document.createElement('div');
+        gridItem.className = 'category-grid-item';
+        gridItem.innerHTML = `<img src="https://placehold.co/300x200?text=${encodeURIComponent(cat)}"><div>${cat}</div>`;
+        gridItem.onclick = () => {
+          selectCategory(cat);
+          toggleExpand();
+        };
+        grid.appendChild(gridItem);
+      });
+    }
+
+    function renderProducts(category) {
+      const grid = document.getElementById('productGrid');
+      const title = document.getElementById('current-category');
+      title.textContent = category;
+      grid.innerHTML = '';
+      productList.filter(p => p.cat === category).forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${p.image}" alt="${p.name}">
+          <div class="card-title">${p.name}</div>
+          <div class="variant">選擇款式</div>
+          <div class="price">$${p.price}</div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    function selectCategory(cat) {
+      document.querySelectorAll('.category-bar span').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.category-bar span').forEach(s => {
+        if (s.textContent === cat) s.classList.add('active');
+      });
+      renderProducts(cat);
+    }
+
+    function toggleExpand() {
+      document.getElementById('categoryExpand').classList.toggle('show');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCategories();
+      selectCategory('太晶慶典-伊布');
+    });
+  </script>
+
+
+</body></html>

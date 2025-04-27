@@ -160,12 +160,12 @@
         "SV2 碟旋/冰雪", "SV1 朱紫/音爆", "Vstar天地萬物", "伊布英雄系列"
       ].map(cat => ({
         "商品大項名稱": cat,
-        "商品大項圖片": `https://placehold.co/600x400?text=${encodeURIComponent(cat)}`,
+        "商品大項圖片": `./img/demo1.png`,
         "小項價格範圍": "$100–$300",
         "商品小項": [
-          { "商品小項名稱": `${cat} Demo商品1`, "商品小項價格": 100, "商品小項圖片": `https://placehold.co/300x400?text=${encodeURIComponent(cat)}+Demo1` },
-          { "商品小項名稱": `${cat} Demo商品2`, "商品小項價格": 150, "商品小項圖片": `https://placehold.co/300x400?text=${encodeURIComponent(cat)}+Demo2` },
-          { "商品小項名稱": `${cat} Demo商品3`, "商品小項價格": 200, "商品小項圖片": `https://placehold.co/300x400?text=${encodeURIComponent(cat)}+Demo3` }
+          { "商品小項名稱": `${cat} Demo商品1`, "商品小項價格": 100, "商品小項圖片": `./img/demo1.png` },
+          { "商品小項名稱": `${cat} Demo商品2`, "商品小項價格": 150, "商品小項圖片": `./img/demo2.png` },
+          { "商品小項名稱": `${cat} Demo商品3`, "商品小項價格": 200, "商品小項圖片": `./img/demo3.png` }
         ]
       }))
     ]
@@ -279,7 +279,7 @@ function loadCategoryModal() {
     const div = document.createElement('div');
     div.className = 'category-card';
     div.innerHTML = `
-      <img src="${cat.商品大項圖片}" alt="${cat.商品大項名稱}">
+      <img src="./img/decks.png" alt="${cat.商品大項名稱}">
       <div>${cat.商品大項名稱}</div>
     `;
     div.onclick = () => {
