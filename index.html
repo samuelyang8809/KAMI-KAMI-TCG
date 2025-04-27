@@ -249,9 +249,9 @@
   function goToIntro() {
     document.getElementById('current-category').innerText = '介紹';
     productGrid.innerHTML = `
-      <div class='card'><img src='https://placehold.co/300x400?text=擴散式卡磚'><h4>擴散式卡磚</h4></div>
-      <div class='card'><img src='https://placehold.co/300x400?text=擴散式鑑定卡殼'><h4>擴散式鑑定卡殼</h4></div>
-      <div class='card'><img src='https://placehold.co/300x400?text=卡牌周邊'><h4>卡牌周邊</h4></div>
+      <div class='card'><img src='./img/demo1.png'><h4>擴散式卡磚</h4></div>
+      <div class='card'><img src='./img/demo2.png'><h4>擴散式鑑定卡殼</h4></div>
+      <div class='card'><img src='./img/demo3.png'><h4>卡牌周邊</h4></div>
     `;
     document.querySelectorAll('.category-bar span').forEach(s => s.classList.remove('active'));
     categoryBar.children[0].classList.add('active');
