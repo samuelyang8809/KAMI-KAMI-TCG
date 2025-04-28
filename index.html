@@ -24,11 +24,74 @@
     .fixed-bottom-bar button { flex: 1; margin: 0 0.5em; padding: 0.5em; border-radius: 999px; font-weight: bold; background: gray; color: white; border: none; }
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 10001; }
     .modal.show { display: flex; }
-    .modal-content { background: #fff; padding: 1.5em; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; position: relative; }
+    
+    
+    .modal-content {
+  background: white;
+  border-radius: 16px; /* 圓角大一點 */
+  width: 90%;
+  max-width: 400px;
+  padding: 1.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+
+.quantity-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+.quantity-selector button {
+  width: 36px;
+  height: 36px;
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1.5em;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.quantity-selector div {
+  width: 40px;
+  height: 36px;
+  text-align: center;
+  font-size: 1.2em;
+  line-height: 36px;
+  margin: 0 5px;
+}
+
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 0.8em;
+  background-color: #27ae60;
+  color: white;
+  font-size: 1.1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+
     .modal-content img { width: 100%; border-radius: 8px; margin-bottom: 1em; }
-    .close { position: absolute; top: 10px; right: 15px; font-size: 1.5em; cursor: pointer; }
-    select, .modal-content button { width: 100%; padding: 0.7em; margin-top: 1em; border-radius: 5px; border: none; }
-    .modal-content button { background-color: #27ae60; color: white; font-weight: bold; cursor: pointer; }
+    .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.8em;
+  cursor: pointer;
+  color: #333;
+}    
+    select, .modal-content button { width: 100%; padding: 0.7em; margin-top: -1em; border-radius: 5px; border: none; }
+    
     .toggle-expand { font-size: 1.5em; background: none; border: none; cursor: pointer; margin-left: 10px; }
     .modal-content-large {
   background: #fff;
@@ -42,6 +105,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.modal-bottom-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 1em;
+  width: 100%;
+}
+
+/* 左邊按鈕：回目錄 (灰色) */
+.back-button {
+  flex: 1;
+  background: #cccccc;
+  color: #333;
+  font-weight: bold;
+  padding: 0.8em;
+  border: none;
+  border-radius: 999px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+/* 右邊按鈕：選好了 (橘色) */
+.confirm-button {
+  flex: 1;
+  background: #ff8800;
+  color: white;
+  font-weight: bold;
+  padding: 0.8em;
+  border: none;
+  border-radius: 999px;
+  font-size: 1em;
+  cursor: pointer;
 }
 
 .category-grid-modal {
@@ -109,11 +205,59 @@
     from { opacity: 0; }
     to { opacity: 1; }
   }
+
+  .quantity-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 140px;
+  height: 50px;
+  margin: 1em 0;
+}
+
+.quantity-wrapper button {
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  color: #333;
+  cursor: pointer;
+}
+
+.quantity-wrapper div {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  font-size: 1.4em;
+  color: #333;
+}
+
+.mainheader {
+  background-image: url('./img/S__15949936.jpg'); /* 改成你的正確圖片路徑 */
+  background-size: cover;       /* 圖片填滿，保持比例 */
+  background-position: center;  /* 圖片置中對齊 */
+  background-repeat: no-repeat; /* 不重複 */
+  width: 100%;                  /* 滿版寬度 */
+  height: 180px;                /* 🔥建議高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2em;
+  text-shadow: 0 0 5px rgba(0,0,0,0.5);
+  box-sizing: border-box;        /* 避免padding影響寬度 */
+}
+
   </style>
 </head>
 <body>
 <header class="mainheader">
-  <h1>KAMI KAMI TCG</h1>
+  <h1></h1>
 </header>
 <div class="category-bar-wrapper">
   <div class="category-bar" id="categoryBar"></div>
@@ -139,14 +283,27 @@
   </div>
 </div>
 <div class="modal" id="variantModal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">✕</span>
-    <h3 id="modalTitle"></h3>
-    <img id="modalImage" src="" alt="">
-    <div class="price" id="modalPrice"></div>
-    <select id="variantSelect" onchange="changeVariantInfo()"></select>
-    <button onclick="addToCart()">加入購物車</button>
-  </div>
+  <div class="modal-content" style="text-align: center;">
+    <span class="close" onclick="closeModal()" style="position: absolute; top: 10px; right: 15px; font-size: 1.8em; cursor: pointer;">✕</span>
+    <img id="modalImage" src="" alt="" style="width: 100%; border-radius: 8px; margin-bottom: 1em;">
+    <h3 id="modalTitle" style="margin-bottom: 0.5em;"></h3>
+    <div class="price" id="modalPrice" style="margin-bottom: 1em;"></div>
+  
+    <!-- 款式選擇 -->
+    <select id="variantSelect" onchange="changeVariantInfo()" style="padding: 0.5em; margin-bottom: 1em; width: 100%; border-radius: 5px;"></select>
+  
+    <!-- 數量選擇器 -->
+    <div class="quantity-wrapper">
+      <button onclick="decreaseQuantity()">－</button>
+      <div id="quantityDisplay">1</div>
+      <button onclick="increaseQuantity()">＋</button>
+    </div>
+    
+    <div class="modal-bottom-buttons">
+      <button class="back-button" onclick="closeModal()">回目錄</button>
+      <button class="confirm-button" onclick="addToCart()">加入購物車</button>
+    </div>  </div>
+  
 </div>
 <!-- ✅ 通用提示用 Modal -->
 <div class="modal" id="alertModal">
@@ -317,10 +474,11 @@ function renderCategory(majorCategory, midCategory) {
 
 
 function openVariantModal(majorCategory, midCategory, item) {
-  currentVariants = midCategory.小項列表;  // 要從「中項」撈小項列表
+  currentVariants = midCategory.小項列表;
   currentItem = item;
   modal.classList.add('show');
   updateModal(item);
+
   variantSelect.innerHTML = '';
   currentVariants.forEach((variant, idx) => {
     const opt = document.createElement('option');
@@ -329,7 +487,12 @@ function openVariantModal(majorCategory, midCategory, item) {
     if (variant.商品小項名稱 === item.商品小項名稱) opt.selected = true;
     variantSelect.appendChild(opt);
   });
+
+  // 👉 每次打開初始化數量為1
+  currentQuantity = 1;
+  document.getElementById('quantityDisplay').innerText = currentQuantity;
 }
+
 
   
   function updateModal(item) {
@@ -353,23 +516,24 @@ function openVariantModal(majorCategory, midCategory, item) {
   const existIndex = cart.findIndex(p => p.商品小項名稱 === currentItem.商品小項名稱);
 
   if (existIndex !== -1) {
-    cart[existIndex].數量 += 1;
+    cart[existIndex].數量 += currentQuantity;
   } else {
     cart.push({ 
       ...currentItem, 
-      數量: 1,
-      variants: [...currentVariants]  // 🔥 把當時的選項列表也存進去
+      數量: currentQuantity,
+      variants: [...currentVariants]
     });
   }
 
   cartButton.innerText = `購物車 (${cart.reduce((sum, item) => sum + item.數量, 0)})`;
-  showAlertModal(`已加入購物車：${currentItem.商品小項名稱}`, true);
+  showAlertModal(`已加入購物車：${currentItem.商品小項名稱} x ${currentQuantity}`, true);
   closeModal();
 }
 
-
   
   function goToIntro() {
+    document.querySelector('.mainheader').style.display = 'block';
+
     document.getElementById('current-category').innerText = '介紹';
     productGrid.innerHTML = `
       <div class='card'><img src='./img/demo1.png'><h4>擴散式卡磚</h4></div>
@@ -399,11 +563,13 @@ function openVariantModal(majorCategory, midCategory, item) {
 
   setTimeout(() => {
     // 淡出完後隱藏首頁元素
+    document.querySelector('.mainheader').style.display = 'none';
     container.style.display = 'none';
     categoryBarWrapper.style.display = 'none';
     introBtn.style.display = 'none';
     fixedBottomBar.style.display = 'none';
 
+    
     // 移除fade-out class
     container.classList.remove('fade-out');
     categoryBarWrapper.classList.remove('fade-out');
@@ -482,22 +648,7 @@ function closeCheckoutModal() {
   document.getElementById('checkoutModal').classList.remove('show');
 }
 
-function toggleCartList() {
-  if (cart.length === 0) {
-    showAlertModal("購物車是空的喔！", true);
-    return; // 🔥 沒商品直接結束，不做下面的事
-  }
 
-  // 🔥 只有購物車有商品時才開始切換畫面
-  document.querySelector('.fixed-bottom-bar').style.display = 'none';
-  document.querySelector('.mainheader').style.display = 'none';
-  document.querySelector('.container').style.display = 'none'; 
-  document.querySelector('.category-bar-wrapper').style.display = 'none';
-  document.getElementById('cartPage').style.display = 'block';
-  document.getElementById('introBtn').style.display = 'none'; 
-
-  renderCartItems();
-}
 
 function renderCartItems() {
   const cartItems = document.getElementById('cartItems');
@@ -649,12 +800,12 @@ function backToHome() {
   setTimeout(() => {
     cartPage.style.display = 'none';
     cartPage.classList.remove('fade-out');
-
+    document.querySelector('.mainheader').style.display = 'none';
     container.style.display = 'block';
     categoryBarWrapper.style.display = 'flex';
     introBtn.style.display = 'inline-block';
     fixedBottomBar.style.display = 'flex';
-
+    
     // 🔥 首頁加上 fadeIn
     container.classList.add('fade-in');
     categoryBarWrapper.classList.add('fade-in');
@@ -686,6 +837,21 @@ function submitOrder() {
     backToHome();
   }, 500);
 }
+
+let currentQuantity = 1; // 新增數量變數
+
+function increaseQuantity() {
+  currentQuantity += 1;
+  document.getElementById('quantityDisplay').innerText = currentQuantity;
+}
+
+function decreaseQuantity() {
+  if (currentQuantity > 1) {
+    currentQuantity -= 1;
+    document.getElementById('quantityDisplay').innerText = currentQuantity;
+  }
+}
+
   </script>
   
 </body>
