@@ -843,6 +843,14 @@ function backToHome() {
   }, 500);
 }
 
+let userProfile = { displayName: "(匿名)", userId: "" };
+
+try {
+  userProfile = await liff.getProfile();
+} catch (e) {
+  console.error("取得用戶資料失敗", e);
+}
+
 async function submitOrder() {
   if (cart.length === 0) {
     showAlertModal("購物車是空的，無法送出訂單。", true);
@@ -874,7 +882,7 @@ async function submitOrder() {
           },
           {
             type: "text",
-            text: "訂購時間：2025-04-29 13:23:36\n訂購名字：(line名稱)",
+            text: "訂購時間：2025-04-29 13:23:36\n訂購名字：" + userProfile.displayName,
             size: "sm",
             color: "#555555",
             wrap: true
