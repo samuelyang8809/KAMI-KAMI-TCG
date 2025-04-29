@@ -843,13 +843,6 @@ function backToHome() {
   }, 500);
 }
 
-let userProfile = { displayName: "(匿名)", userId: "" };
-
-try {
-  userProfile = await liff.getProfile();
-} catch (e) {
-  console.error("取得用戶資料失敗", e);
-}
 
 async function submitOrder() {
   if (cart.length === 0) {
@@ -859,6 +852,15 @@ async function submitOrder() {
 
   const orderSummary = cart.map(item => `${item.商品小項名稱} x${item.數量}`).join("\n");
   const totalAmount = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
+
+
+  let userProfile = { displayName: "(匿名)", userId: "" };
+
+try {
+  userProfile = await liff.getProfile();
+} catch (e) {
+  console.error("取得用戶資料失敗", e);
+}
 
   try {
     await liff.sendMessages([
