@@ -854,11 +854,80 @@ async function submitOrder() {
 
   try {
     await liff.sendMessages([
-      {
-        type: "text",
-        text: `感謝您的訂單！\n訂單內容：\n${orderSummary}\n\n總金額：$${totalAmount}`
+  {
+    type: "flex",
+    altText: "感謝您的訂單！",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          {
+            type: "text",
+            text: "等待賣家提供專屬賣場",
+            weight: "bold",
+            size: "lg",
+            color: "#0000CC",
+            align: "center"
+          },
+          {
+            type: "text",
+            text: "訂購時間：2025-04-29 13:23:36\n訂購名字：(line名稱)",
+            size: "sm",
+            color: "#555555",
+            wrap: true
+          },
+          { type: "text", text: "備註：", size: "sm", color: "#888888" },
+          { type: "text", text: "商品        數量 x 金額", size: "sm", color: "#888888" },
+          { type: "separator" },
+
+          { type: "text", text: "擴散式卡磚-經典磁吸磚-喵喵ar", wrap: true, color: "#009688" },
+          { type: "text", text: "1 x 480 = 480", size: "sm", align: "end", color: "#009688" },
+          { type: "separator" },
+
+          { type: "text", text: "周邊-鑑定卡收納箱", wrap: true, color: "#009688" },
+          { type: "text", text: "1 x 750 = 750", size: "sm", align: "end", color: "#009688" },
+          { type: "separator" },
+
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "折扣 - 群內優惠", flex: 2, color: "#FF5722" },
+              { type: "text", text: "$-98", flex: 1, align: "end", color: "#FF5722" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "運費", flex: 2 },
+              { type: "text", text: "$0", flex: 1, align: "end" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "總計", flex: 2 },
+              { type: "text", text: "$1132", flex: 1, align: "end", weight: "bold", color: "#0000CC" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "付款方式", flex: 2 },
+              { type: "text", text: "賣貨便 - 貨到付款", flex: 1, align: "end", weight: "bold" }
+            ]
+          }
+        ]
       }
-    ]);
+    }
+  }
+]);
   } catch (error) {
     console.error("發送LINE訊息失敗", error);
   }
