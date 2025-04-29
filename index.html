@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
+  <head>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  </head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>寶可夢卡磚專賣店</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <title>KAMI KMAI TCG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&amp;display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background: #f6f6f6; color: #333; }
     header { background: #2c3e50; color: white; padding: 1em; text-align: center; }
@@ -256,11 +258,11 @@
   </style>
 </head>
 <body>
-<header class="mainheader">
+<header class="mainheader" style="display: block;">
   <h1></h1>
 </header>
 <div class="category-bar-wrapper">
-  <div class="category-bar" id="categoryBar"></div>
+  <div class="category-bar" id="categoryBar"><span class="active">介紹</span><span>太晶慶典-伊布</span><span>皮卡丘系列</span><span>噴火龍系列</span><span>奇樹系列</span><span>莉莉艾系列</span><span>151系列</span><span>熱門V&amp;Vmax系列</span><span>SV9對戰夥伴</span><span>SV8超電/太晶</span><span>SV7龍騰/星晶</span><span>SV6變幻假面</span><span>SV5緋紅/異度狂野</span><span>SV4a 閃色寶藏</span><span>SV3 黯炎/激狂</span><span>SV2 碟旋/冰雪</span><span>SV1 朱紫/音爆</span><span>Vstar天地萬物</span><span>伊布英雄系列</span><span>卡牌周邊</span><span>擴散式鑑定卡殼</span></div>
   <button class="toggle-expand" onclick="toggleExpand()">▾</button>
 </div>
 <div class="category-expand" id="categoryExpand">
@@ -270,9 +272,13 @@
   </div>
   <div class="category-grid" id="categoryGrid"><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%A4%AA%E6%99%B6%E6%85%B6%E5%85%B8-%E4%BC%8A%E5%B8%83"><div>太晶慶典-伊布</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E7%9A%AE%E5%8D%A1%E4%B8%98%E7%B3%BB%E5%88%97"><div>皮卡丘系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%99%B4%E7%81%AB%E9%BE%8D%E7%B3%BB%E5%88%97"><div>噴火龍系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%A5%87%E6%A8%B9%E7%B3%BB%E5%88%97"><div>奇樹系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E8%8E%89%E8%8E%89%E8%89%BE%E7%B3%BB%E5%88%97"><div>莉莉艾系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=151%E7%B3%BB%E5%88%97"><div>151系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E7%86%B1%E9%96%80V%26Vmax%E7%B3%BB%E5%88%97"><div>熱門V&amp;Vmax系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV9%E5%B0%8D%E6%88%B0%E5%A4%A5%E4%BC%B4"><div>SV9對戰夥伴</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV8%E8%B6%85%E9%9B%BB%2F%E5%A4%AA%E6%99%B6"><div>SV8超電/太晶</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV7%E9%BE%8D%E9%A8%B0%2F%E6%98%9F%E6%99%B6"><div>SV7龍騰/星晶</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV6%E8%AE%8A%E5%B9%BB%E5%81%87%E9%9D%A2"><div>SV6變幻假面</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV5%E7%B7%8B%E7%B4%85%2F%E7%95%B0%E5%BA%A6%E7%8B%82%E9%87%8E"><div>SV5緋紅/異度狂野</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV4a%20%E9%96%83%E8%89%B2%E5%AF%B6%E8%97%8F"><div>SV4a 閃色寶藏</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV3%20%E9%BB%AF%E7%82%8E%2F%E6%BF%80%E7%8B%82"><div>SV3 黯炎/激狂</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV2%20%E7%A2%9F%E6%97%8B%2F%E5%86%B0%E9%9B%AA"><div>SV2 碟旋/冰雪</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV1%20%E6%9C%B1%E7%B4%AB%2F%E9%9F%B3%E7%88%86"><div>SV1 朱紫/音爆</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=Vstar%E5%A4%A9%E5%9C%B0%E8%90%AC%E7%89%A9"><div>Vstar天地萬物</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E4%BC%8A%E5%B8%83%E8%8B%B1%E9%9B%84%E7%B3%BB%E5%88%97"><div>伊布英雄系列</div></div></div>
 </div>
-<div class="container" >
-  <h4 id="current-category">介紹</h2>
-  <div class="grid" id="productGrid"></div>
+<div class="container">
+  <h4 id="current-category">介紹</h4>
+  <div class="grid" id="productGrid">
+      <div class="card"><img src="./img/demo1.png"><h4>擴散式卡磚</h4></div>
+      <div class="card"><img src="./img/demo2.png"><h4>擴散式鑑定卡殼</h4></div>
+      <div class="card"><img src="./img/demo3.png"><h4>卡牌周邊</h4></div>
+    </div>
 </div>
 
 <div class="modal" id="categoryModal">
@@ -346,6 +352,21 @@
   <button id="cartButton" onclick="toggleCartList()">購物車 (0)</button>
 </div>
 <script>
+
+async function initLiff() {
+  await liff.init({ liffId: "2007344669-vyALaM1l" });
+  
+  if (!liff.isLoggedIn()) {
+    liff.login();
+  }
+
+  if (!liff.isInClient()) {
+    alert("請從LINE內開啟此頁面！");
+    window.location.href = "https://line.me";
+  }
+}
+initLiff();
+
   const categoryBar = document.getElementById('categoryBar');
   const productGrid = document.getElementById('productGrid');
   const modal = document.getElementById('variantModal');
@@ -822,10 +843,24 @@ function backToHome() {
   }, 500);
 }
 
-function submitOrder() {
+async function submitOrder() {
   if (cart.length === 0) {
     showAlertModal("購物車是空的，無法送出訂單。", true);
     return;
+  }
+
+  const orderSummary = cart.map(item => `${item.商品小項名稱} x${item.數量}`).join("\n");
+  const totalAmount = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
+
+  try {
+    await liff.sendMessages([
+      {
+        type: "text",
+        text: `感謝您的訂單！\n訂單內容：\n${orderSummary}\n\n總金額：$${totalAmount}`
+      }
+    ]);
+  } catch (error) {
+    console.error("發送LINE訊息失敗", error);
   }
 
   showCheckoutModal();
@@ -837,6 +872,7 @@ function submitOrder() {
     backToHome();
   }, 500);
 }
+
 
 let currentQuantity = 1; // 新增數量變數
 
@@ -854,5 +890,6 @@ function decreaseQuantity() {
 
   </script>
   
-</body>
-</html>
+
+
+</body></html>
