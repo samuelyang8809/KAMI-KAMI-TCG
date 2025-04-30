@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>訂單完成 - KAMI KAMI</title>
+  <style>
+    body {
+      font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      color: #333;
+      text-align: center;
+    }
+
+    header.mainheader {
+      background-image: url('./img/S__15949936.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2em;
+      text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    .status-wrapper {
+      margin: 2em auto;
+      max-width: 400px;
+    }
+
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2em 0 1em;
+      padding: 0 2em;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.9em;
+      color: #aaa;
+    }
+
+    .step.active {
+      color: #f57c00;
+    }
+
+    .circle {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ccc;
+      margin-bottom: 0.5em;
+    }
+
+    .step.active .circle {
+      background: #f57c00;
+    }
+
+    .line {
+      height: 2px;
+      background: #ccc;
+      flex: 1;
+      margin: 0 5px;
+    }
+
+    .message {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #0154d4;
+      margin-top: 1em;
+      line-height: 1.8em;
+      padding: 0 1em;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="mainheader">
+    <h1></h1>
+  </header>
+
+  <div class="status-wrapper">
+    <div style="font-weight: bold; font-size: 1.2em;">訂單狀態</div>
+    
+    <div class="steps">
+      <div class="step">
+        <div class="circle" style="background:#ccc;"></div>
+        已下單
+      </div>
+      <div class="line"></div>
+      <div class="step active">
+        <div class="circle"></div>
+        等待賣貨便連結
+      </div>
+      <div class="line"></div>
+      <div class="step">
+        <div class="circle" style="background:#ccc;"></div>
+        等待收貨
+      </div>
+    </div>
+
+    <div class="message">
+      請回 LINE 頁面查看訂單明細<br>
+      賣家會盡快提供專屬賣場連結
+    </div>
+  </div>
+
+</body>
+</html>

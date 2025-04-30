@@ -962,39 +962,76 @@ async function submitOrder() {
 
   try {
     await liff.sendMessages([
-      {
-        type: "flex",
-        altText: "感謝您的訂單！",
-        contents: {
-          type: "bubble",
-          body: {
+  {
+    type: "flex",
+    altText: "感謝您的訂單！",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          {
+            type: "text",
+            text: "等待賣家提供專屬賣場",
+            weight: "bold",
+            size: "lg",
+            color: "#0000CC",
+            align: "center"
+          },
+          {
+            type: "text",
+            text: `訂購時間：${new Date().toLocaleString()}\n訂購名字：${userProfile.displayName}`,
+            size: "sm",
+            color: "#555555",
+            wrap: true
+          },
+          { type: "text", text: "備註：", size: "sm", color: "#888888" },
+          { type: "text", text: "商品        數量 x 金額", size: "sm", color: "#888888" },
+          { type: "separator" },
+          // 🟧 商品列表（接到 productContents 陣列）
+          ...productContents,
+          { type: "separator" },
+          // 🟦 折扣、運費、總計
+          {
             type: "box",
-            layout: "vertical",
-            spacing: "md",
+            layout: "horizontal",
             contents: [
-              {
-                type: "text",
-                text: "訂單已成立，請等待出貨通知",
-                weight: "bold",
-                size: "lg",
-                color: "#0000CC",
-                align: "center"
-              },
-              {
-                type: "text",
-                text: `訂購時間：${new Date().toLocaleString()}\n訂購者：${userProfile.displayName}`,
-                size: "sm",
-                color: "#555555",
-                wrap: true
-              },
-              { type: "separator" },
-              ...productContents,
-              ...summaryContents
+              { type: "text", text: "折扣 - 群內優惠", flex: 2, color: "#FF5722" },
+              { type: "text", text: `$-${discountAmount}`, flex: 1, align: "end", color: "#FF5722" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "運費", flex: 2 },
+              { type: "text", text: `$${shippingFee}`, flex: 1, align: "end" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "總計", flex: 2 },
+              { type: "text", text: `$${finalGrandTotal}`, flex: 1, align: "end", weight: "bold", color: "#0000CC" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "付款方式", flex: 2 },
+              { type: "text", text: "賣貨便 - 貨到付款", flex: 1, align: "end", weight: "bold" }
             ]
           }
-        }
+        ]
       }
-    ]);
+    }
+  }
+]);
+
   } catch (error) {
     console.error("發送LINE訊息失敗", error);
   }
@@ -1004,8 +1041,7 @@ async function submitOrder() {
   cartButton.innerText = `購物車 (0)`;
 
   setTimeout(() => {
-    closeCheckoutModal();
-    backToHome();
+    window.location.href = 'thankyou.html';
   }, 500);
 }
 
