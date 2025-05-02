@@ -291,7 +291,8 @@
   <div class="modal-content" style="text-align: center;">
     <span class="close" onclick="closeModal()" style="position: absolute; top: 10px; right: 15px; font-size: 1.8em; cursor: pointer;">✕</span>
     <img id="modalImage" src="" alt="" style="width: 100%; border-radius: 8px; margin-bottom: 1em;">
-    <h3 id="modalTitle" style="margin-bottom: 0.5em;"></h3>
+    <span id="modalTitle" ></span>
+    
     <div class="price" id="modalPrice" style="margin-bottom: 1em;"></div>
   
     <!-- 款式選擇 -->
@@ -367,19 +368,19 @@
 </div>
 <script>
 
-async function initLiff() {
-  await liff.init({ liffId: "2007344816-9ODNJdlA" });
+// async function initLiff() {
+//   await liff.init({ liffId: "2007344816-9ODNJdlA" });
   
-  if (!liff.isLoggedIn()) {
-    liff.login();
-  }
+//   if (!liff.isLoggedIn()) {
+//     liff.login();
+//   }
 
-  if (!liff.isInClient()) {
-    alert("請從LINE內開啟此頁面！");
-    window.location.href = "https://line.me";
-  }
-}
-initLiff();
+//   if (!liff.isInClient()) {
+//     alert("請從LINE內開啟此頁面！");
+//     window.location.href = "https://line.me";
+//   }
+// }
+// initLiff();
 
   const categoryBar = document.getElementById('categoryBar');
   const productGrid = document.getElementById('productGrid');
@@ -427,9 +428,9 @@ initLiff();
           中項代號: cat.replace(/\s/g, '-').toLowerCase(), // 中項代號自動轉小寫、dash
           中項圖片: './img/demo1.png',
           小項列表: [
-            { 商品小項名稱: `${cat} Demo商品1`, 商品小項價格: 100, 商品小項圖片: './img/demo1.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
-            { 商品小項名稱: `${cat} Demo商品2`, 商品小項價格: 150, 商品小項圖片: './img/demo2.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
-            { 商品小項名稱: `${cat} Demo商品3`, 商品小項價格: 200, 商品小項圖片: './img/demo3.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" }
+            { 商品小項名稱: `Demo商品1`, 商品小項價格: 100, 商品小項圖片: './img/demo1.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
+            { 商品小項名稱: `Demo商品2`, 商品小項價格: 150, 商品小項圖片: './img/demo2.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
+            { 商品小項名稱: `Demo商品3`, 商品小項價格: 200, 商品小項圖片: './img/demo3.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" }
           ]
         }))
       ]
@@ -498,7 +499,7 @@ function renderCategory(majorCategory, midCategory) {
     div.className = 'card';
     div.innerHTML = `
       <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border: 4px solid black; border-radius: 10px;">
-      <h4>${item.商品小項名稱}</h4>
+      <span>${item.商品小項名稱}</span>
       <div onclick='openVariantModal(${JSON.stringify(majorCategory)}, ${JSON.stringify(midCategory)}, ${JSON.stringify(item)})' style="color: gray; font-size: 0.9em;">選擇款式</div>
       <div class="price">$${item.商品小項價格}</div>
       
