@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  </head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KAMI KMAI TCG</title>
+  <style>
+    body { font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif; margin: 0; background: #f6f6f6; color: #333; }
+    header { background: #2c3e50; color: white; padding: 1em; text-align: center; }
+    .category-bar-wrapper { display: flex; align-items: center; background: #fff; padding: 0.5em; border-bottom: 1px solid #ccc; }
+    .category-bar { display: flex; overflow-x: auto; flex: 1; gap: 10px; white-space: nowrap; }
+    .category-bar span { background: #fff; padding: 0.5em 1em; border-radius: 20px; border: 1px solid #ccc; cursor: pointer; }
+    .category-bar span.active { background: orange; color: white; }
+    .container { max-width: 1200px; margin: auto; padding: 2em 1em; }
+    .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 每列固定兩欄 */
+  gap: 1em;
+}    .card { background: #fff; border-radius: 10px; padding: 1em; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+    .card img { width: 90%; border-radius: 6px; object-fit: cover; }
+    .price { color: #e67e22; font-weight: bold; margin: 0.0em 0; }
+    .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; justify-content: space-around; padding: 0.5em; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); z-index: 1000; }
+    .fixed-bottom-bar button { flex: 1; margin: 0 0.5em; padding: 0.5em; border-radius: 999px; font-weight: bold; background: gray; color: white; border: none; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 10001; }
+    .modal.show { display: flex; }
+    
+    
+    .modal-content {
+  background: white;
+  border-radius: 16px; /* 圓角大一點 */
+  width: 90%;
+  max-width: 400px;
+  padding: 1.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+
+.quantity-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+.quantity-selector button {
+  width: 36px;
+  height: 36px;
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1.5em;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.quantity-selector div {
+  width: 40px;
+  height: 36px;
+  text-align: center;
+  font-size: 1.2em;
+  line-height: 36px;
+  margin: 0 5px;
+}
+
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 0.8em;
+  background-color: #27ae60;
+  color: white;
+  font-size: 1.1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+
+    .modal-content img { width: 100%; border-radius: 8px; margin-bottom: 1em; }
+    .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.8em;
+  cursor: pointer;
+  color: #333;
+}    
+    select, .modal-content button { width: 65%; padding: 0.7em; margin-top: -1em; border-radius: 5px; border: none; }
+    
+    .toggle-expand { font-size: 1.5em; background: none; border: none; cursor: pointer; margin-left: 10px; }
+    .modal-content-large {
+  background: #fff;
+  padding: 1em;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-bottom-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 1em;
+  width: 100%;
+}
+
+/* 左邊按鈕：回目錄 (灰色) */
+.back-button {
+  flex: 1;
+  background: #cccccc;
+  color: #333;
+  font-weight: bold;
+  padding: 0.8em;
+  border: none;
+  border-radius: 999px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+/* 右邊按鈕：選好了 (橘色) */
+.confirm-button {
+  flex: 1;
+  background: #ff8800;
+  color: white;
+  font-weight: bold;
+  padding: 0.8em;
+  border: none;
+  border-radius: 999px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.category-grid-modal {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1em;
+  width: 100%;
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 1em;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.category-card:hover {
+  transform: scale(1.03);
+}
+.category-card img {
+  width: 100%;
+  max-width: 150px;
+  border-radius: 8px;
+  margin-bottom: 0.5em;
+}
+.category-card div {
+  font-weight: bold;
+  text-align: center;
+}
+
+    .category-expand {
+  display: none;
+  background: white;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  flex-direction: column;
+  z-index: 9999;
+}
+    .category-expand.show { display: flex; flex-direction: column; }
+    .category-expand .header { display: flex; justify-content: space-between; align-items: center; padding: 1em; border-bottom: 1px solid #ccc; }
+    .fade-out {
+    animation: fadeOut 0.5s forwards;
+  }
+  .fade-in {
+    animation: fadeIn 0.5s forwards;
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .quantity-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 140px;
+  height: 50px;
+  margin: 1em 0;
+}
+
+.quantity-wrapper button {
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  color: #333;
+  cursor: pointer;
+}
+
+.quantity-wrapper div {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  font-size: 1.4em;
+  color: #333;
+}
+
+.mainheader {
+  background-image: url('./img/S__15949936.jpg'); /* 改成你的正確圖片路徑 */
+  background-size: cover;       /* 圖片填滿，保持比例 */
+  background-position: center;  /* 圖片置中對齊 */
+  background-repeat: no-repeat; /* 不重複 */
+  width: 100%;                  /* 滿版寬度 */
+  height: 140px;                /* 🔥建議高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2em;
+  text-shadow: 0 0 5px rgba(0,0,0,0.5);
+  box-sizing: border-box;        /* 避免padding影響寬度 */
+}
+
+  </style>
+</head>
+<body>
+<header class="mainheader" style="display: block;">
+  <h1></h1>
+</header>
+<div class="category-bar-wrapper">
+  <div class="category-bar" id="categoryBar"></div>
+  <button class="toggle-expand" onclick="toggleExpand()">▾</button>
+</div>
+<div class="category-expand" id="categoryExpand">
+  <div class="header">
+    <strong>選擇分類</strong>
+    <button onclick="toggleExpand()">✕</button>
+  </div>
+  <div class="category-grid" id="categoryGrid"><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%A4%AA%E6%99%B6%E6%85%B6%E5%85%B8-%E4%BC%8A%E5%B8%83"><div>太晶慶典-伊布</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E7%9A%AE%E5%8D%A1%E4%B8%98%E7%B3%BB%E5%88%97"><div>皮卡丘系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%99%B4%E7%81%AB%E9%BE%8D%E7%B3%BB%E5%88%97"><div>噴火龍系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E5%A5%87%E6%A8%B9%E7%B3%BB%E5%88%97"><div>奇樹系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E8%8E%89%E8%8E%89%E8%89%BE%E7%B3%BB%E5%88%97"><div>莉莉艾系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=151%E7%B3%BB%E5%88%97"><div>151系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E7%86%B1%E9%96%80V%26Vmax%E7%B3%BB%E5%88%97"><div>熱門V&amp;Vmax系列</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV9%E5%B0%8D%E6%88%B0%E5%A4%A5%E4%BC%B4"><div>SV9對戰夥伴</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV8%E8%B6%85%E9%9B%BB%2F%E5%A4%AA%E6%99%B6"><div>SV8超電/太晶</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV7%E9%BE%8D%E9%A8%B0%2F%E6%98%9F%E6%99%B6"><div>SV7龍騰/星晶</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV6%E8%AE%8A%E5%B9%BB%E5%81%87%E9%9D%A2"><div>SV6變幻假面</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV5%E7%B7%8B%E7%B4%85%2F%E7%95%B0%E5%BA%A6%E7%8B%82%E9%87%8E"><div>SV5緋紅/異度狂野</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV4a%20%E9%96%83%E8%89%B2%E5%AF%B6%E8%97%8F"><div>SV4a 閃色寶藏</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV3%20%E9%BB%AF%E7%82%8E%2F%E6%BF%80%E7%8B%82"><div>SV3 黯炎/激狂</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV2%20%E7%A2%9F%E6%97%8B%2F%E5%86%B0%E9%9B%AA"><div>SV2 碟旋/冰雪</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=SV1%20%E6%9C%B1%E7%B4%AB%2F%E9%9F%B3%E7%88%86"><div>SV1 朱紫/音爆</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=Vstar%E5%A4%A9%E5%9C%B0%E8%90%AC%E7%89%A9"><div>Vstar天地萬物</div></div><div class="category-grid-item"><img src="https://placehold.co/300x200?text=%E4%BC%8A%E5%B8%83%E8%8B%B1%E9%9B%84%E7%B3%BB%E5%88%97"><div>伊布英雄系列</div></div></div>
+</div>
+<div class="container">
+  <h4 id="current-category">介紹</h4>
+  <div class="grid" id="productGrid">
+      <div class="card"><img src="./img/demo1.png"><h4>擴散式卡磚</h4></div>
+      <div class="card"><img src="./img/demo2.png"><h4>擴散式鑑定卡殼</h4></div>
+      <div class="card"><img src="./img/demo3.png"><h4>卡牌周邊</h4></div>
+    </div>
+</div>
+
+<div class="modal" id="categoryModal">
+  <div class="modal-content-large">
+    <span class="close" onclick="closeCategoryModal()">✕</span>
+    <h3 style="margin-bottom: 1em;">選擇分類</h3>
+    <div class="category-grid-modal" id="categoryModalGrid"></div>
+  </div>
+</div>
+<div class="modal" id="variantModal">
+  <div class="modal-content" style="text-align: center;">
+    <span class="close" onclick="closeModal()" style="position: absolute; top: 10px; right: 15px; font-size: 1.8em; cursor: pointer;">✕</span>
+    <img id="modalImage" src="" alt="" style="width: 100%; border-radius: 8px; margin-bottom: 1em;">
+    <span id="modalTitle" ></span>
+    
+    <div class="price" id="modalPrice" style="margin-bottom: 1em;"></div>
+  
+    <!-- 款式選擇 -->
+    <select id="variantSelect" onchange="changeVariantInfo()" style="padding: 0.5em; margin-bottom: 1em; width: 100%; border-radius: 5px;"></select>
+  
+    <!-- 數量選擇器 -->
+    <div class="quantity-wrapper">
+      <button onclick="decreaseQuantity()">－</button>
+      <div id="quantityDisplay">1</div>
+      <button onclick="increaseQuantity()">＋</button>
+    </div>
+    
+    <div class="modal-bottom-buttons">
+      <button class="back-button" onclick="closeModal()">回目錄</button>
+      <button class="confirm-button" onclick="addToCart()">加入購物車</button>
+    </div>  </div>
+  
+</div>
+<!-- ✅ 通用提示用 Modal -->
+<div class="modal" id="alertModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAlertModal()">✕</span>
+    <h3 id="alertModalMessage"></h3>
+  </div>
+</div>
+
+<!-- ✅ 結帳成功 Modal -->
+<div class="modal" id="checkoutModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeCheckoutModal()">✕</span>
+    <h3>訂購完成！</h3>
+    <p>請查看您的 LINE 確認訂單資訊。</p>
+    <button onclick="closeCheckoutModal()">關閉</button>
+  </div>
+</div>
+
+<!-- ✅ 改版後的購物車頁面 -->
+<div id="cartPage" style="display: none; padding: 1em; background: #ffffff; min-height: 100vh;">
+  <div style="display: flex; align-items: center; background: #fff; padding: 1em; border-bottom: 1px solid #eee;">
+    <button onclick="backToHome()" style="background: none; border: none; font-size: 1.5em; margin-right: 1em;">←</button>
+    <h2 style="flex: 1; text-align: center; margin: 0; font-size: 1.3em;">購物車</h2>
+    <div style="width: 2em;"></div> <!-- 右側留空，讓標題置中 -->
+  </div>
+  <!-- 商品列表 -->
+  <div id="cartItems" style="margin-bottom: 7em;"></div>
+
+  <!-- 總金額+結帳按鈕 -->
+  <div class="orderfooter" style="position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 1em; border-top: 1px solid #ccc;">
+    <!-- 折扣碼輸入 -->
+    <div style="display: flex; gap: 8px; margin-bottom: 0.8em;">
+      <input id="discountCodeInput" type="text" placeholder="輸入折扣碼"
+        style="flex: 1; padding: 0.6em; border: 1px solid #ccc; border-radius: 5px;">
+      <button onclick="applyDiscount()"
+        style="padding: 0.6em 1.2em; background: #FFA726; color: white; border: none; border-radius: 5px; font-weight: bold;">送出</button>
+    </div>
+  
+    <!-- 金額與下單 -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+      <div style="font-size: 0.9em; line-height: 1.6; text-align: left;">
+        原價：<span id="originalAmount">0</span> 元<br>
+        折扣：<span id="discountAmount" style="color: #27ae60;">尚未套用</span><br>
+        <strong>總計：<span id="finalAmount" style="color: #e67e22;">0</span> 元</strong>
+      </div>
+      <button onclick="submitOrder()"
+        style="background: #FF5722; color: white; padding: 0.8em 2em; border-radius: 999px; font-size: 1em; border: none; margin-top: 0.5em;">去下單</button>
+    </div>
+  </div>
+  
+</div>
+<div class="fixed-bottom-bar">
+  <button onclick="goToIntro()" id="introBtn" style="display:none; background: orange;">其他周邊・卡磚</button>
+  <button id="cartButton" onclick="toggleCartList()">購物車 (0)</button>
+</div>
+<script>
+  function saveCartToStorage() {
+    localStorage.setItem('kami-cart', JSON.stringify(cart));
+  }
+
+  function loadCartFromStorage() {
+  const data = localStorage.getItem('kami-cart');
+  if (data) {
+    cart = JSON.parse(data);
+  }
+}
+
+  function getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+function initByMajor() {
+  const majorCode = getQueryParam('major');
+  if (!majorCode) return;
+
+  const major = data.商品大項.find(d => d.大項代號 === majorCode);
+  if (major && major.中項列表.length > 0) {
+    renderCategory(major, major.中項列表[0]);
+    updateCategoryBar(major); // ← 新增這行，動態重建中項分類按鈕
+    document.getElementById('introBtn').style.display = 'inline-block';
+  }
+}
+
+function updateCategoryBar(major) {
+  const bar = document.querySelector('.category-bar');
+  if (!bar) return;
+
+  bar.innerHTML = ''; // 清空舊資料
+
+  major.中項列表.forEach(mid => {
+    const span = document.createElement('span');
+    span.innerText = mid.中項名稱;
+    span.onclick = () => renderCategory(major, mid);
+    bar.appendChild(span);
+  });
+}
+
+
+async function initLiff() {
+  await liff.init({ liffId: "2007344816-9ODNJdlA" });
+  
+  if (!liff.isLoggedIn()) {
+    liff.login();
+  }
+
+  if (!liff.isInClient()) {
+    alert("請從LINE內開啟此頁面！");
+    window.location.href = "https://line.me";
+  }
+}
+initLiff();
+
+  const categoryBar = document.getElementById('categoryBar');
+  const productGrid = document.getElementById('productGrid');
+  const modal = document.getElementById('variantModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalImage = document.getElementById('modalImage');
+  const modalPrice = document.getElementById('modalPrice');
+  const variantSelect = document.getElementById('variantSelect');
+  const cartButton = document.getElementById('cartButton');
+  
+  let currentVariants = [];
+  let currentItem = {};
+  let cart = [];
+  let currentDiscount = 0;
+  let isDiscountApplied = false;
+  let finalAmountLocked = 0;
+
+  const data = {
+  "商品大項": [
+    {
+      大項名稱: "擴散式卡磚",
+      大項代號: "spread-frame",
+      中項列表: [
+        ...[
+          "太晶慶典-伊布a",
+          "皮卡丘系列a",
+          "噴火龍系列a",
+          "奇樹系列a",
+          "莉莉艾系列a",
+          "151系列a",
+          "熱門V&Vmax系列a",
+          "SV9對戰夥伴a",
+          "SV8超電/太晶a",
+          "SV7龍騰/星晶a",
+          "SV6變幻假面a",
+          "SV5緋紅/異度狂野a",
+          "SV4a 閃色寶藏a",
+          "SV3 黯炎/激狂a",
+          "SV2 碟旋/冰雪a",
+          "SV1 朱紫/音爆a",
+          "Vstar天地萬物a",
+          "伊布英雄系列a"
+        ].map(cat => ({
+          中項名稱: cat,
+          中項代號: cat.replace(/\s/g, '-').toLowerCase(), // 中項代號自動轉小寫、dash
+          中項圖片: './img/demo1.png',
+          小項列表: [
+            { 商品小項名稱: `Demo商品1`, 商品小項價格: 100, 商品小項圖片: './img/demo1.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
+            { 商品小項名稱: `Demo商品2`, 商品小項價格: 150, 商品小項圖片: './img/demo2.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
+            { 商品小項名稱: `Demo商品3`, 商品小項價格: 200, 商品小項圖片: './img/demo3.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" }
+          ]
+        }))
+      ]
+    },
+    {
+      大項名稱: "卡牌周邊",
+      大項代號: "card-accessory",
+      中項列表: [
+        {
+          中項名稱: "卡牌周邊",
+          中項代號: "card-accessory-general",
+          中項圖片: './img/demo3.png',
+          小項列表: [
+            { 商品小項名稱: "鑑定卡收納箱", 商品小項價格: 750, 商品小項圖片: './img/demo3.png', 商品分類名稱: "卡牌周邊", 商品分類代號: "card-accessory" }
+          ]
+        }
+      ]
+    },
+    {
+      大項名稱: "擴散式鑑定卡殼",
+      大項代號: "spread-slab",
+      中項列表: [
+        {
+          中項名稱: "擴散式鑑定卡殼",
+          中項代號: "spread-slab-general",
+          中項圖片: './img/demo4.png',
+          小項列表: [
+            // 可自行補上鑑定卡殼商品
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+  
+function loadCategories() {
+  const categoryBar = document.getElementById('categoryBar');
+  categoryBar.innerHTML = '';
+
+  data.商品大項.forEach(major => {
+    major.中項列表.forEach(mid => {
+      const span = document.createElement('span');
+      span.textContent = mid.中項名稱;
+      span.onclick = () => renderCategory(major, mid);
+      categoryBar.appendChild(span);
+    });
+  });
+}
+  
+function renderCategory(majorCategory, midCategory) {
+  document.getElementById('current-category').innerText = midCategory.中項名稱;
+  document.querySelectorAll('.category-bar span').forEach(s => s.classList.remove('active'));
+  [...categoryBar.children].forEach(s => {
+    if (s.textContent === midCategory.中項名稱) s.classList.add('active');
+  });
+
+  productGrid.innerHTML = '';
+  midCategory.小項列表.forEach((item) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.onclick = () => openVariantModal(majorCategory, midCategory, item); // ✅ 將點擊事件綁在整張卡片
+    div.innerHTML = `
+      <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border: 4px solid black; border-radius: 10px;">
+      <span>${item.商品小項名稱}</span>
+      <div>選擇款式</div>
+      <div class="price">$${item.商品小項價格}</div>
+      
+    `;
+    productGrid.appendChild(div);
+  });
+
+  document.getElementById('introBtn').style.display = 'inline-block';
+}
+
+
+function openVariantModal(majorCategory, midCategory, item) {
+  currentVariants = midCategory.小項列表;
+  currentItem = {
+    ...item,
+    中項名稱: midCategory.中項名稱,
+    大項名稱: majorCategory.大項名稱
+  };
+  modal.classList.add('show');
+  updateModal(item);
+
+  variantSelect.innerHTML = '';
+  currentVariants.forEach((variant, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = variant.商品小項名稱;
+    if (variant.商品小項名稱 === item.商品小項名稱) opt.selected = true;
+    variantSelect.appendChild(opt);
+  });
+
+  // 👉 每次打開初始化數量為1
+  currentQuantity = 1;
+  document.getElementById('quantityDisplay').innerText = currentQuantity;
+}
+
+
+  
+  function updateModal(item) {
+    modalTitle.innerText =  item.商品小項名稱;
+    modalImage.src = item.商品小項圖片;
+    modalPrice.innerText = `$${item.商品小項價格}`;
+  }
+  
+  function changeVariantInfo() {
+    const idx = variantSelect.value;
+    const selected = currentVariants[idx];
+    currentItem = selected;
+    updateModal(selected);
+  }
+  
+  function closeModal() {
+    modal.classList.remove('show');
+  }
+  
+  function addToCart() {
+  const selectedVariantIndex = document.getElementById('variantSelect')?.selectedIndex || 0;
+
+    console.log('🧩 選中的 variant:', currentItem);
+console.log('🛒 當前 variants:', currentVariants);
+console.log('🎯 selectedIndex:', selectedVariantIndex);
+  const isAccessory = currentItem.商品分類名稱 === "卡牌周邊";
+
+  const itemToAdd = {
+    ...currentItem,
+    數量: currentQuantity,
+    variants: [...currentVariants],
+    中項名稱: currentItem.中項名稱 || '',
+    大項名稱: currentItem.大項名稱 || ''
+  };
+
+
+  if (isAccessory) {
+  // ✅ 不要清空名稱，保留原本商品資訊
+    itemToAdd.商品小項名稱 = currentItem.商品小項名稱;
+    itemToAdd.商品小項價格 = currentItem.商品小項價格;
+} else {
+    const selectedVariant = currentVariants[selectedVariantIndex] || {};
+    itemToAdd.商品小項名稱 = selectedVariant.商品小項名稱 || currentItem.商品小項名稱 || '';
+    itemToAdd.商品小項價格 = selectedVariant.商品小項價格 || currentItem.商品小項價格 || 0;
+}
+
+  const existIndex = cart.findIndex(p =>
+    p.商品小項名稱 === itemToAdd.商品小項名稱 &&
+    p.中項名稱 === itemToAdd.中項名稱 &&
+    p.大項名稱 === itemToAdd.大項名稱
+  );
+
+  if (existIndex !== -1) {
+    cart[existIndex].數量 += currentQuantity;
+  } else {
+    cart.push(itemToAdd);
+  }
+
+  saveCartToStorage();
+  cartButton.innerText = `購物車 (${cart.reduce((sum, item) => sum + item.數量, 0)})`;
+
+  const alertName = isAccessory
+    ? `${itemToAdd.中項名稱}`
+    : `${itemToAdd.中項名稱} - ${itemToAdd.商品小項名稱}`;
+
+  showAlertModal(`已加入購物車：${alertName} x ${currentQuantity}`, true);
+  closeModal();
+}
+
+
+  
+  function goToIntro() {
+    location.href = 'index.html';
+  }
+    
+  function toggleCartList() {
+  if (cart.length === 0) {
+    showAlertModal("購物車是空的喔！", true);
+    return;
+  }
+
+  const container = document.querySelector('.container');
+  const categoryBarWrapper = document.querySelector('.category-bar-wrapper');
+  const introBtn = document.getElementById('introBtn');
+  const cartPage = document.getElementById('cartPage');
+  const fixedBottomBar = document.querySelector('.fixed-bottom-bar');
+
+  // 🔥 首頁淡出
+  container.classList.add('fade-out');
+  categoryBarWrapper.classList.add('fade-out');
+
+  setTimeout(() => {
+    // 淡出完後隱藏首頁元素
+    document.querySelector('.mainheader').style.display = 'none';
+    container.style.display = 'none';
+    categoryBarWrapper.style.display = 'none';
+    introBtn.style.display = 'none';
+    fixedBottomBar.style.display = 'none';
+
+    
+    // 移除fade-out class
+    container.classList.remove('fade-out');
+    categoryBarWrapper.classList.remove('fade-out');
+
+    // 顯示購物車頁
+    cartPage.style.display = 'block';
+    cartPage.classList.add('fade-in');
+
+    // 1秒後清掉fade-in class
+    setTimeout(() => {
+      cartPage.classList.remove('fade-in');
+    }, 1000);
+
+    // 渲染購物車內容
+    renderCartItems();
+  }, 500); // 首頁淡出動畫時間
+}
+
+
+  const categoryModal = document.getElementById('categoryModal');
+const categoryModalGrid = document.getElementById('categoryModalGrid');
+
+function toggleExpand() {
+  categoryModal.classList.add('show');
+  loadCategoryModal();
+}
+
+function closeCategoryModal() {
+  categoryModal.classList.remove('show');
+}
+
+function loadCategoryModal() {
+  categoryModalGrid.innerHTML = '';
+
+  const majorCode = getQueryParam('major');
+  const major = data.商品大項.find(m => m.大項代號 === majorCode);
+  if (!major) return;
+
+  major.中項列表.forEach(mid => {
+    const div = document.createElement('div');
+    div.className = 'category-card';
+    div.innerHTML = `
+      <img src="${mid.中項圖片}" alt="${mid.中項名稱}">
+      <div>${mid.中項名稱}</div>
+    `;
+    div.onclick = () => {
+      closeCategoryModal();
+      renderCategory(major, mid);
+    };
+    categoryModalGrid.appendChild(div);
+  });
+}
+
+
+loadCategories();
+initByMajor(); // 👉 根據 URL major 參數載入大項  
+
+  // ✅ 通用 alert Modal 顯示
+function showAlertModal(message, autoClose = false) {
+  document.getElementById('alertModalMessage').innerText = message;
+  document.getElementById('alertModal').classList.add('show');
+  if (autoClose) {
+    setTimeout(() => {
+      closeAlertModal();
+    }, 1000); // 2秒後自動關閉
+  }
+}
+
+function closeAlertModal() {
+  document.getElementById('alertModal').classList.remove('show');
+}
+
+// ✅ 結帳成功 Modal
+function showCheckoutModal() {
+  document.getElementById('checkoutModal').classList.add('show');
+}
+
+function closeCheckoutModal() {
+  document.getElementById('checkoutModal').classList.remove('show');
+}
+
+
+
+function renderCartItems() {
+  const cartItems = document.getElementById('cartItems');
+  cartItems.innerHTML = '';
+
+  if (cart.length === 0) {
+    cartButton.innerText = `購物車 (0)`;
+    showAlertModal("購物車清空，返回首頁。", true);
+    setTimeout(() => {
+      backToHome();
+    }, 500);
+    return;
+  }
+
+  const grouped = {};
+  cart.forEach(item => {
+    if (!grouped[item.商品分類名稱]) {
+      grouped[item.商品分類名稱] = [];
+    }
+    grouped[item.商品分類名稱].push(item);
+  });
+
+  for (const majorName in grouped) {
+    const majorDiv = document.createElement('div');
+    majorDiv.style.marginBottom = '1.5em';
+
+    const majorHeader = document.createElement('div');
+    majorHeader.textContent = majorName;
+    majorHeader.style.fontWeight = 'bold';
+    majorHeader.style.fontSize = '1.2em';
+    majorHeader.style.margin = '1em 0 0.5em 0';
+    majorDiv.appendChild(majorHeader);
+
+    grouped[majorName].forEach((item, idx) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.style.display = 'flex';
+      itemDiv.style.alignItems = 'center';
+      itemDiv.style.padding = '1em 0';
+      itemDiv.style.borderBottom = '1px solid #eee';
+
+      itemDiv.innerHTML = `
+  <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 1em;">
+  <div style="flex: 1;">
+    <div style="font-weight: bold;">${item.商品小項名稱}</div>
+${
+  item.商品分類名稱 === "卡牌周邊"
+    ? `<div style="font-size: 0.9em; margin-top: 4px;">${item.中項名稱}</div>`
+    : `
+      <select onchange="changeCartVariant(this, ${cart.indexOf(item)})" 
+        style="min-width: 160px; font-size: 0.9em; padding: 0.4em; border-radius: 5px;">
+        ${item.variants.map((variant, vIdx) => `
+          <option value="${vIdx}" ${variant.商品小項名稱 === item.商品小項名稱 ? 'selected' : ''}>
+            ${variant.商品小項名稱}
+          </option>`).join('')}
+      </select>
+    `
+}
+    <div style="color: #e67e22; font-weight: bold;">$${item.商品小項價格}</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+    <div style="display: flex; align-items: center;">
+      <button onclick="decreaseItem(${cart.indexOf(item)})" style="width:30px;height:30px;background:#eee;border:none;border-radius:5px;">–</button>
+      <div style="width:30px;text-align:center;">${item.數量}</div>
+      <button onclick="increaseItem(${cart.indexOf(item)})" style="width:30px;height:30px;background:#eee;border:none;border-radius:5px;">＋</button>
+    </div>
+  </div>
+`;
+
+      majorDiv.appendChild(itemDiv);
+    });
+
+    cartItems.appendChild(majorDiv);
+  }
+
+  updateCartSummary();
+}
+
+function changeCartVariant(selectElement, itemIndex) {
+  const selectedIdx = parseInt(selectElement.value, 10);
+  const selectedItem = cart[itemIndex];
+  const newVariant = selectedItem.variants[selectedIdx];
+
+  if (newVariant) {
+    selectedItem.商品小項名稱 = newVariant.商品小項名稱;
+    selectedItem.商品小項價格 = newVariant.商品小項價格;
+    selectedItem.商品小項圖片 = newVariant.商品小項圖片;
+    selectedItem.商品小項規格 = newVariant.商品小項規格 || '單一規格';
+  }
+
+  renderCartItems(); // 更新畫面
+}
+
+function toggleGroup(button) {
+  const midGroup = button.parentElement.nextElementSibling;
+  if (midGroup.style.display === 'none') {
+    midGroup.style.display = 'block';
+    button.textContent = '收合';
+  } else {
+    midGroup.style.display = 'none';
+    button.textContent = '展開';
+  }
+}
+
+function increaseItem(index) {
+  cart[index].數量 += 1;
+  renderCartItems();
+}
+
+function decreaseItem(index) {
+  cart[index].數量 -= 1;
+  if (cart[index].數量 <= 0) {
+    cart.splice(index, 1); // 數量小於1就刪掉
+  }
+  renderCartItems();
+}
+
+function updateCartSummary() {
+  const total = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
+
+  let finalAmount = total;
+  let discountAmount = 0;
+
+  if (isDiscountApplied) {
+    finalAmount = finalAmountLocked;
+    discountAmount = total - finalAmount;
+  }
+
+  document.getElementById('originalAmount').innerText = total.toFixed(0);
+  document.getElementById('discountAmount').innerText = 
+    isDiscountApplied ? `-${discountAmount.toFixed(0)} 元` : `尚未套用`;
+  document.getElementById('finalAmount').innerText = finalAmount.toFixed(0);
+  cartButton.innerText = `購物車 (${cart.reduce((sum, item) => sum + item.數量, 0)})`;
+}
+
+
+
+function applyDiscount() {
+  const code = document.getElementById('discountCodeInput').value.trim().toUpperCase();
+  let discountValue = 0;
+
+  if (code === "PK01") {
+    discountValue = 0.1;
+    showAlertModal("成功套用 PK01：10% 折扣！", true);
+  } else if (code === "PK02") {
+    discountValue = 0.2;
+    showAlertModal("成功套用 PK02：20% 折扣！", true);
+  } else if (code === "PK03") {
+    discountValue = 0.3;
+    showAlertModal("成功套用 PK03：30% 折扣！", true);
+  } else {
+    currentDiscount = 0;
+    isDiscountApplied = false;
+    finalAmountLocked = 0;
+    showAlertModal("無效的折扣碼，請重新輸入。", true);
+    updateCartSummary();
+    return;
+  }
+
+  currentDiscount = discountValue;
+  const total = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
+  finalAmountLocked = total - total * currentDiscount;
+  isDiscountApplied = true;
+  updateCartSummary();
+}
+
+
+
+function removeCartItem(index) {
+  cart.splice(index, 1);
+  renderCartItems();
+}
+function backToHome() {
+  const cartPage = document.getElementById('cartPage');
+  const container = document.querySelector('.container');
+  const categoryBarWrapper = document.querySelector('.category-bar-wrapper');
+  const introBtn = document.getElementById('introBtn');
+  const fixedBottomBar = document.querySelector('.fixed-bottom-bar');
+
+  // 🔥 先讓購物車頁 fadeOut
+  cartPage.classList.add('fade-out');
+
+  // 🔥 動畫跑完後 0.5秒，做切換
+  setTimeout(() => {
+    cartPage.style.display = 'none';
+    cartPage.classList.remove('fade-out');
+    document.querySelector('.mainheader').style.display = 'none';
+    container.style.display = 'block';
+    categoryBarWrapper.style.display = 'flex';
+    introBtn.style.display = 'inline-block';
+    fixedBottomBar.style.display = 'flex';
+    
+    // 🔥 首頁加上 fadeIn
+    container.classList.add('fade-in');
+    categoryBarWrapper.classList.add('fade-in');
+
+    // 🔥 1秒後清除 class（不然重複進來會沒效果）
+    setTimeout(() => {
+      container.classList.remove('fade-in');
+      categoryBarWrapper.classList.remove('fade-in');
+    }, 1000);
+
+    // 回首頁重新載入商品分類
+    loadCategories();
+    document.querySelector('.mainheader').style.display = 'block';
+
+  }, 500);
+}
+
+async function submitOrder() {
+  if (cart.length === 0) {
+    showAlertModal("購物車是空的，無法送出訂單。", true);
+    return;
+  }
+  console.log(cart);
+  const total = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
+  const discountAmount = isDiscountApplied ? (total - finalAmountLocked) : 0;
+  const discountedTotal = isDiscountApplied ? finalAmountLocked : total;
+
+  // 🔶 運費邏輯
+  let shippingFee = 0;
+  if (discountedTotal < 399) {
+    shippingFee = 38;
+  } else if (discountedTotal < 799) {
+    shippingFee = 19;
+  }
+
+  const finalGrandTotal = discountedTotal + shippingFee;
+
+  // 🔵 訂單明細區塊（每個商品）
+  const productContents = []; 
+
+  cart.forEach((item) => {
+  const isAccessory = item.商品分類名稱 === "卡牌周邊";
+
+  const itemTitle = isAccessory
+    ? `${item.大項名稱} / ${item.中項名稱}`
+    : `${item.大項名稱} / ${item.中項名稱} / ${item.商品小項名稱}`;
+
+  const unitPrice = item.商品小項價格 || 0;
+  const subtotal = unitPrice * item.數量;
+
+  productContents.push({
+    type: "box",
+    layout: "horizontal",
+    contents: [
+      {
+        type: "text",
+        text: itemTitle,
+        flex: 5,
+        size: "sm",
+        wrap: true
+      },
+      {
+        type: "text",
+        text: `$${unitPrice} x ${item.數量}`,
+        flex: 4,
+        size: "sm",
+        align: "end"
+      },
+      {
+        type: "text",
+        text: `= $${subtotal}`,
+        flex: 3,
+        size: "sm",
+        align: "end"
+      }
+    ]
+  });
+});
+  
+  // 🔷 加入折扣與總價欄
+  const summaryContents = [
+    {
+      type: "box",
+      layout: "horizontal",
+      contents: [
+        { type: "text", text: `折扣`, flex: 2, color: "#FF5722" },
+        { type: "text", text: `-$${discountAmount}`, flex: 1, align: "end", color: "#FF5722" }
+      ]
+    },
+    {
+      type: "box",
+      layout: "horizontal",
+      contents: [
+        { type: "text", text: "運費", flex: 2 },
+        { type: "text", text: `$${shippingFee}`, flex: 1, align: "end" }
+      ]
+    },
+    {
+      type: "box",
+      layout: "horizontal",
+      contents: [
+        { type: "text", text: "總計", flex: 2 },
+        { type: "text", text: `$${finalGrandTotal}`, flex: 1, align: "end", weight: "bold", color: "#0000CC" }
+      ]
+    }
+  ];
+
+  let userProfile = { displayName: "(匿名)", userId: "" };
+
+  try {
+    userProfile = await liff.getProfile();
+  } catch (e) {
+    console.error("取得用戶資料失敗", e);
+  }
+
+  try {
+    await liff.sendMessages([
+  {
+    type: "flex",
+    altText: "感謝您的訂單！",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          {
+            type: "text",
+            text: "等待賣家提供專屬賣場",
+            weight: "bold",
+            size: "lg",
+            color: "#0000CC",
+            align: "center"
+          },
+          {
+            type: "text",
+            text: `訂購時間：${new Date().toLocaleString()}\n訂購名字：${userProfile.displayName}`,
+            size: "sm",
+            color: "#555555",
+            wrap: true
+          },
+          { type: "text", text: "備註：", size: "sm", color: "#888888" },
+          { type: "text", text: "商品        數量 x 金額", size: "sm", color: "#888888" },
+          { type: "separator" },
+          // 🟧 商品列表（接到 productContents 陣列）
+          ...productContents,
+          { type: "separator" },
+          // 🟦 折扣、運費、總計
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "折扣 - 群內優惠", flex: 2, color: "#FF5722" },
+              { type: "text", text: `$-${discountAmount}`, flex: 1, align: "end", color: "#FF5722" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "運費", flex: 2 },
+              { type: "text", text: `$${shippingFee}`, flex: 1, align: "end" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "總計", flex: 2 },
+              { type: "text", text: `$${finalGrandTotal}`, flex: 1, align: "end", weight: "bold", color: "#0000CC" }
+            ]
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "text", text: "付款方式", flex: 2 },
+              { type: "text", text: "賣貨便 - 貨到付款", flex: 1, align: "end", weight: "bold" }
+            ]
+          }
+        ]
+      }
+    }
+  }
+]);
+
+  } catch (error) {
+    console.error("發送LINE訊息失敗", error);
+  }
+
+  showCheckoutModal();
+  cart = [];
+  cartButton.innerText = `購物車 (0)`;
+
+  setTimeout(() => {
+    window.location.href = 'thankyou.html';
+  }, 2000);
+}
+
+
+let currentQuantity = 1; // 新增數量變數
+
+function increaseQuantity() {
+  currentQuantity += 1;
+  document.getElementById('quantityDisplay').innerText = currentQuantity;
+}
+
+function decreaseQuantity() {
+  if (currentQuantity > 1) {
+    currentQuantity -= 1;
+    document.getElementById('quantityDisplay').innerText = currentQuantity;
+  }
+}
+
+loadCartFromStorage();
+cartButton.innerText = `購物車 (${cart.reduce((sum, item) => sum + item.數量, 0)})`;
+
+  </script>
+  
+
+
+</body></html>

@@ -1,0 +1,426 @@
+body {
+	font-family: 'Noto Sans TC', sans-serif;
+	margin: 0;
+	background: #f6f6f6;
+	color: #333;
+}
+
+header {
+	color: white;
+	text-align: center;
+}
+
+.category-bar-wrapper {
+	display: flex;
+	align-items: center;
+	background: #fff;
+	padding: 0.5em;
+	border-bottom: 1px solid #ccc;
+}
+
+.category-bar {
+	display: flex;
+	overflow-x: auto;
+	flex: 1;
+	gap: 10px;
+	white-space: nowrap;
+}
+
+#cartContent {
+	padding-bottom: 120px; /* 避免商品被footer擋住 */
+  }
+  
+  #cartFooter {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: #fff;
+	padding: 1em;
+	border-top: 1px solid #eee;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	z-index: 999;
+  }
+
+.category-bar span {
+	background: #fff;
+	padding: 0.5em 1em;
+	border-radius: 20px;
+	border: 1px solid #ccc;
+	cursor: pointer;
+}
+
+.category-bar span.active {
+	background: orange;
+	color: white;
+}
+
+.container {
+	max-width: 1200px;
+	margin: auto;
+	padding: 2em 1em;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+ /* 每列固定兩欄 */
+	gap: 1em;
+}
+
+.card {
+	background: #fff;
+	border-radius: 10px;
+	padding: 1em;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+	text-align: center;
+}
+
+.card img {
+	width: 90%;
+	border-radius: 6px;
+	object-fit: cover;
+}
+
+.price {
+	color: #e67e22;
+	font-weight: bold;
+	margin: 0.5em 0;
+}
+
+.fixed-bottom-bar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: #fff;
+	display: flex;
+	justify-content: space-around;
+	padding: 0.5em;
+	box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+	z-index: 1000;
+}
+
+.fixed-bottom-bar button {
+	flex: 1;
+	margin: 0 0.5em;
+	padding: 0.5em;
+	border-radius: 999px;
+	font-weight: bold;
+	background: gray;
+	color: white;
+	border: none;
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0,0,0,0.6);
+	align-items: center;
+	justify-content: center;
+	z-index: 10001;
+}
+
+.modal.show {
+	display: flex;
+}
+
+.modal-content {
+	background: #fff;
+	padding: 1.5em;
+	border-radius: 20px;
+ /* 明顯圓角 */
+	width: 90%;
+	max-width: 400px;
+	text-align: center;
+	box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+ /* 加上大陰影 */
+	position: relative;
+}
+
+.modal-content img {
+	width: 100%;
+	border-radius: 8px;
+	margin-bottom: 1em;
+}
+
+.close {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: #f6f6f6;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	font-size: 1.5em;
+	border: 1px solid #ccc;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal-content button {
+	background-color: #27ae60;
+	color: white;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.toggle-expand {
+	font-size: 1.5em;
+	background: none;
+	border: none;
+	cursor: pointer;
+	margin-left: 10px;
+}
+
+.modal-content-large {
+	background: #fff;
+	padding: 1em;
+	border-radius: 10px;
+	width: 90%;
+	max-width: 700px;
+	max-height: 80vh;
+	overflow-y: auto;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.category-grid-modal {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1em;
+	width: 100%;
+}
+
+.category-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background: #f9f9f9;
+	border-radius: 10px;
+	padding: 1em;
+	cursor: pointer;
+	transition: transform 0.2s ease;
+}
+
+.category-card:hover {
+	transform: scale(1.03);
+}
+
+.category-card img {
+	width: 100%;
+	max-width: 150px;
+	border-radius: 8px;
+	margin-bottom: 0.5em;
+}
+
+.category-card div {
+	font-weight: bold;
+	text-align: center;
+}
+
+.category-expand {
+	display: none;
+	background: white;
+	position: fixed;
+	top: 10%;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 90%;
+	max-width: 600px;
+	max-height: 80vh;
+	overflow: hidden;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+	flex-direction: column;
+	z-index: 9999;
+}
+
+.category-expand.show {
+	display: flex;
+	flex-direction: column;
+}
+
+.category-expand .header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1em;
+	border-bottom: 1px solid #ccc;
+}
+
+.fade-out {
+	animation: fadeOut 0.5s forwards;
+}
+
+.fade-in {
+	animation: fadeIn 0.5s forwards;
+}
+
+.variantmodalbk {
+	background-color: white;
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+#modalProductImage {
+	width: 100%;
+	max-width: 300px;
+	height: auto;
+	border-radius: 10px;
+	object-fit: contain;
+	margin-bottom: 1em;
+}
+
+#modalProductName {
+	font-size: 1.3em;
+	font-weight: bold;
+	margin: 0.5em 0;
+}
+
+#modalProductPrice {
+	font-size: 1.5em;
+	color: #e67e22;
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+  /* 下拉選單規格選擇 */
+#modalVariantSelect {
+	min-width: 200px;
+	font-size: 1em;
+	padding: 0.5em;
+	margin-bottom: 1em;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* 加入購物車大按鈕 */
+.add-cart-button {
+	background: #ff5c00;
+	color: white;
+	border: none;
+	width: 90%;
+	padding: 1em;
+	border-radius: 999px;
+	font-size: 1.2em;
+	margin-top: 1em;
+}
+
+  /* Toast 提示 */
+#toast {
+	visibility: hidden;
+	min-width: 200px;
+	background-color: #333;
+	color: #fff;
+	text-align: center;
+	border-radius: 10px;
+	padding: 1em;
+	position: fixed;
+	bottom: 80px;
+	right: 20px;
+	z-index: 1000;
+	font-size: 1em;
+}
+
+#toast.show {
+	visibility: visible;
+	animation: fadein 0.5s, fadeout 0.5s 2s;
+}
+
+@keyframes fadein {
+	from {
+		bottom: 50px;
+		opacity: 0;
+	}
+
+	to {
+		bottom: 80px;
+		opacity: 1;
+	}
+}
+
+@keyframes fadeout {
+	from {
+		bottom: 80px;
+		opacity: 1;
+	}
+
+	to {
+		bottom: 100px;
+		opacity: 0;
+	}
+}
+
+@keyframes modalFadeOut {
+	from {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	to {
+		transform: translateY(50px);
+		opacity: 0;
+	}
+}
+
+.fade-out {
+	animation: modalFadeOut 0.5s forwards;
+}
+  /* 數量控制外框 */
+.modal-quantity-wrapper {
+	display: inline-flex;
+	align-items: center;
+	background: #f9f9f9;
+	border-radius: 999px;
+	padding: 0.3em 0.8em;
+	box-shadow: 0 0 5px rgba(0,0,0,0.1);
+	margin-bottom: 1em;
+}
+
+.modal-quantity-wrapper button {
+	width: 36px;
+	height: 36px;
+	font-size: 1.5em;
+	border: none;
+	background: none;
+	color: #333;
+}
+
+
+/* 數量數字 */
+.modal-quantity-wrapper div {
+	width: 40px;
+	text-align: center;
+	font-size: 1.2em;
+}
