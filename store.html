@@ -4,7 +4,7 @@
     <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
   </head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>KAMI KMAI TCG</title>
   <style>
     body { font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif; margin: 0; background: #f6f6f6; color: #333; }
@@ -367,6 +367,36 @@
   <button id="cartButton" onclick="toggleCartList()">購物車 (0)</button>
 </div>
 <script>
+
+let data = {};
+
+  
+fetch('./data.json')
+  .then(res => res.json())
+  .then(json => {
+    data = json;
+    initPage(); // 當讀完 data 後再開始初始化頁面
+  })
+  .catch(err => {
+    console.error('載入資料失敗', err);
+  });
+
+
+function initPage() {
+  loadCategories();
+  initByMajor(); // 👉 根據 URL major 參數載入大項  
+  const majorCode = new URLSearchParams(location.search).get('major');
+  const major = data.商品大項.find(d => d.大項代號 === majorCode);
+  if (major) {
+    renderCategoryBar(major);
+    renderCategory(major, major.中項列表[0]);
+   
+  }
+}
+
+
+
+
   function saveCartToStorage() {
     localStorage.setItem('kami-cart', JSON.stringify(cart));
   }
@@ -422,7 +452,7 @@ async function initLiff() {
     window.location.href = "https://line.me";
   }
 }
-initLiff();
+//initLiff();
 
   const categoryBar = document.getElementById('categoryBar');
   const productGrid = document.getElementById('productGrid');
@@ -440,73 +470,7 @@ initLiff();
   let isDiscountApplied = false;
   let finalAmountLocked = 0;
 
-  const data = {
-  "商品大項": [
-    {
-      大項名稱: "擴散式卡磚",
-      大項代號: "spread-frame",
-      中項列表: [
-        ...[
-          "太晶慶典-伊布a",
-          "皮卡丘系列a",
-          "噴火龍系列a",
-          "奇樹系列a",
-          "莉莉艾系列a",
-          "151系列a",
-          "熱門V&Vmax系列a",
-          "SV9對戰夥伴a",
-          "SV8超電/太晶a",
-          "SV7龍騰/星晶a",
-          "SV6變幻假面a",
-          "SV5緋紅/異度狂野a",
-          "SV4a 閃色寶藏a",
-          "SV3 黯炎/激狂a",
-          "SV2 碟旋/冰雪a",
-          "SV1 朱紫/音爆a",
-          "Vstar天地萬物a",
-          "伊布英雄系列a"
-        ].map(cat => ({
-          中項名稱: cat,
-          中項代號: cat.replace(/\s/g, '-').toLowerCase(), // 中項代號自動轉小寫、dash
-          中項圖片: './img/demo1.png',
-          小項列表: [
-            { 商品小項名稱: `Demo商品1`, 商品小項價格: 100, 商品小項圖片: './img/demo1.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
-            { 商品小項名稱: `Demo商品2`, 商品小項價格: 150, 商品小項圖片: './img/demo2.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" },
-            { 商品小項名稱: `Demo商品3`, 商品小項價格: 200, 商品小項圖片: './img/demo3.png', 商品分類名稱: "擴散式卡磚", 商品分類代號: "spread-frame" }
-          ]
-        }))
-      ]
-    },
-    {
-      大項名稱: "卡牌周邊",
-      大項代號: "card-accessory",
-      中項列表: [
-        {
-          中項名稱: "卡牌周邊",
-          中項代號: "card-accessory-general",
-          中項圖片: './img/demo3.png',
-          小項列表: [
-            { 商品小項名稱: "鑑定卡收納箱", 商品小項價格: 750, 商品小項圖片: './img/demo3.png', 商品分類名稱: "卡牌周邊", 商品分類代號: "card-accessory" }
-          ]
-        }
-      ]
-    },
-    {
-      大項名稱: "擴散式鑑定卡殼",
-      大項代號: "spread-slab",
-      中項列表: [
-        {
-          中項名稱: "擴散式鑑定卡殼",
-          中項代號: "spread-slab-general",
-          中項圖片: './img/demo4.png',
-          小項列表: [
-            // 可自行補上鑑定卡殼商品
-          ]
-        }
-      ]
-    }
-  ]
-};
+  
 
   
 function loadCategories() {
@@ -536,7 +500,7 @@ function renderCategory(majorCategory, midCategory) {
     div.className = 'card';
     div.onclick = () => openVariantModal(majorCategory, midCategory, item); // ✅ 將點擊事件綁在整張卡片
     div.innerHTML = `
-      <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border: 4px solid black; border-radius: 10px;">
+      <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border-radius: 10px;">
       <span>${item.商品小項名稱}</span>
       <div>選擇款式</div>
       <div class="price">$${item.商品小項價格}</div>
@@ -727,8 +691,7 @@ function loadCategoryModal() {
 }
 
 
-loadCategories();
-initByMajor(); // 👉 根據 URL major 參數載入大項  
+
 
   // ✅ 通用 alert Modal 顯示
 function showAlertModal(message, autoClose = false) {
