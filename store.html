@@ -290,13 +290,13 @@
 <div class="modal" id="variantModal">
   <div class="modal-content" style="text-align: center;">
     <span class="close" onclick="closeModal()" style="position: absolute; top: 10px; right: 15px; font-size: 1.8em; cursor: pointer;">✕</span>
-    <img id="modalImage" src="" alt="" style="width: 100%; border-radius: 8px; margin-bottom: 1em;">
-    <span id="modalTitle" ></span>
+    <img id="modalImage" src="" alt="" style="width: 60%; border-radius: 8px; margin-bottom: 1em;">
+    <span style="font-size: 24px;" id="modalTitle" ></span>
     
-    <div class="price" id="modalPrice" style="margin-bottom: 1em;"></div>
+    <div class="price" id="modalPrice" style="margin-bottom: 1em;font-size:24px"></div>
   
     <!-- 款式選擇 -->
-    <select id="variantSelect" onchange="changeVariantInfo()" style="padding: 0.5em; margin-bottom: 1em; width: 100%; border-radius: 5px;"></select>
+    <select id="variantSelect" onchange="changeVariantInfo()" style="font-size:24px;padding: 0.5em; margin-bottom: 1em; width: 100%; border-radius: 5px;"></select>
   
     <!-- 數量選擇器 -->
     <div class="quantity-wrapper">
@@ -452,7 +452,7 @@ async function initLiff() {
     window.location.href = "https://line.me";
   }
 }
-//initLiff();
+initLiff();
 
   const categoryBar = document.getElementById('categoryBar');
   const productGrid = document.getElementById('productGrid');
@@ -501,8 +501,8 @@ function renderCategory(majorCategory, midCategory) {
     div.onclick = () => openVariantModal(majorCategory, midCategory, item); // ✅ 將點擊事件綁在整張卡片
     div.innerHTML = `
       <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border-radius: 10px;">
-      <span>${item.商品小項名稱}</span>
-      <div>選擇款式</div>
+      <span style="font-weight:bold;">${item.商品小項名稱}</span>
+      <div style="font-size:12px;font-weight:bold;">選擇款式</div>
       <div class="price">$${item.商品小項價格}</div>
       
     `;
