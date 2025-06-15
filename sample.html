@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>投資學第1章 - Flutter Web 版原型</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body);"></script>
+</head>
+<body class="bg-white text-gray-800 p-6 max-w-3xl mx-auto space-y-4">
+  <h1 class="text-2xl font-bold">📘 投資學 第 1 章</h1>
+
+  <details class="border rounded-lg p-4">
+    <summary class="cursor-pointer font-semibold text-lg">1-1 投資的意義與種類</summary>
+    <ul class="list-disc pl-5 mt-2">
+      <li>投資種類：實質資產（土地、建物）、金融資產（股票、債券）</li>
+      <li>投資要素：時間（等待）、報酬（預期）、風險（需考量）</li>
+      <li>投資 vs 投機 vs 賭博：理性長期 vs 高風險短期 vs 運氣</li>
+      <li>風險態度：風險愛好、中立、規避</li>
+    </ul>
+  </details>
+
+  <details class="border rounded-lg p-4">
+    <summary class="cursor-pointer font-semibold text-lg">1-2 貨幣市場工具</summary>
+    <ul class="list-disc pl-5 mt-2">
+      <li>國庫券：政府短期債券，折價發行，到期還本</li>
+      <li>商業本票：企業短期融資工具，分實質與金融票據</li>
+      <li>可轉讓定期存單：銀行發行、短期可轉讓</li>
+      <li>銀行承兌匯票：用於國際貿易，銀行保證付款</li>
+      <li>附條件交易：附買回（RP）、附賣回（RS）</li>
+    </ul>
+  </details>
+
+  <details class="border rounded-lg p-4">
+    <summary class="cursor-pointer font-semibold text-lg">1-3 資本市場工具</summary>
+    <ul class="list-disc pl-5 mt-2">
+      <li>政府債券：基礎建設用途，投標決定票息</li>
+      <li>公司債：普通、可轉換、附認股權</li>
+      <li>普通股：企業所有權，有剩餘請求權</li>
+      <li>特別股：介於股與債間，可分累積型與可參加型</li>
+      <li>其他：存託憑證、權證、ETN、STO</li>
+    </ul>
+  </details>
+
+  <details class="border rounded-lg p-4">
+    <summary class="cursor-pointer font-semibold text-lg">1-4 衍生性金融商品</summary>
+    <ul class="list-disc pl-5 mt-2">
+      <li>遠期契約：非標準化，買賣雙方約定未來交割</li>
+      <li>交換交易：交換現金流，含利率、貨幣、股價等</li>
+      <li>期貨契約：標準化合約，可於交易所買賣</li>
+      <li>選擇權契約：買方有權於期內按價交易（買權/賣權）</li>
+    </ul>
+  </details>
+
+  <details class="border rounded-lg p-4">
+    <summary class="cursor-pointer font-semibold text-lg">1-5 共同基金</summary>
+    <ul class="list-disc pl-5 mt-2">
+      <li>開放型基金：可隨時申購贖回</li>
+      <li>封閉型基金：不可直接贖回，需市場交易</li>
+      <li>分類：股票型、固定收益型、平衡型、組合型</li>
+    </ul>
+  </details>
+
+  <details class="border rounded-lg p-4">
+    <summary class="cursor-pointer font-semibold text-lg">1-6 指數股票型基金 (ETF)</summary>
+    <ul class="list-disc pl-5 mt-2">
+      <li>類型：股票型、債券型、匯率型、槓桿型、反向型、商品型</li>
+      <li>槓桿型：追蹤指數倍數；反向型：與指數反方向</li>
+    </ul>
+  </details>
+
+  <details class="border rounded-lg p-4">
+    <summary class="cursor-pointer font-semibold text-lg">1-7 投資風險</summary>
+    <ul class="list-disc pl-5 mt-2">
+      <li>風險排序：政府債券 &lt; 公司債 &lt; 特別股 &lt; 普通股 &lt; 衍生性商品</li>
+      <li>常見風險：利率風險、市場風險、購買力風險等</li>
+    </ul>
+  </details>
+
+  <details class="border rounded-lg p-4">
+    <summary class="cursor-pointer font-semibold text-lg">1-8 投資報酬</summary>
+    <ul class="list-disc pl-5 mt-2">
+      <li>總報酬率 = 資本利得 + 現金收入（股利或息票）</li>
+      <li>期望報酬率 = 各情況的機率加權平均</li>
+      <li>幾何平均報酬率：</li>
+      <p class="mt-2">\[ G = \left( \prod_{i=1}^{n} (1+R_i) \right)^{1/n} - 1 \]</p>
+      <li>年化報酬率：</li>
+      <p class="mt-2">\[ r_{\text{annual}} = (1 + R)^{1/t} - 1 \]</p>
+      <li>IRR（內部報酬率）：</li>
+      <p class="mt-2">\[ 0 = \sum_{t=0}^{n} \frac{CF_t}{(1 + r)^t} \]</p>
+    </ul>
+  </details>
+
+</body>
+</html>
