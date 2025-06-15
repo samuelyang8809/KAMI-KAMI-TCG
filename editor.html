@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>商品 JSON 編輯後台</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; max-width: 900px; margin: auto; }
+    label { display: block; margin-top: 1em; font-weight: bold; } 
+    input, select, button, textarea { margin-top: 0.5em; padding: 0.4em; width: 100%; }
+    textarea { height: 150px; }
+    .section { border: 1px solid #ccc; padding: 1em; margin-top: 1em; background: #f9f9f9; }
+    .preview img { margin: 0.5em; max-width: 150px; }
+  </style>
+</head>
+<body>
+  <h1>商品 JSON 編輯後台</h1>
+
+  <label>上傳圖片（可多張）</label>
+  <input type="file" accept="image/*" id="imageInput" multiple />
+  <div id="imagePreview"></div>
+
+  <div class="section">
+    <h2>新增商品資料</h2>
+    <label>大項名稱</label>
+    <input type="text" id="majorName" placeholder="例如：擴散式卡磚" />
+
+    <label>大項代號</label>
+    <input type="text" id="majorCode" placeholder="例如：spread-frame" />
+
+    <label>中項名稱</label>
+    <input type="text" id="midName" placeholder="例如：皮卡丘系列" />
+
+    <label>中項代號</label>
+    <input type="text" id="midCode" placeholder="例如：pikachu-series" />
+
+    <label>中項圖片檔名（請放入 img/ 資料夾）</label>
+    <input type="text" id="midImg" placeholder="例如：demo1.png" />
+
+    <label>商品小項名稱</label>
+    <input type="text" id="itemName" placeholder="例如：Demo商品1" />
+
+    <label>商品小項價格</label>
+    <input type="number" id="itemPrice" placeholder="例如：100" />
+
+    <label>商品小項圖片檔名（請放入 img/ 資料夾）</label>
+    <input type="text" id="itemImg" placeholder="例如：demo1.png" />
+
+    <button onclick="addItem()">新增至 JSON</button>
+  </div>
+
+  <div class="section">
+    <h2>匯入 CSV 檔（轉換為 data.json）</h2>
+    <input type="file" accept=".csv" id="csvInput" />
+    <small>CSV 欄位應包含：大項名稱,大項代號,中項名稱,中項代號,中項圖片,商品小項名稱,商品小項價格,商品小項圖片,商品分類名稱,商品分類代號</small>
+  </div>
+
+  <label>目前商品 JSON 資料</label>
+  <textarea id="jsonInput"></textarea>
+
+  <button id="saveBtn">下載 JSON</button>
+  <button id="exportCSVBtn">匯出 CSV</button>
+  <div class="preview">
+    <strong>預覽資料：</strong>
+    <pre id="jsonPreview"></pre>
+  </div>
+
+  <script>
+    // 載入根目錄 data.json
+    fetch('data.json')
+      .then(res => res.json())
+      .then(json => {
+        jsonInput.value = JSON.stringify(json, null, 2);
+        jsonInput.dispatchEvent(new Event('input'));
+      })
+      .catch(err => {
+        console.error('載入 data.json 失敗', err);
+        jsonInput.value = '{"商品大項": []}';
+        jsonInput.dispatchEvent(new Event('input'));
+      });
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const jsonInput = document.getElementById('jsonInput');
+    const jsonPreview = document.getElementById('jsonPreview');
+
+    // 多張圖片預覽
+    imageInput.addEventListener('change', e => {
+      imagePreview.innerHTML = '';
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = document.createElement('img');
+          img.src = reader.result;
+          img.alt = file.name;
+          imagePreview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+      const note = document.createElement('div');
+      note.innerHTML = '<br><small>⚠️ 請記得將圖片手動放入 img 資料夾，並使用檔名作為 JSON 路徑。</small>';
+      imagePreview.appendChild(note);
+
+      const imgSelect = document.getElementById('imageList');
+      if (imgSelect) {
+        files.forEach(file => {
+          const option = document.createElement('option');
+          option.value = './img/' + file.name;
+          option.textContent = file.name;
+          imgSelect.appendChild(option);
+        });
+      }
+    });
+
+    // 即時預覽 JSON
+    jsonInput.addEventListener('input', () => {
+      try {
+        const parsed = JSON.parse(jsonInput.value);
+        jsonPreview.textContent = JSON.stringify(parsed, null, 2);
+      } catch (e) {
+        jsonPreview.textContent = '❌ JSON 格式錯誤';
+      }
+    });
+
+    // 新增資料到 JSON
+    function addItem() {
+      try {
+        const data = JSON.parse(jsonInput.value || '{"商品大項": []}');
+
+        const majorName = document.getElementById('majorName').value.trim();
+        const majorCode = document.getElementById('majorCode').value.trim();
+        const midName = document.getElementById('midName').value.trim();
+        const midCode = document.getElementById('midCode').value.trim();
+        const midImg = './img/' + document.getElementById('midImg').value.trim();
+        const itemName = document.getElementById('itemName').value.trim();
+        const itemPrice = parseInt(document.getElementById('itemPrice').value.trim(), 10);
+        const itemImg = './img/' + document.getElementById('itemImg').value.trim();
+
+        if (!majorName || !midName || !itemName || isNaN(itemPrice)) {
+          alert("請填寫完整且正確的欄位");
+          return;
+        }
+
+        const newItem = {
+          "商品小項名稱": itemName,
+          "商品小項價格": itemPrice,
+          "商品小項圖片": itemImg,
+          "商品分類名稱": majorName,
+          "商品分類代號": majorCode
+        };
+
+        let major = data.商品大項.find(m => m.大項名稱 === majorName && m.大項代號 === majorCode);
+        if (!major) {
+          major = {
+            大項名稱: majorName,
+            大項代號: majorCode,
+            中項列表: []
+          };
+          data.商品大項.push(major);
+        }
+
+        let mid = major.中項列表.find(m => m.中項名稱 === midName && m.中項代號 === midCode);
+        if (!mid) {
+          mid = {
+            中項名稱: midName,
+            中項代號: midCode,
+            中項圖片: midImg,
+            小項列表: []
+          };
+          major.中項列表.push(mid);
+        }
+
+        mid.小項列表.push(newItem);
+
+        jsonInput.value = JSON.stringify(data, null, 2);
+        jsonInput.dispatchEvent(new Event('input'));
+        alert("已新增資料！");
+      } catch (err) {
+        alert("新增失敗，請確認 JSON 是否正確\n" + err);
+      }
+    }
+
+    // 儲存 JSON
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      try {
+        const blob = new Blob([jsonInput.value], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        alert('無法儲存 JSON，請確認格式');
+      }
+    });
+
+
+    document.getElementById('csvInput').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const lines = e.target.result.split('\n').map(l => l.trim()).filter(Boolean);
+        const headers = lines[0].split(',').map(h => h.trim());
+        const rows = lines.slice(1).map(line => {
+          const values = line.split(',').map(v => v.trim());
+          return Object.fromEntries(values.map((v, i) => [headers[i], v]));
+        });
+
+        const result = { "商品大項": [] };
+
+        rows.forEach(row => {
+          const majorName = row['大項名稱'];
+          const majorCode = row['大項代號'];
+          const midName = row['中項名稱'];
+          const midCode = row['中項代號'];
+          const midImg = './img/' + row['中項圖片'];
+          const itemName = row['商品小項名稱'];
+          const itemPrice = parseInt(row['商品小項價格'], 10);
+          const itemImg = './img/' + row['商品小項圖片'];
+          const itemCat = row['商品分類名稱'];
+          const itemCatCode = row['商品分類代號'];
+
+          if (!majorName || !midName || !itemName) return;
+
+          const item = {
+            "商品小項名稱": itemName,
+            "商品小項價格": itemPrice,
+            "商品小項圖片": itemImg,
+            "商品分類名稱": itemCat,
+            "商品分類代號": itemCatCode
+          };
+
+          let major = result.商品大項.find(m => m.大項名稱 === majorName && m.大項代號 === majorCode);
+          if (!major) {
+            major = {
+              大項名稱: majorName,
+              大項代號: majorCode,
+              中項列表: []
+            };
+            result.商品大項.push(major);
+          }
+
+          let mid = major.中項列表.find(m => m.中項名稱 === midName && m.中項代號 === midCode);
+          if (!mid) {
+            mid = {
+              中項名稱: midName,
+              中項代號: midCode,
+              中項圖片: midImg,
+              小項列表: []
+            };
+            major.中項列表.push(mid);
+          }
+
+          mid.小項列表.push(item);
+        });
+
+        jsonInput.value = JSON.stringify(result, null, 2);
+        jsonInput.dispatchEvent(new Event('input'));
+        alert('CSV 匯入完成');
+      };
+
+      reader.readAsText(file);
+    });
+
+
+    document.getElementById('exportCSVBtn').addEventListener('click', () => {
+      try {
+        const data = JSON.parse(jsonInput.value);
+        const rows = [
+          ['大項名稱','大項代號','中項名稱','中項代號','中項圖片',
+           '商品小項名稱','商品小項價格','商品小項圖片','商品分類名稱','商品分類代號']
+        ];
+        data.商品大項.forEach(major => {
+          major.中項列表.forEach(mid => {
+            mid.小項列表.forEach(item => {
+              rows.push([
+                major.大項名稱,
+                major.大項代號,
+                mid.中項名稱,
+                mid.中項代號,
+                mid.中項圖片?.replace('./img/', '') || '',
+                item.商品小項名稱,
+                item.商品小項價格,
+                item.商品小項圖片?.replace('./img/', '') || '',
+                item.商品分類名稱,
+                item.商品分類代號
+              ]);
+            });
+          });
+        });
+        const csv = rows.map(row => row.join(',')).join('\n');
+        // 加入 UTF-8 BOM 以確保 Excel 正確顯示中文
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'exported-data.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        alert('匯出失敗，請確認 JSON 格式正確');
+      }
+    });
+  </script>
+</body>
+</html>
+
