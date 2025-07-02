@@ -947,7 +947,7 @@ function applyDiscount() {
   }
 
   currentDiscount = discountValue;
-  const total = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
+  const total = cart.reduce((sum, item) => sum + ((item.商品小小項價格 || item.商品小項價格) * item.數量), 0);
   finalAmountLocked = total - total * currentDiscount;
   isDiscountApplied = true;
   updateCartSummary();
@@ -1024,9 +1024,9 @@ async function submitOrder() {
 
   const itemTitle = isAccessory
     ? `${item.大項名稱} / ${item.中項名稱}`
-    : `${item.大項名稱} / ${item.中項名稱} / ${item.商品小項名稱}`;
+    : `${item.大項名稱} / ${item.中項名稱} / ${item.商品小項名稱}${item.小小項名稱 ? `（${item.小小項名稱}）` : ''}`;
 
-  const unitPrice = item.商品小項價格 || 0;
+  const unitPrice = item.商品小小項價格 || item.商品小項價格 || 0;
   const subtotal = unitPrice * item.數量;
 
   productContents.push({
