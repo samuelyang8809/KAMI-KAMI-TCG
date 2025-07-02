@@ -423,7 +423,7 @@ function initPage() {
   const majorCode = new URLSearchParams(location.search).get('major');
   const major = data.商品大項.find(d => d.大項代號 === majorCode);
   if (major) {
-    renderCategoryBar(major);
+    //renderCategoryBar(major);
     renderCategory(major, major.中項列表[0]);
    
   }
@@ -539,8 +539,9 @@ function renderCategory(majorCategory, midCategory) {
       <img src="${item.商品小項圖片}" alt="${item.商品小項名稱}" style="border-radius: 10px;">
       <span style="font-weight:bold;">${item.商品小項名稱}</span>
       <div style="font-size:12px;font-weight:bold;">選擇款式</div>
-      <div class="price">$${item.商品小項價格}</div>
-      
+      <div class="price">
+        $${(item.小小項列表 && item.小小項列表.length > 0 && item.小小項列表[0].商品小小項價格) || item.商品小項價格 || 0}
+      </div>
     `;
     productGrid.appendChild(div);
   });
@@ -550,20 +551,27 @@ function renderCategory(majorCategory, midCategory) {
 
 
 function openVariantModal(majorCategory, midCategory, item) {
-  currentVariants = midCategory.小項列表;
+  currentVariants = item.小小項列表 || [];
   currentItem = {
     ...item,
     中項名稱: midCategory.中項名稱,
     大項名稱: majorCategory.大項名稱
   };
   modal.classList.add('show');
-  updateModal(item);
+  // Remove redundant updateModal(item); and replace with variant logic
+  if (currentVariants.length > 0) {
+    const firstVariant = currentVariants[0];
+    currentItem = { ...currentItem, ...firstVariant, 商品小項價格: firstVariant.商品小小項價格 || firstVariant.商品小項價格 || 0 };
+    updateModal(firstVariant);
+  } else {
+    updateModal(currentItem);
+  }
 
   variantSelect.innerHTML = '';
   currentVariants.forEach((variant, idx) => {
     const opt = document.createElement('option');
     opt.value = idx;
-    opt.textContent = variant.商品小項名稱;
+    opt.textContent = variant.商品小小項名稱 || variant.商品小項名稱 || '未命名';
     if (variant.商品小項名稱 === item.商品小項名稱) opt.selected = true;
     variantSelect.appendChild(opt);
   });
@@ -576,15 +584,16 @@ function openVariantModal(majorCategory, midCategory, item) {
 
   
   function updateModal(item) {
-    modalTitle.innerText =  item.商品小項名稱;
-    modalImage.src = item.商品小項圖片;
-    modalPrice.innerText = `$${item.商品小項價格}`;
+    modalTitle.innerText = item.商品小小項名稱 || item.商品小項名稱 || '未命名';
+    modalImage.src = item.商品小小項圖片 || item.商品小項圖片 || '';
+    modalPrice.innerText = `$${item.商品小小項價格 || item.商品小項價格 || 0}`;
   }
   
   function changeVariantInfo() {
     const idx = variantSelect.value;
     const selected = currentVariants[idx];
-    currentItem = selected;
+    // 將價格也更新進 currentItem
+    currentItem = { ...currentItem, ...selected, 商品小項價格: selected.商品小小項價格 || selected.商品小項價格 || 0 };
     updateModal(selected);
   }
   
@@ -593,54 +602,60 @@ function openVariantModal(majorCategory, midCategory, item) {
   }
   
   function addToCart() {
-  const selectedVariantIndex = document.getElementById('variantSelect')?.selectedIndex || 0;
+    const selectedVariantIndex = document.getElementById('variantSelect')?.selectedIndex || 0;
 
     console.log('🧩 選中的 variant:', currentItem);
-console.log('🛒 當前 variants:', currentVariants);
-console.log('🎯 selectedIndex:', selectedVariantIndex);
-  const isAccessory = currentItem.商品分類名稱 === "卡牌周邊";
+    console.log('🛒 當前 variants:', currentVariants);
+    console.log('🎯 selectedIndex:', selectedVariantIndex);
+    const isAccessory = currentItem.商品分類名稱 === "卡牌周邊";
 
-  const itemToAdd = {
-    ...currentItem,
-    數量: currentQuantity,
-    variants: [...currentVariants],
-    中項名稱: currentItem.中項名稱 || '',
-    大項名稱: currentItem.大項名稱 || ''
-  };
+    const itemToAdd = {
+      ...currentItem,
+      數量: currentQuantity,
+      variants: [...currentVariants],
+      中項名稱: currentItem.中項名稱 || '',
+      大項名稱: currentItem.大項名稱 || ''
+    };
 
+    // 插入商品小小項相關資訊
+    itemToAdd.商品小項名稱 = currentItem.商品小小項名稱 || currentItem.商品小項名稱 || '';
+    itemToAdd.商品小項價格 = currentItem.商品小小項價格 || currentItem.商品小項價格 || 0;
+    itemToAdd.商品小項圖片 = currentItem.商品小小項圖片 || currentItem.商品小項圖片 || '';
+    itemToAdd.小小項名稱 = currentItem.商品小小項名稱 || '';
+    itemToAdd.小小項圖片 = currentItem.商品小小項圖片 || '';
 
-  if (isAccessory) {
-  // ✅ 不要清空名稱，保留原本商品資訊
-    itemToAdd.商品小項名稱 = currentItem.商品小項名稱;
-    itemToAdd.商品小項價格 = currentItem.商品小項價格;
-} else {
-    const selectedVariant = currentVariants[selectedVariantIndex] || {};
-    itemToAdd.商品小項名稱 = selectedVariant.商品小項名稱 || currentItem.商品小項名稱 || '';
-    itemToAdd.商品小項價格 = selectedVariant.商品小項價格 || currentItem.商品小項價格 || 0;
-}
+    if (isAccessory) {
+      // ✅ 不要清空名稱，保留原本商品資訊
+      itemToAdd.商品小項名稱 = currentItem.商品小項名稱;
+      itemToAdd.商品小項價格 = currentItem.商品小項價格;
+    } else {
+      const selectedVariant = currentVariants[selectedVariantIndex] || {};
+      itemToAdd.商品小項名稱 = selectedVariant.商品小項名稱 || currentItem.商品小項名稱 || '';
+      itemToAdd.商品小項價格 = selectedVariant.商品小項價格 || currentItem.商品小項價格 || 0;
+    }
 
-  const existIndex = cart.findIndex(p =>
-    p.商品小項名稱 === itemToAdd.商品小項名稱 &&
-    p.中項名稱 === itemToAdd.中項名稱 &&
-    p.大項名稱 === itemToAdd.大項名稱
-  );
+    const existIndex = cart.findIndex(p =>
+      p.商品小項名稱 === itemToAdd.商品小項名稱 &&
+      p.中項名稱 === itemToAdd.中項名稱 &&
+      p.大項名稱 === itemToAdd.大項名稱
+    );
 
-  if (existIndex !== -1) {
-    cart[existIndex].數量 += currentQuantity;
-  } else {
-    cart.push(itemToAdd);
+    if (existIndex !== -1) {
+      cart[existIndex].數量 += currentQuantity;
+    } else {
+      cart.push(itemToAdd);
+    }
+
+    saveCartToStorage();
+    cartButton.innerText = `購物車 (${cart.reduce((sum, item) => sum + item.數量, 0)})`;
+
+    const alertName = isAccessory
+      ? `${itemToAdd.中項名稱}`
+      : `${itemToAdd.中項名稱} - ${itemToAdd.商品小項名稱}`;
+
+    showAlertModal(`已加入購物車：${alertName} x ${currentQuantity}`, true);
+    closeModal();
   }
-
-  saveCartToStorage();
-  cartButton.innerText = `購物車 (${cart.reduce((sum, item) => sum + item.數量, 0)})`;
-
-  const alertName = isAccessory
-    ? `${itemToAdd.中項名稱}`
-    : `${itemToAdd.中項名稱} - ${itemToAdd.商品小項名稱}`;
-
-  showAlertModal(`已加入購物車：${alertName} x ${currentQuantity}`, true);
-  closeModal();
-}
 
 
   
@@ -796,7 +811,7 @@ function renderCartItems() {
 
       itemDiv.innerHTML = `
   <div style="flex: 1;">
-    <div style="font-weight: bold;">${item.商品小項名稱}</div>
+    <div style="font-weight: bold;">${item.商品小項名稱}${item.小小項名稱 ? `（${item.小小項名稱}）` : ''}</div>
 ${
   item.商品分類名稱 === "卡牌周邊"
     ? `<div style="font-size: 0.9em; margin-top: 4px;">${item.中項名稱}</div>`
@@ -804,13 +819,15 @@ ${
       <select onchange="changeCartVariant(this, ${cart.indexOf(item)})" 
         style="min-width: 160px; font-size: 0.9em; padding: 0.4em; border-radius: 5px;">
         ${item.variants.map((variant, vIdx) => `
-          <option value="${vIdx}" ${variant.商品小項名稱 === item.商品小項名稱 ? 'selected' : ''}>
-            ${variant.商品小項名稱}
+          <option value="${vIdx}" ${
+            (variant.商品小小項名稱 === item.小小項名稱 || variant.商品小項名稱 === item.商品小項名稱) ? 'selected' : ''
+          }>
+            ${variant.商品小小項名稱 || variant.商品小項名稱 || '未命名'}
           </option>`).join('')}
       </select>
     `
 }
-    <div style="color: #e67e22; font-weight: bold;">$${item.商品小項價格}</div>
+    <div style="color: #e67e22; font-weight: bold;">$${item.商品小小項價格 || item.商品小項價格}</div>
   </div>
   <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
     <div style="display: flex; align-items: center;">
@@ -835,11 +852,29 @@ function changeCartVariant(selectElement, itemIndex) {
   const selectedItem = cart[itemIndex];
   const newVariant = selectedItem.variants[selectedIdx];
 
-  if (newVariant) {
-    selectedItem.商品小項名稱 = newVariant.商品小項名稱;
-    selectedItem.商品小項價格 = newVariant.商品小項價格;
-    selectedItem.商品小項圖片 = newVariant.商品小項圖片;
-    selectedItem.商品小項規格 = newVariant.商品小項規格 || '單一規格';
+  if (
+    newVariant &&
+    (
+      newVariant.商品小小項名稱 === selectedItem.小小項名稱 ||
+      newVariant.商品小項名稱 === selectedItem.商品小項名稱
+    )
+  ) {
+    selectedItem.商品小項名稱 = newVariant.商品小項名稱 || selectedItem.商品小項名稱;
+    selectedItem.商品小項價格 = newVariant.商品小項價格 || selectedItem.商品小項價格;
+    selectedItem.商品小項圖片 = newVariant.商品小項圖片 || selectedItem.商品小項圖片;
+
+    selectedItem.小小項名稱 = newVariant.商品小小項名稱 || '';
+    selectedItem.商品小小項價格 = newVariant.商品小小項價格 || 0;
+    selectedItem.商品小小項圖片 = newVariant.商品小小項圖片 || '';
+  } else if (newVariant) {
+    // fallback: still update to newVariant
+    selectedItem.商品小項名稱 = newVariant.商品小項名稱 || selectedItem.商品小項名稱;
+    selectedItem.商品小項價格 = newVariant.商品小項價格 || selectedItem.商品小項價格;
+    selectedItem.商品小項圖片 = newVariant.商品小項圖片 || selectedItem.商品小項圖片;
+
+    selectedItem.小小項名稱 = newVariant.商品小小項名稱 || '';
+    selectedItem.商品小小項價格 = newVariant.商品小小項價格 || 0;
+    selectedItem.商品小小項圖片 = newVariant.商品小小項圖片 || '';
   }
 
   renderCartItems(); // 更新畫面
@@ -870,7 +905,7 @@ function decreaseItem(index) {
 }
 
 function updateCartSummary() {
-  const total = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
+  const total = cart.reduce((sum, item) => sum + ((item.商品小小項價格 || item.商品小項價格) * item.數量), 0);
 
   let finalAmount = total;
   let discountAmount = 0;
