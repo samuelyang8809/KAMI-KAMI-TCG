@@ -51,7 +51,7 @@
   <div class="section">
     <h2>匯入 CSV 檔（轉換為 data.json）</h2>
     <input type="file" accept=".csv" id="csvInput" />
-    <small>CSV 欄位應包含：大項名稱,大項代號,中項名稱,中項代號,中項圖片,商品小項名稱,商品小項價格,商品小項圖片,商品分類名稱,商品分類代號</small>
+    <small>CSV 欄位應包含：大項名稱,大項代號,中項名稱,中項代號,中項圖片,商品小項名稱,商品小項價格,商品小項圖片,商品分類名稱,商品分類代號,商品小小項名稱,商品小小項價格,商品小小項圖片,商品小小項分類名稱,商品小小項分類代號</small>
   </div>
 
   <label>目前商品 JSON 資料</label>
@@ -145,7 +145,8 @@
           "商品小項價格": itemPrice,
           "商品小項圖片": itemImg,
           "商品分類名稱": majorName,
-          "商品分類代號": majorCode
+          "商品分類代號": majorCode,
+          "小小項列表": []
         };
 
         let major = data.商品大項.find(m => m.大項名稱 === majorName && m.大項代號 === majorCode);
@@ -199,14 +200,53 @@
       const file = event.target.files[0];
       if (!file) return;
 
+      const parseCSV = (text) => {
+        const rows = [];
+        let row = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          const next = text[i+1];
+          if (inQuotes) {
+            if (ch === '"' && next === '"') { // escaped quote
+              cur += '"';
+              i++; // skip next
+            } else if (ch === '"') {
+              inQuotes = false;
+            } else {
+              cur += ch;
+            }
+          } else {
+            if (ch === '"') {
+              inQuotes = true;
+            } else if (ch === ',') {
+              row.push(cur);
+              cur = '';
+            } else if (ch === '\n') {
+              row.push(cur);
+              rows.push(row.map(s => s.trim()));
+              row = [];
+              cur = '';
+            } else if (ch === '\r') {
+              // ignore CR
+            } else {
+              cur += ch;
+            }
+          }
+        }
+        // flush last cell
+        row.push(cur);
+        if (row.length > 1 || row[0] !== '') rows.push(row.map(s => s.trim()));
+        return rows.filter(r => r.some(c => c !== ''));
+      };
+
       const reader = new FileReader();
       reader.onload = (e) => {
-        const lines = e.target.result.split('\n').map(l => l.trim()).filter(Boolean);
-        const headers = lines[0].split(',').map(h => h.trim());
-        const rows = lines.slice(1).map(line => {
-          const values = line.split(',').map(v => v.trim());
-          return Object.fromEntries(values.map((v, i) => [headers[i], v]));
-        });
+        const arr = parseCSV(e.target.result);
+        if (!arr.length) return;
+        const headers = arr[0];
+        const rows = arr.slice(1).map(cols => Object.fromEntries(headers.map((h, i) => [h, cols[i] ?? ''])));
 
         const result = { "商品大項": [] };
 
@@ -215,22 +255,16 @@
           const majorCode = row['大項代號'];
           const midName = row['中項名稱'];
           const midCode = row['中項代號'];
-          const midImg = './img/' + row['中項圖片'];
+          const midImg = row['中項圖片'] ? ('./img/' + row['中項圖片']) : '';
           const itemName = row['商品小項名稱'];
-          const itemPrice = parseInt(row['商品小項價格'], 10);
-          const itemImg = './img/' + row['商品小項圖片'];
-          const itemCat = row['商品分類名稱'];
-          const itemCatCode = row['商品分類代號'];
+          const rawItemPrice = parseInt(row['商品小項價格'], 10);
+          const itemPrice = Number.isNaN(rawItemPrice) ? null : rawItemPrice;
+          const itemImg = row['商品小項圖片'] ? ('./img/' + row['商品小項圖片']) : '';
+          // 變體用：PSA / BGS… 應該放在小小項層，不應併到小項層
+          const itemCat = row['商品分類名稱'];      // 例如：PSA / BGS
+          const itemCatCode = row['商品分類代號'];  // 例如：spread-slab 或其他
 
           if (!majorName || !midName || !itemName) return;
-
-          const item = {
-            "商品小項名稱": itemName,
-            "商品小項價格": itemPrice,
-            "商品小項圖片": itemImg,
-            "商品分類名稱": itemCat,
-            "商品分類代號": itemCatCode
-          };
 
           let major = result.商品大項.find(m => m.大項名稱 === majorName && m.大項代號 === majorCode);
           if (!major) {
@@ -253,7 +287,50 @@
             major.中項列表.push(mid);
           }
 
-          mid.小項列表.push(item);
+          // 小項合併規則：同一大項/中項 + 同一「商品小項名稱」合併為一個小項
+          let item = mid.小項列表.find(i => i.商品小項名稱 === itemName);
+          if (!item) {
+            item = {
+              "商品小項名稱": itemName,
+              "商品小項價格": itemPrice,
+              // 可放代表圖；若不同列有不同小項圖，保留第一個非空圖即可
+              "商品小項圖片": itemImg,
+              // 小項層的分類固定對應到「大項」（例如：擴散式卡殼 / spread-slab）
+              "商品分類名稱": majorName,
+              "商品分類代號": majorCode,
+              "小小項列表": []
+            };
+            mid.小項列表.push(item);
+          } else {
+            // 若已存在且目前代表圖為空，且新列提供了圖，更新代表圖
+            if ((!item.商品小項圖片 || item.商品小項圖片 === './img/') && itemImg) {
+              item.商品小項圖片 = itemImg;
+            }
+            // 若小項價格為空，且本列有價格，補上
+            if ((item.商品小項價格 === null || item.商品小項價格 === undefined) && itemPrice !== null) {
+              item.商品小項價格 = itemPrice;
+            }
+          }
+
+          const rawSubPrice = parseInt(row['商品小小項價格'], 10);
+          const subItem = {
+            商品小小項名稱: row['商品小小項名稱'], // 例如：PSA / BGS
+            商品小小項價格: Number.isNaN(rawSubPrice) ? null : rawSubPrice,
+            商品小小項圖片: row['商品小小項圖片'] ? ('./img/' + row['商品小小項圖片']) : '',
+            // 變體層（小小項）保留原本列的分類（PSA/BGS）
+            商品分類名稱: itemCat,
+            商品分類代號: itemCatCode
+          };
+
+          if (subItem.商品小小項名稱) {
+            const exists = item.小小項列表.some(s =>
+              s.商品小小項名稱 === subItem.商品小小項名稱 &&
+              s.商品分類代號 === subItem.商品分類代號 &&
+              s.商品小小項圖片 === subItem.商品小小項圖片
+            );
+            if (!exists) item.小小項列表.push(subItem);
+          }
+
         });
 
         jsonInput.value = JSON.stringify(result, null, 2);
@@ -270,27 +347,68 @@
         const data = JSON.parse(jsonInput.value);
         const rows = [
           ['大項名稱','大項代號','中項名稱','中項代號','中項圖片',
-           '商品小項名稱','商品小項價格','商品小項圖片','商品分類名稱','商品分類代號']
+           '商品小項名稱','商品小項價格','商品小項圖片','商品分類名稱','商品分類代號',
+           '商品小小項名稱','商品小小項價格','商品小小項圖片','商品小小項分類名稱','商品小小項分類代號']
         ];
-        data.商品大項.forEach(major => {
-          major.中項列表.forEach(mid => {
-            mid.小項列表.forEach(item => {
-              rows.push([
-                major.大項名稱,
-                major.大項代號,
-                mid.中項名稱,
-                mid.中項代號,
-                mid.中項圖片?.replace('./img/', '') || '',
-                item.商品小項名稱,
-                item.商品小項價格,
-                item.商品小項圖片?.replace('./img/', '') || '',
-                item.商品分類名稱,
-                item.商品分類代號
-              ]);
+
+        const toCsvVal = (v) => (v === null || v === undefined) ? '' : v;
+        const stripImgPrefix = (p) => (typeof p === 'string' ? p.replace('./img/', '') : '');
+
+        (data.商品大項 || []).forEach(major => {
+          (major.中項列表 || []).forEach(mid => {
+            (mid.小項列表 || []).forEach(item => {
+              const subList = Array.isArray(item.小小項列表) ? item.小小項列表 : [];
+
+              if (subList.length === 0) {
+                rows.push([
+                  toCsvVal(major.大項名稱),
+                  toCsvVal(major.大項代號),
+                  toCsvVal(mid.中項名稱),
+                  toCsvVal(mid.中項代號),
+                  stripImgPrefix(mid.中項圖片),
+                  toCsvVal(item.商品小項名稱),
+                  toCsvVal(item.商品小項價格),
+                  stripImgPrefix(item.商品小項圖片),
+                  toCsvVal(item.商品分類名稱),
+                  toCsvVal(item.商品分類代號),
+                  '',
+                  '',
+                  '',
+                  '',
+                  ''
+                ]);
+              } else {
+                subList.forEach(sub => {
+                  rows.push([
+                    toCsvVal(major.大項名稱),
+                    toCsvVal(major.大項代號),
+                    toCsvVal(mid.中項名稱),
+                    toCsvVal(mid.中項代號),
+                    stripImgPrefix(mid.中項圖片),
+                    toCsvVal(item.商品小項名稱),
+                    toCsvVal(item.商品小項價格),
+                    stripImgPrefix(item.商品小項圖片),
+                    toCsvVal(item.商品分類名稱),
+                    toCsvVal(item.商品分類代號),
+                    toCsvVal(sub.商品小小項名稱),
+                    toCsvVal(sub.商品小小項價格),
+                    stripImgPrefix(sub.商品小小項圖片),
+                    toCsvVal(sub.商品分類名稱),
+                    toCsvVal(sub.商品分類代號) // ← 修正重點：使用 JSON 既有欄位
+                  ]);
+                });
+              }
             });
           });
         });
-        const csv = rows.map(row => row.join(',')).join('\n');
+
+        const csv = rows.map(row => row.map(col => {
+          const s = String(col);
+          // Wrap in quotes if contains comma, quote or newline; and escape quotes by doubling them
+          if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+          return s;
+        }).join(',')).join('\n');
+
         // 加入 UTF-8 BOM 以確保 Excel 正確顯示中文
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -306,4 +424,3 @@
   </script>
 </body>
 </html>
-
