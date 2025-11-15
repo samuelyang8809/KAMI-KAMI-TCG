@@ -124,6 +124,7 @@
   font-size: 1.8em;
   cursor: pointer;
   color: #333;
+  z-index: 9999;
 }    
     select, .modal-content button { width: 65%; padding: 0.7em; margin-top: -1em; border-radius: 5px; border: none; }
     
@@ -325,7 +326,7 @@
 <div class="modal" id="variantModal">
   <div class="modal-content" style="text-align: center;">
     <span class="close" onclick="closeModal()" style="position: absolute; top: 10px; right: 15px; font-size: 1.8em; cursor: pointer;">✕</span>
-    <img id="modalImage" src="" alt="" style="width: 100%; scale: 0.95;margin-top:20px; border-radius: 8px; margin-bottom: 1em;">
+    <img id="modalImage" src="" alt="" style="width: 100%; scale: 1.1; border-radius: 8px; margin-bottom: 1em;">
     <span style="font-size: 24px;" id="modalTitle" ></span>
     
     <div class="price" id="modalPrice" style="margin-bottom: 1em;font-size:24px"></div>
