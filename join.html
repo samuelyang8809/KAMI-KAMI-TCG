@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>加入慢熟社</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #faf5ff; }
+    .card {
+      max-width: 480px; margin: auto; background: #fff; padding: 24px;
+      border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    input, select, textarea {
+      width: 100%; padding: 10px; margin: 6px 0 16px; border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    button {
+      width: 100%; padding: 12px; border-radius: 999px; border: none;
+      background: linear-gradient(135deg,#a855f7,#ec4899); color: white;
+      font-size: 16px; font-weight: 600;
+    }
+    #joinedCard {
+      text-align: center;
+      padding: 30px;
+      background: white;
+      border-radius: 16px;
+      display: none;
+    }
+  </style>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+</head>
+<body>
+
+  <div id="loading">載入中，請稍候…</div>
+
+  <!-- 已加入卡片 -->
+  <div id="joinedCard">
+    <h2>你已經加入慢熟社 🎉</h2>
+    <p>如果想更新資料，可以重新填寫。</p>
+  </div>
+
+  <!-- 表單 -->
+  <div id="formCard" class="card" style="display:none;">
+    <h2>慢熟社加入表單</h2>
+
+    <form id="joinForm">
+      <input type="hidden" id="userId" name="userId">
+      <input type="hidden" id="displayName" name="displayName">
+
+      <label>你希望大家怎麼稱呼你？</label>
+      <input type="text" name="nickname">
+
+      <label>性別</label>
+      <select name="gender">
+        <option value="M">男</option>
+        <option value="F">女</option>
+        <option value="N">不特別說</option>
+      </select>
+
+      <label>年齡區間</label>
+      <select name="ageRange">
+        <option value="">請選擇</option>
+        <option value="18-24">18-24</option>
+        <option value="25-34">25-34</option>
+        <option value="35-44">35-44</option>
+        <option value="45-54">45-54</option>
+      </select>
+
+      <label>主要活動地區</label>
+      <input type="text" name="city">
+
+      <label>你是怎麼知道慢熟社的？</label>
+      <select name="knowFrom">
+        <option value="">請選擇</option>
+        <option value="friend">朋友揪的</option>
+        <option value="line">其他 LINE 群</option>
+        <option value="social">社群貼文</option>
+      </select>
+
+      <label>想在慢熟社獲得什麼？</label>
+      <select name="expectation">
+        <option value="chat">可以慢慢聊天</option>
+        <option value="activity">一起參加活動</option>
+        <option value="relationship">認識對象</option>
+      </select>
+
+      <label>補充說明</label>
+      <textarea name="comment"></textarea>
+
+      <button type="submit">送出資料</button>
+    </form>
+  </div>
+
+<script>
+const liffId = "YOUR_LIFF_ID";
+const api = "YOUR_APPS_SCRIPT_URL"; // 不要加 /exec，Apps Script 會自動處理
+
+async function init() {
+  await liff.init({ liffId });
+
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
+
+  const profile = await liff.getProfile();
+  const userId = profile.userId;
+  const displayName = profile.displayName;
+
+  document.getElementById("userId").value = userId;
+  document.getElementById("displayName").value = displayName;
+
+  // 1️⃣ 送到後端查是否加入
+  let res = await fetch(api + "?mode=query&userId=" + userId, {
+    method: "POST"
+  });
+  let json = await res.json();
+
+  document.getElementById("loading").style.display = "none";
+
+  if (json.joined) {
+    document.getElementById("joinedCard").style.display = "block";
+  } else {
+    document.getElementById("formCard").style.display = "block";
+  }
+}
+
+// 2️⃣ 表單送出後 → submit mode
+document.getElementById("joinForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const form = new FormData(e.target);
+  form.append("mode", "submit");
+
+  let res = await fetch(api + "?mode=submit", {
+    method: "POST",
+    body: form
+  });
+
+  let json = await res.json();
+
+  alert("送出成功！");
+  location.reload();
+});
+
+init();
+</script>
+
+</body>
+</html>
