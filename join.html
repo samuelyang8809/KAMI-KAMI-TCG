@@ -99,29 +99,29 @@ const liffId = "YOUR_LIFF_ID";
 const api = "YOUR_APPS_SCRIPT_URL"; // 不要加 /exec，Apps Script 會自動處理
 
 async function init() {
-  await liff.init({ liffId });
+  //await liff.init({ liffId });
 
-  if (!liff.isLoggedIn()) {
-    liff.login();
-    return;
-  }
+  //if (!liff.isLoggedIn()) {
+    //liff.login();
+    //return;
+  //}
 
-  const profile = await liff.getProfile();
-  const userId = profile.userId;
-  const displayName = profile.displayName;
+  //const profile = await liff.getProfile();
+  //const userId = profile.userId;
+  //const displayName = profile.displayName;
 
-  document.getElementById("userId").value = userId;
-  document.getElementById("displayName").value = displayName;
+  document.getElementById("userId").value = 'aaa' //userId;
+  document.getElementById("displayName").value = 'bbb';//displayName;
 
   // 1️⃣ 送到後端查是否加入
-  let res = await fetch(api + "?mode=query&userId=" + userId, {
-    method: "POST"
-  });
-  let json = await res.json();
+  //let res = await fetch(api + "?mode=query&userId=" + userId, {
+    //method: "POST"
+  //});
+  //let json = await res.json();
 
   document.getElementById("loading").style.display = "none";
 
-  if (json.joined) {
+  if (ture || json.joined) {
     document.getElementById("joinedCard").style.display = "block";
   } else {
     document.getElementById("formCard").style.display = "block";
