@@ -1021,11 +1021,7 @@ async function submitOrder() {
   const productContents = []; 
 
   cart.forEach((item) => {
-  const isAccessory = item.商品分類名稱 === "卡牌周邊";
-
-  const itemTitle = isAccessory
-    ? `${item.大項名稱} / ${item.中項名稱}`
-    : `${item.大項名稱} / ${item.中項名稱} / ${item.商品小項名稱}${item.小小項名稱 ? `（${item.小小項名稱}）` : ''}`;
+  const itemTitle = `${item.大項名稱} / ${item.中項名稱} / ${item.商品小項名稱}${item.小小項名稱 ? `（${item.小小項名稱}）` : ''}`;
 
   const unitPrice = item.商品小小項價格 || item.商品小項價格 || 0;
   const subtotal = unitPrice * item.數量;
