@@ -929,6 +929,12 @@ function applyDiscount() {
   const code = document.getElementById('discountCodeInput').value.trim().toUpperCase();
   let discountValue = 0;
 
+  // 先計算官網價總額（未含運）
+  const total = cart.reduce(
+    (sum, item) => sum + ((item.商品小小項價格 || item.商品小項價格) * item.數量),
+    0
+  );
+
   if (code === "PK01") {
     discountValue = 0.1;
     showAlertModal("成功套用 PK01：10% 折扣！", true);
@@ -938,6 +944,15 @@ function applyDiscount() {
   } else if (code === "PK03") {
     discountValue = 0.3;
     showAlertModal("成功套用 PK03：30% 折扣！", true);
+  } else if (code === "KAMIKAMI2022") {
+    // 0–2499 元：官網價 95 折；2500 元以上：官網價 9 折
+    if (total < 2500) {
+      discountValue = 0.05;
+      showAlertModal("成功套用 KAMIKAMI2022：官網價 95 折！", true);
+    } else {
+      discountValue = 0.10;
+      showAlertModal("成功套用 KAMIKAMI2022：官網價 9 折！", true);
+    }
   } else {
     currentDiscount = 0;
     isDiscountApplied = false;
@@ -948,7 +963,6 @@ function applyDiscount() {
   }
 
   currentDiscount = discountValue;
-  const total = cart.reduce((sum, item) => sum + ((item.商品小小項價格 || item.商品小項價格) * item.數量), 0);
   finalAmountLocked = total - total * currentDiscount;
   isDiscountApplied = true;
   updateCartSummary();
