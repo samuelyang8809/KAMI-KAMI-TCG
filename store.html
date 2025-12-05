@@ -902,6 +902,17 @@ function decreaseItem(index) {
   if (cart[index].數量 <= 0) {
     cart.splice(index, 1); // 數量小於1就刪掉
   }
+
+  // 🔄 減少數量時，移除已套用的折扣
+  isDiscountApplied = false;
+  currentDiscount = 0;
+  finalAmountLocked = 0;
+
+  const discountInput = document.getElementById('discountCodeInput');
+  if (discountInput) {
+    discountInput.value = ''; // 清空輸入框，避免誤會仍在生效
+  }
+
   renderCartItems();
 }
 
@@ -972,6 +983,17 @@ function applyDiscount() {
 
 function removeCartItem(index) {
   cart.splice(index, 1);
+
+  // 🔄 移除商品時，同樣重置折扣狀態
+  isDiscountApplied = false;
+  currentDiscount = 0;
+  finalAmountLocked = 0;
+
+  const discountInput = document.getElementById('discountCodeInput');
+  if (discountInput) {
+    discountInput.value = '';
+  }
+
   renderCartItems();
 }
 function backToHome() {
