@@ -892,8 +892,24 @@ function toggleGroup(button) {
   }
 }
 
+function resetDiscountOnCartChange() {
+  // 🔄 任何購物車內容變動（數量/刪除/手動輸入）都清除折扣
+  isDiscountApplied = false;
+  currentDiscount = 0;
+  finalAmountLocked = 0;
+
+  const discountInput = document.getElementById('discountCodeInput');
+  if (discountInput) {
+    discountInput.value = '';
+  }
+}
+
 function increaseItem(index) {
   cart[index].數量 += 1;
+
+  // 🔄 點 + 增加數量時，清除折扣碼與折扣金額
+  resetDiscountOnCartChange();
+
   renderCartItems();
 }
 
@@ -940,11 +956,25 @@ function applyDiscount() {
   const code = document.getElementById('discountCodeInput').value.trim().toUpperCase();
   let discountValue = 0;
 
-  // 先計算官網價總額（未含運）
-  const total = cart.reduce(
-    (sum, item) => sum + ((item.商品小小項價格 || item.商品小項價格) * item.數量),
-    0
-  );
+  // 先計算官網價總額（未含運）— 保證為數字
+  let total = cart.reduce((sum, item) => {
+    const price = Number(item.商品小小項價格 ?? item.商品小項價格 ?? 0);
+    const qty = Number(item.數量 ?? 0);
+    return sum + (price * qty);
+  }, 0);
+
+  // 防呆：如果 total 不是有效數字，直接拒絕套用折扣
+  if (!Number.isFinite(total)) {
+    currentDiscount = 0;
+    isDiscountApplied = false;
+    finalAmountLocked = 0;
+    showAlertModal("金額計算異常（total 不是數字），請重新整理頁面或重新加入購物車商品後再試一次。", true);
+    updateCartSummary();
+    return;
+  }
+
+  // 你希望金額以整數為準
+  total = Math.round(total);
 
   if (code === "PK01") {
     discountValue = 0.1;
