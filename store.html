@@ -1060,7 +1060,8 @@ async function submitOrder() {
     shippingFee = 0;
   }
 
-  const finalGrandTotal = discountedTotal + shippingFee;
+  // Ensure the finalGrandTotal is always an integer (rounded)
+  const finalGrandTotal = Math.round(discountedTotal + shippingFee);
 
   // 🔵 訂單明細區塊（每個商品）
   const productContents = []; 
@@ -1101,6 +1102,7 @@ async function submitOrder() {
 });
   
   // 🔷 加入折扣與總價欄
+  // summaryContents: use already-rounded variables for all values
   const summaryContents = [
     {
       type: "box",
