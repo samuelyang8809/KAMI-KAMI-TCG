@@ -956,8 +956,16 @@ function applyDiscount() {
     discountValue = 0.3;
     showAlertModal("成功套用 PK03：30% 折扣！", true);
   } else if (code === "KAMIKAMI2022") {
-    // 0–2499 元：官網價 95 折；2500 元以上：官網價 9 折
-    if (total < 2500) {
+    // 799–2499 元：官網價 95 折；2500 元以上：官網價 9 折
+    if (total < 799) {
+      // 未達門檻，不套用折扣
+      currentDiscount = 0;
+      isDiscountApplied = false;
+      finalAmountLocked = 0;
+      showAlertModal("訂單金額未達 799 元，無法使用 KAMIKAMI2022 折扣碼，請再多選購一些商品喔！", true);
+      updateCartSummary();
+      return;
+    } else if (total < 2500) {
       discountValue = 0.05;
       showAlertModal("成功套用 KAMIKAMI2022：官網價 95 折！", true);
     } else {
@@ -974,7 +982,7 @@ function applyDiscount() {
   }
 
   currentDiscount = discountValue;
-  finalAmountLocked = total - total * currentDiscount;
+  finalAmountLocked = Math.round(total - total * currentDiscount);
   isDiscountApplied = true;
   updateCartSummary();
 }
@@ -1040,15 +1048,16 @@ async function submitOrder() {
   }
   console.log(cart);
   const total = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
-  const discountAmount = isDiscountApplied ? (total - finalAmountLocked) : 0;
-  const discountedTotal = isDiscountApplied ? finalAmountLocked : total;
+  const discountAmount = isDiscountApplied ? Math.round(total - finalAmountLocked) : 0;
+  const discountedTotal = isDiscountApplied ? Math.round(finalAmountLocked) : Math.round(total);
 
   // 🔶 運費邏輯
   let shippingFee = 0;
+  // 399 元以上免運，未達 399 元收 38 元運費
   if (discountedTotal < 399) {
     shippingFee = 38;
-  } else if (discountedTotal < 799) {
-    shippingFee = 19;
+  } else {
+    shippingFee = 0;
   }
 
   const finalGrandTotal = discountedTotal + shippingFee;
