@@ -985,7 +985,17 @@ function applyDiscount() {
   } else if (code === "PK03") {
     discountValue = 0.3;
     showAlertModal("成功套用 PK03：30% 折扣！", true);
-  } else if (code === "KAMIKAMI2022") {
+  } else if ([
+    "KAMIKAMI2022",
+    "YENYENZIZI",
+    "JERRY",
+    "WL26",
+    "CARDSHOP26",
+    "ICE26",
+    "ND26",
+    "MEW26",
+    "ROGER26"
+  ].includes(code)) {
     // 799–2499 元：官網價 95 折；2500 元以上：官網價 9 折
     if (total < 799) {
       // 未達門檻，不套用折扣
