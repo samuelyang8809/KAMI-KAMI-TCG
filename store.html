@@ -1002,8 +1002,8 @@ function applyDiscount() {
     "ICE26",
     "ND26",
     "MEW26",
-    "carpool666",
-    "blacktea",
+    "CARPOOL666",
+    "BLACKTEA",
     "ROGER26"
   ].includes(code)) {
     // 799–2499 元：官網價 95 折；2500 元以上：官網價 9 折
@@ -1013,16 +1013,16 @@ function applyDiscount() {
       isDiscountApplied = false;
       finalAmountLocked = 0;
       appliedDiscountCode = "";
-      showAlertModal("訂單金額未達 799 元，無法使用 KAMIKAMI2022 折扣碼，請再多選購一些商品喔！", true);
+      showAlertModal("訂單金額未達 799 元，無法使用 " + code +" 折扣碼，請再多選購一些商品喔！", true);
       updateCartSummary();
       return;
     } else if (total < 2500) {
       discountValue = 0.05;
-      showAlertModal("成功套用 KAMIKAMI2022：官網價 95 折！", true);
+      showAlertModal("成功套用 " + code +" ：官網價 95 折！", true);
       appliedDiscountCode = code;
     } else {
       discountValue = 0.10;
-      showAlertModal("成功套用 KAMIKAMI2022：官網價 9 折！", true);
+      showAlertModal("成功套用 " + code +" ：官網價 9 折！", true);
       appliedDiscountCode = code;
     }
   } else {
