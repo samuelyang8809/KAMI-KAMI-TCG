@@ -500,12 +500,13 @@ initLiff();
   const variantSelect = document.getElementById('variantSelect');
   const cartButton = document.getElementById('cartButton');
   
-  let currentVariants = [];
-  let currentItem = {};
-  let cart = [];
-  let currentDiscount = 0;
-  let isDiscountApplied = false;
-  let finalAmountLocked = 0;
+let currentVariants = [];
+let currentItem = {};
+let cart = [];
+let currentDiscount = 0;
+let isDiscountApplied = false;
+let finalAmountLocked = 0;
+let appliedDiscountCode = "";
 
   
 
@@ -897,6 +898,7 @@ function resetDiscountOnCartChange() {
   isDiscountApplied = false;
   currentDiscount = 0;
   finalAmountLocked = 0;
+  appliedDiscountCode = "";
 
   const discountInput = document.getElementById('discountCodeInput');
   if (discountInput) {
@@ -909,6 +911,7 @@ function increaseItem(index) {
 
   // 🔄 點 + 增加數量時，清除折扣碼與折扣金額
   resetDiscountOnCartChange();
+  appliedDiscountCode = "";
 
   renderCartItems();
 }
@@ -923,6 +926,7 @@ function decreaseItem(index) {
   isDiscountApplied = false;
   currentDiscount = 0;
   finalAmountLocked = 0;
+  appliedDiscountCode = "";
 
   const discountInput = document.getElementById('discountCodeInput');
   if (discountInput) {
@@ -968,6 +972,7 @@ function applyDiscount() {
     currentDiscount = 0;
     isDiscountApplied = false;
     finalAmountLocked = 0;
+    appliedDiscountCode = "";
     showAlertModal("金額計算異常（total 不是數字），請重新整理頁面或重新加入購物車商品後再試一次。", true);
     updateCartSummary();
     return;
@@ -979,12 +984,15 @@ function applyDiscount() {
   if (code === "PK01") {
     discountValue = 0.1;
     showAlertModal("成功套用 PK01：10% 折扣！", true);
+    appliedDiscountCode = code;
   } else if (code === "PK02") {
     discountValue = 0.2;
     showAlertModal("成功套用 PK02：20% 折扣！", true);
+    appliedDiscountCode = code;
   } else if (code === "PK03") {
     discountValue = 0.3;
     showAlertModal("成功套用 PK03：30% 折扣！", true);
+    appliedDiscountCode = code;
   } else if ([
     "KAMIKAMI2022",
     "YENYENZIZI",
@@ -994,6 +1002,8 @@ function applyDiscount() {
     "ICE26",
     "ND26",
     "MEW26",
+    "carpool666",
+    "blacktea",
     "ROGER26"
   ].includes(code)) {
     // 799–2499 元：官網價 95 折；2500 元以上：官網價 9 折
@@ -1002,20 +1012,24 @@ function applyDiscount() {
       currentDiscount = 0;
       isDiscountApplied = false;
       finalAmountLocked = 0;
+      appliedDiscountCode = "";
       showAlertModal("訂單金額未達 799 元，無法使用 KAMIKAMI2022 折扣碼，請再多選購一些商品喔！", true);
       updateCartSummary();
       return;
     } else if (total < 2500) {
       discountValue = 0.05;
       showAlertModal("成功套用 KAMIKAMI2022：官網價 95 折！", true);
+      appliedDiscountCode = code;
     } else {
       discountValue = 0.10;
       showAlertModal("成功套用 KAMIKAMI2022：官網價 9 折！", true);
+      appliedDiscountCode = code;
     }
   } else {
     currentDiscount = 0;
     isDiscountApplied = false;
     finalAmountLocked = 0;
+    appliedDiscountCode = "";
     showAlertModal("無效的折扣碼，請重新輸入。", true);
     updateCartSummary();
     return;
@@ -1024,6 +1038,7 @@ function applyDiscount() {
   currentDiscount = discountValue;
   finalAmountLocked = Math.round(total - total * currentDiscount);
   isDiscountApplied = true;
+  // appliedDiscountCode is already set above
   updateCartSummary();
 }
 
@@ -1036,6 +1051,7 @@ function removeCartItem(index) {
   isDiscountApplied = false;
   currentDiscount = 0;
   finalAmountLocked = 0;
+  appliedDiscountCode = "";
 
   const discountInput = document.getElementById('discountCodeInput');
   if (discountInput) {
@@ -1180,82 +1196,84 @@ async function submitOrder() {
 
   try {
     await liff.sendMessages([
-  {
-    type: "flex",
-    altText: "感謝您的訂單！",
-    contents: {
-      type: "bubble",
-      body: {
-        type: "box",
-        layout: "vertical",
-        spacing: "md",
-        contents: [
-          {
-            type: "text",
-            text: "等待賣家提供專屬賣場",
-            weight: "bold",
-            size: "lg",
-            color: "#0000CC",
-            align: "center"
-          },
-          {
-            type: "text",
-            text: `訂購時間：${new Date().toLocaleString()}\n訂購名字：${userProfile.displayName}`,
-            size: "sm",
-            color: "#555555",
-            wrap: true
-          },
-          { type: "text", text: "備註：", size: "sm", color: "#888888" },
-          { type: "text", text: "商品        數量 x 金額", size: "sm", color: "#888888" },
-          { type: "separator" },
-          // 🟧 商品列表（接到 productContents 陣列）
-          ...productContents,
-          { type: "separator" },
-          // 🟦 折扣、運費、總計
-          {
+      {
+        type: "flex",
+        altText: "感謝您的訂單！",
+        contents: {
+          type: "bubble",
+          body: {
             type: "box",
-            layout: "horizontal",
+            layout: "vertical",
+            spacing: "md",
             contents: [
-              { type: "text", text: "折扣 - 群內優惠", flex: 2, color: "#FF5722" },
-              { type: "text", text: `$-${discountAmount}`, flex: 1, align: "end", color: "#FF5722" }
+              {
+                type: "text",
+                text: "等待賣家提供專屬賣場",
+                weight: "bold",
+                size: "lg",
+                color: "#0000CC",
+                align: "center"
+              },
+              {
+                type: "text",
+                text: `訂購時間：${new Date().toLocaleString()}\n訂購名字：${userProfile.displayName}`,
+                size: "sm",
+                color: "#555555",
+                wrap: true
+              },
+              { type: "text", text: "備註：", size: "sm", color: "#888888" },
+              { type: "text", text: "商品        數量 x 金額", size: "sm", color: "#888888" },
+              { type: "separator" },
+              // 🟧 商品列表（接到 productContents 陣列）
+              ...productContents,
+              { type: "separator" },
+              // 🟦 折扣、運費、總計
+              ...(isDiscountApplied ? [
+                {
+                  type: "box",
+                  layout: "horizontal",
+                  contents: [
+                    { type: "text", text: `折扣 - ${appliedDiscountCode}`, flex: 2, color: "#FF5722" },
+                    { type: "text", text: `-$${discountAmount}`, flex: 1, align: "end", color: "#FF5722" }
+                  ]
+                }
+              ] : []),
+              {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  { type: "text", text: "運費", flex: 2 },
+                  { type: "text", text: `$${shippingFee}`, flex: 1, align: "end" }
+                ]
+              },
+              {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  { type: "text", text: "總計", flex: 2 },
+                  { type: "text", text: `$${finalGrandTotal}`, flex: 1, align: "end", weight: "bold", color: "#0000CC" }
+                ]
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "sm",
+                "contents": [
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "text", "text": "付款方式", "color": "#aaaaaa", "size": "sm", "flex": 2 },
+                      { "type": "text", "text": "1賣貨便／超商取貨付款", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 }
+                    ]
+                  }
+                ]
+              }
             ]
-          },
-          {
-            type: "box",
-            layout: "horizontal",
-            contents: [
-              { type: "text", text: "運費", flex: 2 },
-              { type: "text", text: `$${shippingFee}`, flex: 1, align: "end" }
-            ]
-          },
-          {
-            type: "box",
-            layout: "horizontal",
-            contents: [
-              { type: "text", text: "總計", flex: 2 },
-              { type: "text", text: `$${finalGrandTotal}`, flex: 1, align: "end", weight: "bold", color: "#0000CC" }
-            ]
-          },
-          {
-  "type": "box",
-  "layout": "vertical",
-  "spacing": "sm",
-  "contents": [
-    {
-      "type": "box",
-      "layout": "baseline",
-      "contents": [
-        { "type": "text", "text": "付款方式", "color": "#aaaaaa", "size": "sm", "flex": 2 },
-        { "type": "text", "text": "1賣貨便／超商取貨付款", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 }
-      ]
-    }
-  ]
-}
-        ]
+          }
+        }
       }
-    }
-  }
-]);
+    ]);
 
   } catch (error) {
     console.error("發送LINE訊息失敗", error);
