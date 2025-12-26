@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
   <title>KAMI KAMI 首頁</title>
   <style>
@@ -54,23 +57,30 @@
   </header>
 
   <div class="intro-section" id="introSection">
-    <div class="intro-card" onclick="location.href='store.html?major=spread-frame'">
+    <div class="intro-card" onclick="goStore('spread-frame')">
       <div style="position: relative;">
         <img src="./img/logo/IMG_9568.PNG" style="margin-top: 30px" alt="擴散式卡磚">
       </div>
     </div>
-    <div class="intro-card" onclick="location.href=location.href = 'store.html?major=spread-slab'">
+    <div class="intro-card" onclick="goStore('spread-slab')">
         <div style="position: relative;">
         <img src="./img/logo/IMG_9572.PNG" alt="擴散式鑑定卡殼">
       </div>
     </div>
-    <div class="intro-card" onclick="location.href=location.href = 'store.html?major=card-accessory'">
+    <div class="intro-card" onclick="goStore('card-accessory')">
       <div style="position: relative;">
         <img src="./img/logo/IMG_9571.PNG" alt="卡牌周邊">
       </div>
     </div>
   </div>
   <script>
+
+  // ✅ LINE 內建瀏覽器/LIFF 可能會快取舊版 store.html/JS，導致看起來「殘留」或行為不一致
+  // 用版本參數強制每次導頁都帶上 v=... 以避免快取
+  const APP_VER = '20251226-1';
+  function goStore(major) {
+    location.href = `store.html?major=${encodeURIComponent(major)}&v=${encodeURIComponent(APP_VER)}`;
+  }
 
 async function initLiff() {
   await liff.init({ liffId: "2007344816-9ODNJdlA" });
