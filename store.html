@@ -505,7 +505,16 @@ let cart = [];
 let currentDiscount = 0;
 let isDiscountApplied = false;
 let finalAmountLocked = 0;
+
 let appliedDiscountCode = "";
+
+// ✅ 同一個瀏覽器 Session 第一次進入本頁就清空購物車（避免上次殘留造成「合併」的誤會）
+// 關掉分頁/瀏覽器後 sessionStorage 會重置；下次再進來會再清一次
+const CART_SESSION_INIT_KEY = 'kami-cart-session-inited';
+if (!sessionStorage.getItem(CART_SESSION_INIT_KEY)) {
+  localStorage.removeItem('kami-cart');
+  sessionStorage.setItem(CART_SESSION_INIT_KEY, '1');
+}
 
   
 
@@ -857,32 +866,26 @@ function changeCartVariant(selectElement, itemIndex) {
   const selectedItem = cart[itemIndex];
   const newVariant = selectedItem.variants[selectedIdx];
 
-  if (
-    newVariant &&
-    (
-      newVariant.商品小小項名稱 === selectedItem.小小項名稱 ||
-      newVariant.商品小項名稱 === selectedItem.商品小項名稱
-    )
-  ) {
-    selectedItem.商品小項名稱 = newVariant.商品小項名稱 || selectedItem.商品小項名稱;
-    selectedItem.商品小項價格 = newVariant.商品小項價格 || selectedItem.商品小項價格;
-    selectedItem.商品小項圖片 = newVariant.商品小項圖片 || selectedItem.商品小項圖片;
+  if (!newVariant) return;
 
-    selectedItem.小小項名稱 = newVariant.商品小小項名稱 || '';
-    selectedItem.商品小小項價格 = newVariant.商品小小項價格 || 0;
-    selectedItem.商品小小項圖片 = newVariant.商品小小項圖片 || '';
-  } else if (newVariant) {
-    // fallback: still update to newVariant
-    selectedItem.商品小項名稱 = newVariant.商品小項名稱 || selectedItem.商品小項名稱;
-    selectedItem.商品小項價格 = newVariant.商品小項價格 || selectedItem.商品小項價格;
-    selectedItem.商品小項圖片 = newVariant.商品小項圖片 || selectedItem.商品小項圖片;
+  // ✅ 你的小小項資料用的是「商品小小項名稱/價格/圖片」
+  const vName = newVariant.商品小小項名稱 || newVariant.商品小項名稱 || '';
+  const vPrice = Number(newVariant.商品小小項價格 ?? newVariant.商品小項價格 ?? 0);
+  const vImage = newVariant.商品小小項圖片 || newVariant.商品小項圖片 || '';
 
-    selectedItem.小小項名稱 = newVariant.商品小小項名稱 || '';
-    selectedItem.商品小小項價格 = newVariant.商品小小項價格 || 0;
-    selectedItem.商品小小項圖片 = newVariant.商品小小項圖片 || '';
-  }
+  selectedItem.小小項名稱 = vName;
+  selectedItem.商品小小項價格 = vPrice;
+  selectedItem.商品小小項圖片 = vImage;
 
-  renderCartItems(); // 更新畫面
+  // ✅ 兼容欄位：後面總價/下單訊息會抓這些
+  selectedItem.商品小項價格 = vPrice;
+  selectedItem.商品小項圖片 = vImage;
+
+  // 🔄 換款式視同購物車變動：清除折扣碼
+  resetDiscountOnCartChange();
+
+  saveCartToStorage();
+  renderCartItems();
 }
 
 function toggleGroup(button) {
@@ -1293,6 +1296,7 @@ async function submitOrder() {
 
   showCheckoutModal();
   cart = [];
+  localStorage.removeItem('kami-cart');
   cartButton.innerText = `購物車 (0)`;
 
   setTimeout(() => {
