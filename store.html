@@ -610,6 +610,9 @@ function openVariantModal(majorCategory, midCategory, item) {
     console.log('🎯 selectedIndex:', selectedVariantIndex);
     const isAccessory = currentItem.商品分類名稱 === "卡牌周邊";
 
+    // ✅ 一律以「下拉選到的 variant」為準（避免永遠落到第一個款式）
+    const selectedVariant = currentVariants[selectedVariantIndex] || {};
+
     const itemToAdd = {
       ...currentItem,
       數量: currentQuantity,
@@ -618,25 +621,26 @@ function openVariantModal(majorCategory, midCategory, item) {
       大項名稱: currentItem.大項名稱 || ''
     };
 
-    // 插入商品小小項相關資訊
-    itemToAdd.商品小項名稱 = currentItem.商品小小項名稱 || currentItem.商品小項名稱 || '';
-    itemToAdd.商品小項價格 = currentItem.商品小小項價格 || currentItem.商品小項價格 || 0;
-    itemToAdd.商品小項圖片 = currentItem.商品小小項圖片 || currentItem.商品小項圖片 || '';
-    itemToAdd.小小項名稱 = currentItem.商品小小項名稱 || '';
-    itemToAdd.小小項圖片 = currentItem.商品小小項圖片 || '';
+    // ✅ 商品主名稱固定（一般商品/卡牌周邊都一樣）
+    itemToAdd.商品小項名稱 = currentItem.商品小項名稱 || '';
 
-    if (isAccessory) {
-      // ✅ 不要清空名稱，保留原本商品資訊
-      itemToAdd.商品小項名稱 = currentItem.商品小項名稱;
-      itemToAdd.商品小項價格 = currentItem.商品小項價格;
-    } else {
-      const selectedVariant = currentVariants[selectedVariantIndex] || {};
-      itemToAdd.商品小項名稱 = selectedVariant.商品小項名稱 || currentItem.商品小項名稱 || '';
-      itemToAdd.商品小項價格 = selectedVariant.商品小項價格 || currentItem.商品小項價格 || 0;
-    }
+    // ✅ 款式（小小項）：用下拉選到的 variant（例：PSA-金殼 / PSA-黑殼 / PSA-銀殼）
+    itemToAdd.小小項名稱 = selectedVariant.商品小小項名稱 || selectedVariant.商品小項名稱 || '';
+
+    // ✅ 價格/圖片：以選到的款式為主（若沒款式就退回商品本身）
+    itemToAdd.商品小小項價格 = Number(
+      selectedVariant.商品小小項價格 ?? selectedVariant.商品小項價格 ?? currentItem.商品小項價格 ?? 0
+    );
+    itemToAdd.商品小小項圖片 =
+      selectedVariant.商品小小項圖片 || selectedVariant.商品小項圖片 || currentItem.商品小項圖片 || '';
+
+    // ✅ 兼容欄位：後續計算/訊息模板會用到
+    itemToAdd.商品小項價格 = itemToAdd.商品小小項價格;
+    itemToAdd.商品小項圖片 = itemToAdd.商品小小項圖片;
 
     const existIndex = cart.findIndex(p =>
       p.商品小項名稱 === itemToAdd.商品小項名稱 &&
+      (p.小小項名稱 || '') === (itemToAdd.小小項名稱 || '') &&
       p.中項名稱 === itemToAdd.中項名稱 &&
       p.大項名稱 === itemToAdd.大項名稱
     );
@@ -1102,8 +1106,17 @@ async function submitOrder() {
     return;
   }
   console.log(cart);
-  const total = cart.reduce((sum, item) => sum + (item.商品小項價格 * item.數量), 0);
-  const discountAmount = isDiscountApplied ? Math.round(total - finalAmountLocked) : 0;
+  // ✅ total 必須與 applyDiscount() 用同一套單價邏輯，避免金額不一致導致折扣變成負數
+  const total = cart.reduce((sum, item) => {
+    const price = Number(item.商品小小項價格 ?? item.商品小項價格 ?? 0);
+    const qty = Number(item.數量 ?? 0);
+    return sum + (price * qty);
+  }, 0);
+
+  // ✅ 折扣金額永遠顯示正數（畫面再加上 - 號即可）
+  const discountAmount = isDiscountApplied ? Math.abs(Math.round(total - finalAmountLocked)) : 0;
+
+  // ✅ 折後總額（不含運）
   const discountedTotal = isDiscountApplied ? Math.round(finalAmountLocked) : Math.round(total);
 
   // 🔶 運費邏輯
