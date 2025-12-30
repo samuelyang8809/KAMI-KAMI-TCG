@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>高業速讀工具 MVP</title>
+
+  <!-- LIFF SDK（放到 LIFF 才會有效） -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    :root{
+      --bg:#F7F4EE;           /* 奶油米白 */
+      --card:#FFFFFF;         /* 卡片白 */
+      --text:#1F2937;         /* 主文字 */
+      --muted:#6B7280;        /* 次文字 */
+
+      --brand:#76B39D;        /* 鼠尾草綠：主按鈕/重點 */
+      --accent:#7AA7C7;       /* 霧藍：次強調 */
+      --ok:#70C9A8;
+      --bad:#E07A7A;
+
+      --line:#E7E1D9;         /* 邊框 */
+      --shadow: 0 10px 24px rgba(31,41,55,.08);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap{max-width:980px; margin:0 auto; padding:18px 14px 90px}
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      background: rgba(247,244,238,.88);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+      padding:12px 14px;
+    }
+    .topbar .row{max-width:980px;margin:0 auto; display:flex; gap:10px; align-items:center; justify-content:space-between;}
+    .brand{
+      display:flex; flex-direction:column; line-height:1.2;
+    }
+    .brand b{font-size:14px}
+    .brand span{font-size:12px; color:var(--muted)}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:8px 10px;
+      background: rgba(255,255,255,.85);
+      border:1px solid var(--line);
+      border-radius:999px;
+      color: var(--muted);
+      font-size:12px;
+    }
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    @media (min-width: 860px){
+      .grid{ grid-template-columns: 1.15fr .85fr; gap:14px; }
+    }
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:16px;
+    }
+    h1{font-size:18px;margin:0 0 8px}
+    h2{font-size:14px;margin:0 0 10px;color: var(--text)}
+    p{margin:0;color:var(--muted); font-size:13px; line-height:1.5}
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    button{
+      appearance:none; border:0; cursor:pointer;
+      padding:12px 14px;
+      border-radius: 14px;
+      font-weight:700;
+      color:#0b1a14;
+      background: var(--brand);
+      box-shadow: 0 10px 22px rgba(118,179,157,.22);
+      transition:.15s transform ease, .15s opacity ease;
+    }
+    button.secondary{
+      background: transparent;
+      border:1px solid rgba(122,167,199,.55);
+      color: var(--text);
+      box-shadow:none;
+    }
+    button.danger{
+      background: transparent;
+      border:1px solid rgba(224,122,122,.75);
+      color:#7a2b2b;
+      box-shadow:none;
+    }
+    button:active{ transform: translateY(1px); opacity:.92; }
+    input{
+      width:100%;
+      padding:12px 12px;
+      background: rgba(255,255,255,.9);
+      border:1px solid var(--line);
+      border-radius: 14px;
+      color: var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    .sep{ height:1px; background: var(--line); margin:14px 0; }
+
+    .progressWrap{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; margin-top:10px;
+    }
+    .bar{
+      flex:1;
+      height:12px; border-radius:999px;
+      background: rgba(255,255,255,.9);
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .bar > i{
+      display:block; height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--brand), var(--accent));
+      border-radius:999px;
+      transition: width .25s ease;
+    }
+    .pct{ font-size:12px; color: var(--muted); min-width:80px; text-align:right; }
+
+    .tag{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(118,179,157,.14);
+      border: 1px solid rgba(118,179,157,.35);
+      color: var(--text);
+      font-size:12px;
+      margin-top:8px;
+    }
+
+    .q{
+      margin-top:10px;
+      padding:12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--line);
+    }
+    .qTitle{font-weight:800; font-size:14px; margin:0 0 6px}
+    .choices{display:grid; gap:8px; margin-top:10px}
+    .choice{
+      text-align:left;
+      padding:10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-weight:700;
+    }
+    .choice.ok{ border-color: rgba(112,201,168,.9); background: rgba(112,201,168,.16); }
+    .choice.bad{ border-color: rgba(224,122,122,.85); background: rgba(224,122,122,.14); }
+    .mini{font-size:12px; color: var(--muted); margin-top:8px}
+    .list{display:grid; gap:10px; margin-top:10px}
+    .item{
+      padding:12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--line);
+    }
+    .item b{display:block; font-size:13px; margin-bottom:4px}
+    .item .meta{font-size:12px; color:var(--muted)}
+    .item .ans{margin-top:8px; font-size:12px; color: var(--text)}
+    .hidden{display:none !important;}
+    .toast{
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom:18px; z-index:99;
+      background: rgba(255,255,255,.92);
+      border:1px solid var(--line);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      max-width: 92vw;
+      font-size:13px;
+      opacity:0; pointer-events:none;
+      transition:.2s opacity ease, .2s transform ease;
+    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(-2px); }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="row">
+      <div class="brand">
+        <b>高業速讀工具 MVP</b>
+        <span id="subline">LIFF / localStorage</span>
+      </div>
+      <div class="pill" id="userPill">未登入</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- View: Onboarding -->
+    <section class="card" id="viewOnboarding">
+      <h1>第一次使用</h1>
+      <p>請先填寫暱稱，我們會用你的 LINE 使用者 ID 記錄進度與錯題本。</p>
+      <div class="sep"></div>
+
+      <h2>暱稱</h2>
+      <input id="nicknameInput" placeholder="例如：Chenghan / 小楊 / 阿德" maxlength="16" />
+      <div class="btnrow">
+        <button id="btnSaveNickname">開始使用</button>
+        <button class="secondary" id="btnDemoReset">清除資料（測試用）</button>
+      </div>
+      <p class="mini">※ 若在本機開啟，會使用「demo-user」作為 userId；放到 LIFF 才會拿到真實 LINE userId。</p>
+    </section>
+
+    <!-- View: Main -->
+    <section class="grid hidden" id="viewMain">
+      <!-- Left: Dashboard -->
+      <div class="card">
+        <h1>使用者主頁</h1>
+        <p id="welcomeText">嗨！</p>
+
+        <div class="progressWrap">
+          <div class="bar"><i id="progressBar"></i></div>
+          <div class="pct" id="progressText">0%</div>
+        </div>
+        <div class="tag" id="progressDetail">已完成 0 / 0</div>
+
+        <div class="sep"></div>
+
+        <h2>功能</h2>
+        <div class="btnrow">
+          <button id="btnGoSpeedread">開始速讀</button>
+          <button class="secondary" id="btnGoWrongbook">錯題本</button>
+        </div>
+
+        <div class="sep"></div>
+
+        <h2>管理</h2>
+        <div class="btnrow">
+          <button class="secondary" id="btnChangeNick">修改暱稱</button>
+          <button class="danger" id="btnResetAll">清除所有學習資料</button>
+        </div>
+
+        <p class="mini">MVP 先用 localStorage；上線時再換成 Firebase/Firestore。</p>
+      </div>
+
+      <!-- Right: Info / Debug -->
+      <div class="card">
+        <h2>目前資料</h2>
+        <p class="mini" id="debugInfo">-</p>
+        <div class="sep"></div>
+        <h2>速讀內容（示範）</h2>
+        <p>這裡先放 1 個示範單元（你之後把題庫換成你的 JSON 就行）。</p>
+        <div class="list" id="moduleList"></div>
+      </div>
+    </section>
+
+    <!-- View: Speedread -->
+    <section class="card hidden" id="viewSpeedread">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div>
+          <h1 id="srTitle">速讀工具</h1>
+          <p id="srSub" class="mini">快速看重點 → 立刻檢核</p>
+        </div>
+        <button class="secondary" id="btnBackHome1">回主頁</button>
+      </div>
+
+      <div class="sep"></div>
+
+      <h2>速讀重點</h2>
+      <div class="q" id="srKeypoints"></div>
+
+      <div class="sep"></div>
+
+      <h2>快問快答</h2>
+      <div id="questionBox"></div>
+
+      <div class="btnrow">
+        <button class="secondary" id="btnNextQuestion">下一題</button>
+        <button class="secondary" id="btnRestartModule">重來一次</button>
+      </div>
+
+      <p class="mini" id="srHint">答錯會自動加入錯題本（不會卡關）。</p>
+    </section>
+
+    <!-- View: Wrongbook -->
+    <section class="card hidden" id="viewWrongbook">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div>
+          <h1>錯題本</h1>
+          <p class="mini">集中火力補弱點</p>
+        </div>
+        <button class="secondary" id="btnBackHome2">回主頁</button>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="btnrow">
+        <button class="secondary" id="btnClearWrongbook">清空錯題本</button>
+      </div>
+
+      <div class="list" id="wrongList"></div>
+      <p class="mini" id="wrongEmpty">目前沒有錯題，太強了 😎</p>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /**********************
+     * 1) MVP 題庫（示範）
+     * 之後你可以把這段改成 fetch JSON 檔或從 Firestore 讀
+     **********************/
+   const MODULES = [
+  {
+    moduleId: "INVEST-01",
+    title: "投資學｜速讀 5 題",
+    keypoints: [
+      "投資學速讀重點：風險—報酬、分散、相關係數。",
+      "非系統性風險可分散；系統性風險（市場風險）不可分散。",
+      "相關係數越低，分散效果通常越好。",
+      "（MVP 示範）之後可改用外部 JSON 題庫。"
+    ],
+    questions: [
+      {
+        qid: "INV-01", type: "choice",
+        stem: "投資組合理論中，哪一種風險最能透過『分散投資』降低？",
+        choices: ["系統性風險", "非系統性風險", "通膨風險", "利率風險"],
+        answerIndex: 1,
+        explain: "分散主要降低公司/產業特有的非系統性風險；系統性風險無法靠分散消除。"
+      },
+      {
+        qid: "INV-02", type: "choice",
+        stem: "在其他條件相同下，兩資產的相關係數越接近 -1，代表？",
+        choices: ["分散效果越差", "分散效果越好", "報酬一定更高", "風險一定為 0"],
+        answerIndex: 1,
+        explain: "相關係數越低，組合波動越可能互相抵銷，分散效果通常越好。"
+      },
+      {
+        qid: "INV-03", type: "choice",
+        stem: "下列哪個敘述最符合『系統性風險』？",
+        choices: ["單一公司爆雷", "整體市場下跌", "某產業個別事件", "個人交易失誤"],
+        answerIndex: 1,
+        explain: "系統性風險來自市場/總體因素，影響大多數資產。"
+      },
+      {
+        qid: "INV-04", type: "cloze",
+        stem: "（挖空）透過持有多種資產來降低風險的作法稱為：________",
+        answerText: "分散投資",
+        explain: "分散投資（Diversification）是投資學最核心的風險管理概念之一。"
+      },
+      {
+        qid: "INV-05", type: "choice",
+        stem: "若一項投資的預期報酬更高，投資學常見的直覺是？",
+        choices: ["風險通常也更高", "風險通常更低", "風險與報酬無關", "一定沒有波動"],
+        answerIndex: 0,
+        explain: "一般情況下，較高風險資產需要較高預期報酬作為補償。"
+      }
+    ]
+  },
+
+  {
+    moduleId: "FIN-01",
+    title: "財務分析｜速讀 5 題",
+    keypoints: [
+      "財務分析速讀重點：比率『方向』＋『代表意義』。",
+      "短期償債：流動比率；槓桿：負債比；獲利能力：ROE/ROA。",
+      "判讀要搭配：產業特性、趨勢（連續期間）、現金流。",
+      "（MVP 示範）之後可加入真實財報情境題。"
+    ],
+    questions: [
+      {
+        qid: "FIN-01", type: "choice",
+        stem: "『流動比率』主要用來衡量什麼能力？",
+        choices: ["長期成長能力", "短期償債能力", "股東報酬能力", "存貨周轉速度"],
+        answerIndex: 1,
+        explain: "流動比率通常用來觀察短期資產是否足以支應短期負債。"
+      },
+      {
+        qid: "FIN-02", type: "choice",
+        stem: "ROE（股東權益報酬率）較貼近衡量？",
+        choices: ["股東資金使用效率", "產品毛利一定更高", "現金一定增加", "負債一定下降"],
+        answerIndex: 0,
+        explain: "ROE衡量企業運用股東權益創造獲利的效率；仍需搭配現金流與槓桿判讀。"
+      },
+      {
+        qid: "FIN-03", type: "choice",
+        stem: "負債比上升，最直接可能代表？",
+        choices: ["槓桿提高", "一定更安全", "一定更賺錢", "一定現金變多"],
+        answerIndex: 0,
+        explain: "負債比上升通常表示使用較多負債資金，槓桿提高。"
+      },
+      {
+        qid: "FIN-04", type: "choice",
+        stem: "公司 ROE 很高，但營運現金流偏弱，較合理的警訊是？",
+        choices: ["獲利品質可能需再檢查", "公司一定是成長股", "一定沒有財務風險", "表示不需要看現金流"],
+        answerIndex: 0,
+        explain: "獲利不等於現金，需搭配現金流與槓桿來源判讀。"
+      },
+      {
+        qid: "FIN-05", type: "cloze",
+        stem: "（挖空）同一公司比率判讀時，最重要的是看連續期間的 ________（例如逐季/逐年變化）。",
+        answerText: "趨勢",
+        explain: "比率要看趨勢與結構變化，單一時點容易誤判。"
+      }
+    ]
+  },
+
+  {
+    moduleId: "LAW-01",
+    title: "證券交易法規｜速讀 5 題",
+    keypoints: [
+      "法規速讀重點：名詞定義、構成要件、責任主體與例外（關鍵字反轉）。",
+      "先抓『誰（主體）』＋『做了什麼（行為）』＋『責任/效果』。",
+      "數字題建議用挖空反覆刺激；上線前務必依最新版法規校對。",
+      "（MVP 示範）此處題目以概念為主。"
+    ],
+    questions: [
+      {
+        qid: "LAW-01", type: "choice",
+        stem: "下列何者最接近『內線交易』的核心概念？",
+        choices: ["使用公開資訊交易", "利用未公開重大消息交易", "長期持有不交易", "只用技術分析"],
+        answerIndex: 1,
+        explain: "內線交易核心在於利用未公開重大資訊交易，破壞市場公平性。"
+      },
+      {
+        qid: "LAW-02", type: "choice",
+        stem: "法規題在判斷責任時，最優先要確認的是？",
+        choices: ["市場氣氛", "行為主體與構成要件", "股價走勢", "媒體報導"],
+        answerIndex: 1,
+        explain: "先鎖定『誰』與『是否符合構成要件』，再談責任與處罰。"
+      },
+      {
+        qid: "LAW-03", type: "cloze",
+        stem: "（挖空）法規題背誦框架：誰（____）＋做了什麼（行為）＋責任/效果。",
+        answerText: "主體",
+        explain: "先抓主體（誰負責），再看行為與要件，最後才是效果/責任。"
+      },
+      {
+        qid: "LAW-04", type: "choice",
+        stem: "下列哪一項最能提升證券市場的『公平性』？",
+        choices: ["讓少數人先知道消息", "強化資訊揭露與交易透明", "降低揭露要求", "鼓勵不揭露"],
+        answerIndex: 1,
+        explain: "資訊揭露與透明度提升，有助降低資訊不對稱，改善公平性。"
+      },
+      {
+        qid: "LAW-05", type: "choice",
+        stem: "若題目在考『例外』，最容易失分的原因通常是？",
+        choices: ["沒看清楚關鍵字", "算術太難", "題目太長就跳過", "不用讀題幹"],
+        answerIndex: 0,
+        explain: "法規題常靠關鍵字反轉（但書/例外/除外），要特別警覺。"
+      }
+    ]
+  }
+];
+
+    /**********************
+     * 2) localStorage keys
+     **********************/
+    const LS = {
+      user: "gao_user_v1",
+      progress: "gao_progress_v1",
+      wrongbook: "gao_wrongbook_v1"
+    };
+
+    /**********************
+     * 3) App State
+     **********************/
+    const state = {
+      userId: null,
+      nickname: null,
+      currentModuleId: MODULES[0].moduleId,
+      currentQuestionIndex: 0,
+      answeredMap: {}, // qid -> true
+      liffReady: false
+    };
+
+    /**********************
+     * 4) Helpers
+     **********************/
+    const $ = (id) => document.getElementById(id);
+    const nowISO = () => new Date().toISOString();
+    const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
+
+    function toast(msg){
+      const el = $("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(()=>el.classList.remove("show"), 1800);
+    }
+
+    function loadJSON(key, fallback){
+      try{
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      }catch(e){
+        return fallback;
+      }
+    }
+    function saveJSON(key, value){
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function getUser(){
+      return loadJSON(LS.user, null);
+    }
+    function setUser(user){
+      saveJSON(LS.user, user);
+    }
+    function getProgress(){
+      // progress shape: { moduleId: { completedQids: [], updatedAt } }
+      return loadJSON(LS.progress, {});
+    }
+    function setProgress(p){
+      saveJSON(LS.progress, p);
+    }
+    function getWrongbook(){
+      // wrongbook: { items: [ {qid,moduleId,stem,correct,chosen,explain,ts} ] }
+      return loadJSON(LS.wrongbook, { items: [] });
+    }
+    function setWrongbook(w){
+      saveJSON(LS.wrongbook, w);
+    }
+
+    function computeOverallProgress(){
+      const progress = getProgress();
+      let total = 0;
+      let done = 0;
+
+      for(const m of MODULES){
+        total += m.questions.length;
+        const rec = progress[m.moduleId];
+        if(rec?.completedQids?.length){
+          done += rec.completedQids.length;
+        }
+      }
+      const pct = total ? Math.round((done/total)*100) : 0;
+      return { total, done, pct: clamp(pct,0,100) };
+    }
+
+   function renderModuleList(){
+  const box = $("moduleList");
+  box.innerHTML = "";
+
+  for(const m of MODULES){
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <b>${m.title}</b>
+      <div class="meta">題數：${m.questions.length}｜moduleId：${m.moduleId}</div>
+      <div class="btnrow" style="margin-top:10px;">
+        <button class="secondary" data-start-module="${m.moduleId}">開始這科</button>
+      </div>
+    `;
+    box.appendChild(div);
+  }
+
+  box.querySelectorAll("[data-start-module]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.currentModuleId = btn.getAttribute("data-start-module");
+      showView("viewSpeedread");
+      renderSpeedread();
+    });
+  });
+}
+
+    /**********************
+     * 5) LIFF init (可直接上線)
+     **********************/
+    async function initLIFF(){
+      // 你需要去 LINE Developers 建 LIFF app，拿到 liffId
+      const LIFF_ID = "YOUR_LIFF_ID_HERE";
+
+      try{
+        if(!window.liff){
+          throw new Error("LIFF SDK not loaded");
+        }
+        // 若尚未填 liffId，先以 demo 模式跑
+        if(LIFF_ID === "YOUR_LIFF_ID_HERE"){
+          state.userId = "demo-user";
+          state.liffReady = false;
+          return;
+        }
+
+        await liff.init({ liffId: LIFF_ID });
+        state.liffReady = true;
+
+        if(!liff.isLoggedIn()){
+          liff.login(); // 會導回同一頁
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        state.userId = profile.userId;
+      }catch(err){
+        // 本機開啟或失敗 → demo user
+        state.userId = "demo-user";
+        state.liffReady = false;
+      }
+    }
+
+    /**********************
+     * 6) View switching
+     **********************/
+    function showView(name){
+      const views = ["viewOnboarding","viewMain","viewSpeedread","viewWrongbook"];
+      for(const v of views) $(v).classList.add("hidden");
+      $(name).classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /**********************
+     * 7) UI Rendering
+     **********************/
+    function renderTopbar(){
+      const u = getUser();
+      if(u){
+        $("userPill").textContent = `${u.nickname} · ${u.userId === "demo-user" ? "Demo" : "LINE"}`;
+        $("subline").textContent = u.userId === "demo-user"
+          ? "本機 Demo（userId=demo-user）"
+          : "LIFF 已登入（使用 LINE userId）";
+      }else{
+        $("userPill").textContent = "未設定暱稱";
+        $("subline").textContent = "LIFF / localStorage";
+      }
+    }
+
+    function renderDashboard(){
+      const u = getUser();
+      if(!u) return;
+
+      $("welcomeText").textContent = `嗨，${u.nickname}！今天來把高業速讀推進一點點。`;
+
+      const pr = computeOverallProgress();
+      $("progressBar").style.width = pr.pct + "%";
+      $("progressText").textContent = `${pr.pct}%`;
+      $("progressDetail").textContent = `已完成 ${pr.done} / ${pr.total}`;
+
+      $("debugInfo").textContent =
+        `userId: ${u.userId}\n` +
+        `nickname: ${u.nickname}\n` +
+        `progress: ${pr.done}/${pr.total} (${pr.pct}%)\n` +
+        `wrongbook items: ${getWrongbook().items.length}\n` +
+        `mode: ${u.userId === "demo-user" ? "demo" : "liff"}`;
+
+      renderModuleList();
+    }
+
+    function renderSpeedread(){
+      const m = MODULES.find(x => x.moduleId === state.currentModuleId) || MODULES[0];
+      $("srTitle").textContent = `速讀工具 · ${m.title}`;
+      $("srKeypoints").innerHTML = `
+        <ul style="margin:0; padding-left:18px; color:var(--text); line-height:1.6;">
+          ${m.keypoints.map(k=>`<li>${k}</li>`).join("")}
+        </ul>
+      `;
+
+      // load current module progress into state.answeredMap
+      const progress = getProgress();
+      const completed = new Set(progress[m.moduleId]?.completedQids || []);
+      state.answeredMap = {};
+      for(const qid of completed) state.answeredMap[qid] = true;
+
+      // find next unanswered
+      const idx = m.questions.findIndex(q => !state.answeredMap[q.qid]);
+      state.currentQuestionIndex = idx === -1 ? m.questions.length - 1 : idx;
+
+      renderQuestion();
+    }
+function renderQuestion(){
+  const m = MODULES.find(x => x.moduleId === state.currentModuleId) || MODULES[0];
+  const q = m.questions[state.currentQuestionIndex];
+  const box = $("questionBox");
+  box.innerHTML = "";
+
+  if(!q){
+    box.innerHTML = `<p class="mini">此科目沒有題目。</p>`;
+    return;
+  }
+
+  const doneAll = m.questions.every(qq => state.answeredMap[qq.qid]);
+  if(doneAll){
+    box.innerHTML = `
+      <div class="q">
+        <div class="qTitle">✅ 這科 5 題已完成！</div>
+        <p class="mini">你可以按「重來一次」重新練，或回主頁看進度。</p>
+      </div>
+    `;
+    return;
+  }
+
+  const qWrap = document.createElement("div");
+  qWrap.className = "q";
+  qWrap.innerHTML = `
+    <div class="qTitle">Q${state.currentQuestionIndex+1}. ${q.stem}</div>
+    <div class="mini">答錯會加入錯題本，不會卡關。</div>
+    <div id="interactive"></div>
+    <div class="mini" id="explainBox" style="display:none;"></div>
+  `;
+  box.appendChild(qWrap);
+
+  const interactive = qWrap.querySelector("#interactive");
+
+  if(q.type === "cloze"){
+    interactive.innerHTML = `
+      <div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input id="clozeInput" placeholder="輸入答案" style="flex:1; min-width:180px;" />
+        <button class="secondary" id="clozeSubmit">送出</button>
+      </div>
+    `;
+    const submit = qWrap.querySelector("#clozeSubmit");
+    submit.addEventListener("click", () => {
+      const inp = qWrap.querySelector("#clozeInput");
+      const userText = (inp.value || "").trim();
+      onAnswerCloze(userText, qWrap);
+    });
+    qWrap.querySelector("#clozeInput").addEventListener("keydown", (e)=>{
+      if(e.key === "Enter") submit.click();
+    });
+  }else{
+    interactive.innerHTML = `<div class="choices" id="choices"></div>`;
+    const choices = qWrap.querySelector("#choices");
+    q.choices.forEach((c, i) => {
+      const btn = document.createElement("button");
+      btn.className = "choice";
+      btn.textContent = c;
+      btn.onclick = () => onAnswer(i, btn, qWrap);
+      choices.appendChild(btn);
+    });
+  }
+}
+    function renderWrongbook(){
+      const w = getWrongbook();
+      const list = $("wrongList");
+      list.innerHTML = "";
+
+      if(!w.items.length){
+        $("wrongEmpty").classList.remove("hidden");
+        return;
+      }
+      $("wrongEmpty").classList.add("hidden");
+
+      w.items.slice().reverse().forEach(it => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <b>${it.stem}</b>
+          <div class="meta">moduleId：${it.moduleId}｜時間：${new Date(it.ts).toLocaleString()}</div>
+          <div class="ans">✅ 正解：${it.correct}</div>
+          <div class="ans" style="color:#b84b4b">❌ 你的答案：${it.chosen}</div>
+          <div class="mini">${it.explain || ""}</div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    /**********************
+     * 8) Actions
+     **********************/
+    function ensureUserOrOnboard(){
+      const u = getUser();
+      renderTopbar();
+      if(!u){
+        showView("viewOnboarding");
+        return false;
+      }
+      showView("viewMain");
+      renderDashboard();
+      return true;
+    }
+
+    function saveNickname(){
+      const nick = $("nicknameInput").value.trim();
+      if(!nick){
+        toast("請輸入暱稱");
+        return;
+      }
+      const user = { userId: state.userId || "demo-user", nickname: nick, createdAt: nowISO() };
+      setUser(user);
+      toast("已建立使用者資料 ✅");
+      $("nicknameInput").value = "";
+      ensureUserOrOnboard();
+    }
+
+    function changeNickname(){
+      const u = getUser();
+      if(!u) return;
+      const nick = prompt("輸入新的暱稱（最多 16 字）", u.nickname);
+      if(!nick) return;
+      u.nickname = nick.slice(0,16).trim() || u.nickname;
+      setUser(u);
+      toast("暱稱已更新");
+      renderTopbar();
+      renderDashboard();
+    }
+
+    function resetAll(){
+      localStorage.removeItem(LS.user);
+      localStorage.removeItem(LS.progress);
+      localStorage.removeItem(LS.wrongbook);
+      toast("已清除所有資料");
+      renderTopbar();
+      showView("viewOnboarding");
+    }
+
+    function onAnswer(chosenIndex, clickedBtn, qWrap){
+      const m = MODULES.find(x => x.moduleId === state.currentModuleId) || MODULES[0];
+      const q = m.questions[state.currentQuestionIndex];
+      if(!q) return;
+
+      // disable all choices after answer
+      const btns = qWrap.querySelectorAll(".choice");
+      btns.forEach(b => b.disabled = true);
+
+      const correctIndex = q.answerIndex;
+      const explainBox = qWrap.querySelector("#explainBox");
+      explainBox.style.display = "block";
+      explainBox.textContent = "解析：" + (q.explain || "");
+
+      // style correct/incorrect
+      btns.forEach((b, idx) => {
+        if(idx === correctIndex) b.classList.add("ok");
+        if(idx === chosenIndex && chosenIndex !== correctIndex) b.classList.add("bad");
+      });
+
+      // record progress when correct
+      if(chosenIndex === correctIndex){
+        const prog = getProgress();
+        prog[m.moduleId] = prog[m.moduleId] || { completedQids: [], updatedAt: nowISO() };
+        if(!prog[m.moduleId].completedQids.includes(q.qid)){
+          prog[m.moduleId].completedQids.push(q.qid);
+        }
+        prog[m.moduleId].updatedAt = nowISO();
+        setProgress(prog);
+        state.answeredMap[q.qid] = true;
+        toast("答對 ✅ 已更新進度");
+      }else{
+        // add wrongbook item (dedupe by qid)
+        const wb = getWrongbook();
+        const exists = wb.items.some(it => it.qid === q.qid && it.moduleId === m.moduleId);
+        if(!exists){
+          wb.items.push({
+            qid: q.qid,
+            moduleId: m.moduleId,
+            stem: q.stem,
+            correct: q.choices[correctIndex],
+            chosen: q.choices[chosenIndex],
+            explain: q.explain || "",
+            ts: Date.now()
+          });
+          setWrongbook(wb);
+        }
+        toast("答錯 ❌ 已加入錯題本");
+      }
+
+      // refresh dashboard pill (counts)
+      renderTopbar();
+    }
+function onAnswerCloze(userText, qWrap){
+  const m = MODULES.find(x => x.moduleId === state.currentModuleId) || MODULES[0];
+  const q = m.questions[state.currentQuestionIndex];
+  if(!q) return;
+
+  const explainBox = qWrap.querySelector("#explainBox");
+  const inp = qWrap.querySelector("#clozeInput");
+  const btn = qWrap.querySelector("#clozeSubmit");
+
+  const normalize = (s) => (s || "").trim().replace(/\s+/g, "");
+  const correct = normalize(q.answerText);
+  const chosen = normalize(userText);
+
+  if(!chosen){
+    toast("請先輸入答案");
+    return;
+  }
+
+  if(inp) inp.disabled = true;
+  if(btn) btn.disabled = true;
+
+  explainBox.style.display = "block";
+  explainBox.textContent = "解析：" + (q.explain || "");
+
+  if(chosen === correct){
+    const prog = getProgress();
+    prog[m.moduleId] = prog[m.moduleId] || { completedQids: [], updatedAt: nowISO() };
+    if(!prog[m.moduleId].completedQids.includes(q.qid)){
+      prog[m.moduleId].completedQids.push(q.qid);
+    }
+    prog[m.moduleId].updatedAt = nowISO();
+    setProgress(prog);
+    state.answeredMap[q.qid] = true;
+    toast("答對 ✅ 已更新進度");
+
+    if(inp){
+      inp.style.borderColor = "rgba(112,201,168,.9)";
+      inp.style.background = "rgba(112,201,168,.12)";
+    }
+  } else {
+    const wb = getWrongbook();
+    const exists = wb.items.some(it => it.qid === q.qid && it.moduleId === m.moduleId);
+    if(!exists){
+      wb.items.push({
+        qid: q.qid,
+        moduleId: m.moduleId,
+        stem: q.stem,
+        correct: q.answerText,
+        chosen: userText,
+        explain: q.explain || "",
+        ts: Date.now()
+      });
+      setWrongbook(wb);
+    }
+    toast("答錯 ❌ 已加入錯題本");
+
+    if(inp){
+      inp.style.borderColor = "rgba(224,122,122,.85)";
+      inp.style.background = "rgba(224,122,122,.10)";
+    }
+  }
+
+  renderTopbar();
+}
+    function nextQuestion(){
+      const m = MODULES.find(x => x.moduleId === state.currentModuleId) || MODULES[0];
+
+      // find next unanswered from current+1
+      for(let step=1; step<=m.questions.length; step++){
+        const idx = (state.currentQuestionIndex + step) % m.questions.length;
+        if(!state.answeredMap[m.questions[idx].qid]){
+          state.currentQuestionIndex = idx;
+          renderQuestion();
+          return;
+        }
+      }
+      // all done
+      renderQuestion();
+    }
+
+    function restartModule(){
+      // reset progress for this module only
+      const m = MODULES.find(x => x.moduleId === state.currentModuleId) || MODULES[0];
+      const prog = getProgress();
+      if(prog[m.moduleId]){
+        prog[m.moduleId].completedQids = [];
+        prog[m.moduleId].updatedAt = nowISO();
+        setProgress(prog);
+      }
+      // keep wrongbook (不清)
+      toast("已重置本單元進度");
+      renderSpeedread();
+    }
+
+    function clearWrongbook(){
+      setWrongbook({ items: [] });
+      toast("錯題本已清空");
+      renderWrongbook();
+      renderTopbar();
+    }
+
+    /**********************
+     * 9) Wire Events
+     **********************/
+    function wire(){
+      $("btnSaveNickname").onclick = saveNickname;
+      $("btnDemoReset").onclick = resetAll;
+
+      $("btnGoSpeedread").onclick = () => { showView("viewSpeedread"); renderSpeedread(); };
+      $("btnGoWrongbook").onclick = () => { showView("viewWrongbook"); renderWrongbook(); };
+
+      $("btnBackHome1").onclick = () => { showView("viewMain"); renderDashboard(); };
+      $("btnBackHome2").onclick = () => { showView("viewMain"); renderDashboard(); };
+
+      $("btnNextQuestion").onclick = nextQuestion;
+      $("btnRestartModule").onclick = restartModule;
+
+      $("btnChangeNick").onclick = changeNickname;
+      $("btnResetAll").onclick = resetAll;
+
+      $("btnClearWrongbook").onclick = clearWrongbook;
+
+      // Enter key save nickname
+      $("nicknameInput").addEventListener("keydown", (e)=>{
+        if(e.key === "Enter") saveNickname();
+      });
+    }
+
+    /**********************
+     * 10) Boot
+     **********************/
+    (async function boot(){
+      wire();
+      await initLIFF();
+
+      // If user exists but userId mismatch, adopt current userId (避免換手機/重新登入造成分裂)
+      const u = getUser();
+      if(u && state.userId && u.userId !== state.userId){
+        u.userId = state.userId;
+        setUser(u);
+      }
+
+      renderTopbar();
+
+      if(u){
+        showView("viewMain");
+        renderDashboard();
+      }else{
+        showView("viewOnboarding");
+      }
+    })();
+  </script>
+</body>
+</html>
