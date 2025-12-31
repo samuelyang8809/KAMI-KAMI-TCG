@@ -31,7 +31,7 @@
 
   .modal-bottom-buttons {
     flex-direction: column;
-    gap: 0.5em;
+    gap: 0.8em;
   }
 }
     body { font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif; margin: 0; background: #f6f6f6; color: #333; }
@@ -125,8 +125,27 @@
   color: #333;
   z-index: 9999;
 }    
-    select, .modal-content button { width: 65%; padding: 0.7em; margin-top: -1em; border-radius: 5px; border: none; }
-    
+.modal-content select {
+  width: 65%;
+  padding: 0.7em;
+  margin-top: -1em;
+  border-radius: 5px;
+  border: none;
+}
+
+/* 只影響 modal 內「直接的按鈕」，不影響底部雙按鈕 */
+.modal-content > button {
+  width: 65%;
+  padding: 0.7em;
+  margin-top: -1em;
+  border-radius: 5px;
+  border: none;
+}
+
+/* 🔥 底部返回 / 確認送出：不要被往上拉 */
+.modal-bottom-buttons button {
+  margin-top: 0 !important;
+}    
     .toggle-expand { font-size: 1.5em; background: none; border: none; cursor: pointer; margin-left: 10px; }
     .modal-content-large {
   background: #fff;
@@ -363,7 +382,20 @@
     <button onclick="closeCheckoutModal()">關閉</button>
   </div>
 </div>
-
+<!-- ✅ 送出訂單確認 Modal -->
+<div class="modal" id="submitOrderConfirmModal">
+  <div class="modal-content" style="text-align: center;">
+    <span class="close" onclick="closeSubmitOrderConfirmModal()">✕</span>
+    <h3 style="margin: 0 0 0.5em 0;">確認送出訂單？</h3>
+    <p style="margin: 0 0 1em 0; color: #555; line-height: 1.5;">
+      送出後會透過 LINE 傳送訂單明細給您。
+    </p>
+    <div class="modal-bottom-buttons" style="margin-top: 0;">
+      <button class="back-button" onclick="closeSubmitOrderConfirmModal()">返回</button>
+      <button class="confirm-button" onclick="confirmSubmitOrder()">確認送出</button>
+    </div>
+  </div>
+</div>
 <!-- ✅ 改版後的購物車頁面 -->
 <div id="cartPage" style="display: none; padding: 1em; background: #ffffff; min-height: 100vh;">
   <div style="display: flex; align-items: center; background: #fff; padding: 1em; border-bottom: 1px solid #eee;">
@@ -391,7 +423,7 @@
         折扣：<span id="discountAmount" style="color: #27ae60;">尚未套用</span><br>
         <strong>總計：<span id="finalAmount" style="color: #e67e22;">0</span> 元</strong>
       </div>
-      <button onclick="submitOrder()"
+      <button onclick="openSubmitOrderConfirmModal()()"
         style="background: #FF5722; color: white; padding: 0.8em 2em; border-radius: 999px; font-size: 1em; border: none; margin-top: 0.5em;">去下單</button>
     </div>
   </div>
@@ -488,7 +520,7 @@ async function initLiff() {
   }
 }
 
-initLiff();
+//initLiff();
 
   const categoryBar = document.getElementById('categoryBar');
   const productGrid = document.getElementById('productGrid');
@@ -781,7 +813,22 @@ function showCheckoutModal() {
 function closeCheckoutModal() {
   document.getElementById('checkoutModal').classList.remove('show');
 }
+function openSubmitOrderConfirmModal() {
+  if (cart.length === 0) {
+    showAlertModal("購物車是空的喔！", true);
+    return;
+  }
+  document.getElementById('submitOrderConfirmModal').classList.add('show');
+}
 
+function closeSubmitOrderConfirmModal() {
+  document.getElementById('submitOrderConfirmModal').classList.remove('show');
+}
+
+async function confirmSubmitOrder() {
+  closeSubmitOrderConfirmModal();
+  await submitOrder();
+}
 
 
 function renderCartItems() {
