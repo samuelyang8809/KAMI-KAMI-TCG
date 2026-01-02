@@ -77,7 +77,7 @@
 
   // ✅ LINE 內建瀏覽器/LIFF 可能會快取舊版 store.html/JS，導致看起來「殘留」或行為不一致
   // 用版本參數強制每次導頁都帶上 v=... 以避免快取
-  const APP_VER = '20251226-3';
+  const APP_VER = '20251226-4';
   function goStore(major) {
     location.href = `store.html?major=${encodeURIComponent(major)}&v=${encodeURIComponent(APP_VER)}`;
   }
