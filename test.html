@@ -2,278 +2,254 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>高業翻卡速讀工具 MVP</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" />
+  <title>高業平台 MVP（手機：速讀｜平板：講義閱讀＋標注）</title>
   <style>
     :root{
-      --bg: #F7F4EF;
-      --card:#FFFFFF;
+      --bg:#F7F4EF;
+      --card:#fff;
       --ink:#1F2937;
       --muted:#6B7280;
-      --primary:#3B6E6B;     /* 鼠尾草深綠 */
-      --primary-2:#6FA6A1;   /* 鼠尾草淺綠 */
-      --accent:#D7BFA7;      /* 奶茶 */
+      --primary:#3B6E6B;
+      --primary2:#6FA6A1;
+      --accent:#D7BFA7;
       --danger:#B91C1C;
       --ok:#065F46;
-      --shadow: 0 10px 30px rgba(31,41,55,.08);
-      --radius: 18px;
+      --shadow:0 10px 30px rgba(31,41,55,.08);
+      --radius:18px;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial;
-      background: linear-gradient(180deg, #FBF8F3 0%, var(--bg) 60%, #F3F6F5 100%);
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
+      background: linear-gradient(180deg,#FBF8F3 0%,var(--bg) 60%,#F3F6F5 100%);
+      color:var(--ink);
+      -webkit-text-size-adjust: 100%;
     }
-    .wrap{
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 16px 16px 40px;
-    }
+    .wrap{max-width:1100px;margin:0 auto;padding:16px 16px 48px;}
     header{
-      padding: 10px 4px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:10px 4px 14px;
     }
-    .brand{
-      display:flex; flex-direction:column; gap:2px;
-    }
-    .brand .title{
-      font-weight: 900;
-      letter-spacing:.2px;
-      font-size: 18px;
-    }
-    .brand .sub{
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .top-actions{display:flex; gap:10px;}
+    .brand{display:flex;flex-direction:column;gap:2px;}
+    .brand .title{font-weight:900;font-size:18px;letter-spacing:.2px}
+    .brand .sub{font-size:12px;color:var(--muted)}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap}
     .btn{
-      appearance:none;
-      border:0;
-      border-radius: 14px;
-      padding: 12px 12px;
-      font-weight: 800;
-      font-size: 14px;
-      cursor:pointer;
-      width:100%;
-      transition: transform .05s ease, opacity .2s ease;
+      appearance:none;border:0;border-radius:14px;padding:12px 12px;
+      font-weight:900;font-size:14px;cursor:pointer;width:100%;
+      transition:transform .05s ease,opacity .2s ease;
     }
-    .btn:active{transform: translateY(1px);}
-    .btn.primary{background: var(--primary); color: #fff;}
-    .btn.ghost{background: rgba(59,110,107,.10); color: var(--primary); border: 1px solid rgba(59,110,107,.18);}
-    .btn.light{background: rgba(215,191,167,.25); color:#6b4f3a; border: 1px solid rgba(215,191,167,.35);}
-    .btn.danger{background: rgba(185,28,28,.10); color: var(--danger); border: 1px solid rgba(185,28,28,.18);}
-    .top-actions .btn{width:auto; padding: 10px 12px; border-radius: 999px; font-size: 12px;}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:var(--primary);color:#fff}
+    .btn.ghost{background:rgba(59,110,107,.10);color:var(--primary);border:1px solid rgba(59,110,107,.18)}
+    .btn.light{background:rgba(215,191,167,.25);color:#6b4f3a;border:1px solid rgba(215,191,167,.35)}
+    .btn.danger{background:rgba(185,28,28,.10);color:var(--danger);border:1px solid rgba(185,28,28,.18)}
+    .btn.small{width:auto;padding:10px 12px;border-radius:999px;font-size:12px}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
     .card{
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      border: 1px solid rgba(31,41,55,.06);
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+      padding:14px;border:1px solid rgba(31,41,55,.06);
     }
-    .stack{display:flex; flex-direction:column; gap:12px;}
-    .row{display:flex; gap:12px; align-items:stretch;}
-    .row > .card{flex:1}
-    .h2{
-      font-size: 15px;
-      font-weight: 900;
-      margin: 0 0 6px;
-    }
-    .p{
-      margin:0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-    }
-    .input{
-      width:100%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(31,41,55,.14);
-      outline: none;
-      font-size: 14px;
-      background: #fff;
-    }
-    .input:focus{
-      border-color: rgba(59,110,107,.55);
-      box-shadow: 0 0 0 4px rgba(59,110,107,.10);
-    }
+    .stack{display:flex;flex-direction:column;gap:12px}
+    .grid{display:grid;grid-template-columns:1fr;gap:10px}
+    .row{display:flex;gap:12px;align-items:stretch}
+    .row>.card{flex:1}
+    .h2{margin:0 0 6px;font-size:15px;font-weight:900}
+    .p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
     .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(31,41,55,.06);
-      color: var(--muted);
-      font-size: 12px;
-      border: 1px solid rgba(31,41,55,.06);
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;
+      background:rgba(31,41,55,.06);color:var(--muted);font-size:12px;
+      border:1px solid rgba(31,41,55,.06);
+      width:fit-content;
     }
-    .sep{height:1px; background: rgba(31,41,55,.08); margin:10px 0;}
-    .hidden{display:none !important;}
-    .footnote{
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 12px;
-      text-align:center;
+    .sep{height:1px;background:rgba(31,41,55,.08);margin:10px 0}
+    .hidden{display:none!important}
+    .input{
+      width:100%;padding:12px 12px;border-radius:14px;
+      border:1px solid rgba(31,41,55,.14);outline:none;font-size:16px;background:#fff;
     }
+    select, textarea, button {
+      font-size: 16px;
+    }
+    .input:focus{border-color:rgba(59,110,107,.55);box-shadow:0 0 0 4px rgba(59,110,107,.10)}
     .msg{
-      font-size: 13px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(31,41,55,.10);
-      background:#fff;
+      font-size:13px;padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(31,41,55,.10);background:#fff;
     }
-    .msg.ok{border-color: rgba(6,95,70,.25); background: rgba(6,95,70,.06); color: var(--ok);}
-    .msg.bad{border-color: rgba(185,28,28,.25); background: rgba(185,28,28,.06); color: var(--danger);}
+    .msg.ok{border-color:rgba(6,95,70,.25);background:rgba(6,95,70,.06);color:var(--ok)}
+    .msg.bad{border-color:rgba(185,28,28,.25);background:rgba(185,28,28,.06);color:var(--danger)}
 
-    .progress-wrap{
-      display:flex; align-items:center; gap:10px; margin-top:10px;
-    }
-    .bar{
-      flex:1;
-      height: 12px;
-      border-radius: 999px;
-      background: rgba(31,41,55,.07);
-      overflow:hidden;
-    }
-    .fill{
-      height:100%;
-      width:0%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-2) 100%);
-    }
-    .pct{
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--primary);
-      min-width: 52px;
-      text-align:right;
-    }
+    /* progress */
+    .progress-wrap{display:flex;align-items:center;gap:10px;margin-top:10px}
+    .bar{flex:1;height:12px;border-radius:999px;background:rgba(31,41,55,.07);overflow:hidden}
+    .fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--primary) 0%,var(--primary2) 100%)}
+    .pct{font-size:12px;font-weight:900;color:var(--primary);min-width:56px;text-align:right}
 
-    /* Flashcard flip */
-    .flash-stage{display:flex; justify-content:center;}
+    /* flashcards (速讀工具) */
+    .flash-stage{display:flex;justify-content:center}
     .flip-card{
-      width: 100%;
-      max-width: 480px;
-      min-height: 280px;
-      perspective: 1200px;
-      border-radius: 18px;
-      outline: none;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
+      width:100%;max-width:520px;min-height:260px;perspective:1200px;border-radius:18px;
+      outline:none;user-select:none;-webkit-tap-highlight-color:transparent;
     }
     .flip-inner{
-      position: relative;
-      width: 100%;
-      min-height: 280px;
-      transform-style: preserve-3d;
-      transition: transform 560ms cubic-bezier(.2,.8,.2,1);
-      border-radius: 18px;
+      position:relative;width:100%;min-height:260px;transform-style:preserve-3d;
+      transition:transform 560ms cubic-bezier(.2,.8,.2,1);border-radius:18px;
     }
-    .flip-card.is-flipped .flip-inner{ transform: rotateY(180deg); }
+    .flip-card.is-flipped .flip-inner{transform:rotateY(180deg)}
     .flip-face{
-      position:absolute;
-      inset:0;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: 18px;
-      border: 1px solid rgba(31,41,55,.10);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap: 14px;
-      background:#fff;
+      position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+      border-radius:18px;border:1px solid rgba(31,41,55,.10);box-shadow:var(--shadow);
+      padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;background:#fff;
     }
-    .flip-front{
-      background: linear-gradient(180deg, rgba(111,166,161,.14) 0%, rgba(247,244,239,.55) 55%, #fff 100%);
-    }
+    .flip-front{background:linear-gradient(180deg, rgba(111,166,161,.14) 0%, rgba(247,244,239,.55) 55%, #fff 100%)}
     .flip-back{
-      transform: rotateY(180deg);
-      background: linear-gradient(180deg, rgba(215,191,167,.22) 0%, rgba(247,244,239,.55) 55%, #fff 100%);
+      transform:rotateY(180deg);
+      background:linear-gradient(180deg, rgba(215,191,167,.22) 0%, rgba(247,244,239,.55) 55%, #fff 100%);
     }
     .flip-badge{
-      display:inline-flex;
-      align-self:flex-start;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 900;
-      border: 1px solid rgba(31,41,55,.10);
-      background: rgba(255,255,255,.70);
-      color: var(--muted);
+      display:inline-flex;align-self:flex-start;padding:6px 10px;border-radius:999px;
+      font-size:12px;font-weight:900;border:1px solid rgba(31,41,55,.10);
+      background:rgba(255,255,255,.70);color:var(--muted);
     }
-    .flip-title{
-      font-size: 18px;
-      font-weight: 900;
-      line-height: 1.5;
-      letter-spacing: .2px;
-      white-space: pre-wrap;
-    }
+    .flip-title{font-size:18px;font-weight:900;line-height:1.5;letter-spacing:.2px;white-space:pre-wrap}
     .flip-hint{
-      font-size: 12px;
-      color: var(--muted);
-      text-align:center;
-      padding-top: 8px;
-      border-top: 1px dashed rgba(31,41,55,.12);
+      font-size:12px;color:var(--muted);text-align:center;padding-top:8px;
+      border-top:1px dashed rgba(31,41,55,.12);
     }
-    .flip-card:focus-visible{
-      box-shadow: 0 0 0 4px rgba(59,110,107,.14);
-      border-radius: 18px;
+    .flip-card:focus-visible{box-shadow:0 0 0 4px rgba(59,110,107,.14);border-radius:18px}
+
+    /* layout: mobile vs tablet */
+    .layout{
+      display:grid;
+      grid-template-columns: 1fr; /* mobile default */
+      gap:12px;
+    }
+    .only-tablet{display:none;}
+    .only-mobile{display:block;}
+
+    /* Tablet portrait & up: show lecture reader, and split layout */
+    @media (min-width: 768px){
+      .layout{grid-template-columns: 1.05fr 1.95fr; align-items:start;}
+      .only-tablet{display:block;}
+      .only-mobile{display:none;}
+      .row{flex-direction:row;}
     }
 
-    @media (max-width: 520px){
-      .row{flex-direction:column;}
-      .flip-card{min-height: 260px;}
-      .flip-inner{min-height: 260px;}
-      .flip-title{font-size: 17px;}
+    /* Reader */
+    .reader-wrap{
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .reader-toolbar{
+      display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+    }
+    .toolbar-left,.toolbar-right{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .kbd{font-size:12px;color:var(--muted)}
+    .reader-stage{
+      position:relative;
+      border-radius:18px;
+      border:1px solid rgba(31,41,55,.10);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      background:#fff;
+      min-height: 520px;
+    }
+    .page-img{
+      width:100%;height:100%;display:block;object-fit:contain;background:#fff;
+      touch-action: none;
+    }
+    /* highlight overlay */
+    .anno-layer{
+      position:absolute; inset:0;
+      pointer-events:none; /* enable only in draw mode via class */
+    }
+    .anno-layer.draw-mode{ pointer-events:auto; }
+    .hl{
+      position:absolute;
+      background: rgba(255, 235, 59, .35);
+      border: 1px solid rgba(255, 235, 59, .65);
+      border-radius: 8px;
+    }
+    .anno-layer.erase-mode .hl{ pointer-events:auto; cursor:pointer; }
+    .anno-layer.erase-mode{ pointer-events:auto; }
+
+    .page-nav-hint{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:64px;
+      height:64px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      font-weight:900;
+      color:#fff;
+      background: rgba(31, 41, 55, .55);
+      box-shadow: 0 10px 30px rgba(31,41,55,.18);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+    .page-nav-hint.left{ left:14px; transform:translateY(-50%) translateX(-6px); }
+    .page-nav-hint.right{ right:14px; transform:translateY(-50%) translateX(6px); }
+    .reader-stage.show-left-hint .page-nav-hint.left{
+      opacity:1;
+      transform:translateY(-50%) translateX(0);
+    }
+    .reader-stage.show-right-hint .page-nav-hint.right{
+      opacity:1;
+      transform:translateY(-50%) translateX(0);
+    }
+
+    .pill{
+      font-size:12px;padding:8px 10px;border-radius:999px;
+      background:rgba(59,110,107,.10);color:var(--primary);
+      border:1px solid rgba(59,110,107,.18);white-space:nowrap;
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <header>
       <div class="brand">
-        <div class="title">高業翻卡速讀工具</div>
-        <div class="sub">Flashcards｜localStorage MVP｜Tap/Click 翻面</div>
+        <div class="title">高業平台 MVP</div>
+        <div class="sub">手機：速讀翻卡｜平板：講義閱讀（圖片）＋標注重點</div>
       </div>
       <div class="top-actions">
-        <button class="btn ghost" id="btnGoHome" title="回到主頁">主頁</button>
-        <button class="btn danger" id="btnReset" title="清除所有資料">重置</button>
+        <button class="btn ghost small" id="btnHome">主頁</button>
+        <button class="btn danger small" id="btnReset">重置</button>
       </div>
     </header>
 
-    <!-- VIEW: onboarding -->
+    <!-- Onboarding -->
     <section id="viewOnboarding" class="stack hidden">
       <div class="card">
         <div class="h2">第一次使用</div>
-        <p class="p">先輸入暱稱，之後會記住你的進度與錯題本（存在本機）。</p>
+        <p class="p">輸入暱稱後開始。手機模式只顯示速讀工具；平板模式會多「講義閱讀＋標注」。</p>
         <div class="sep"></div>
         <div class="grid">
           <input class="input" id="nickname" placeholder="例如：Chenghan / 小楊" maxlength="20" />
           <button class="btn primary" id="btnSaveName">開始使用</button>
         </div>
-        <div class="footnote">提示：正式上線可改接 Firebase Auth / Firestore。</div>
+        <div class="p" style="margin-top:10px;">
+          <span class="tag" id="deviceHint">裝置模式：—</span>
+        </div>
       </div>
     </section>
 
-    <!-- VIEW: dashboard -->
+    <!-- Dashboard -->
     <section id="viewDashboard" class="stack hidden">
       <div class="card">
         <div class="h2">你好，<span id="helloName">同學</span> 👋</div>
-        <p class="p">點一科進去翻卡：正面題目、背面答案。翻到背面後，選「我會了 / 我還不熟」更新完成度。</p>
+        <p class="p">
+          <span class="only-mobile">你目前是手機模式：只提供速讀工具（翻卡）。</span>
+          <span class="only-tablet">你目前是平板模式：可使用速讀工具＋講義閱讀（圖片）＋標注重點。</span>
+        </p>
 
         <div class="progress-wrap">
           <div class="bar"><div class="fill" id="progressFill"></div></div>
@@ -281,47 +257,80 @@
         </div>
 
         <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
-          <span class="tag">已完成：<b id="doneCount">0</b>/<span id="totalCount">15</span></span>
-          <span class="tag">錯題：<b id="wrongCount">0</b></span>
+          <span class="tag">已標記：<b id="doneCount">0</b>/<span id="totalCount">15</span></span>
+          <span class="tag">還不熟：<b id="wrongCount">0</b></span>
           <span class="tag">最後操作：<b id="lastTime">—</b></span>
         </div>
       </div>
 
-      <div class="row">
-        <div class="card">
-          <div class="h2">速讀工具（翻卡）</div>
-          <p class="p">三科各 5 張翻卡（可擴充）。點卡片翻面看答案，再標記熟不熟。</p>
-        </div>
-        <div class="card">
-          <div class="h2">錯題本</div>
-          <p class="p">把你標記「還不熟」的卡片集中在這裡，考前快速回顧。</p>
-          <div style="margin-top:10px;">
-            <button class="btn light" id="btnOpenWrongbook">打開錯題本</button>
+      <div class="layout">
+        <!-- Left: tools -->
+        <div class="stack">
+          <div class="card">
+            <div class="h2">速讀工具（翻卡）</div>
+            <p class="p">手機/平板都能用：點卡片翻面看答案，再標記「我會了 / 我還不熟」。</p>
+            <div class="sep"></div>
+            <div class="grid">
+              <button class="btn primary" data-action="start-cards" data-subject="invest">投資學（5張卡）</button>
+              <button class="btn primary" data-action="start-cards" data-subject="fa">財務分析（5張卡）</button>
+              <button class="btn primary" data-action="start-cards" data-subject="law">證券交易相關法規（5張卡）</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="h2">錯題本</div>
+            <p class="p">你標記「還不熟」的卡片會在這裡。平板也可以邊讀講義邊回顧。</p>
+            <div class="sep"></div>
+            <div class="grid">
+              <button class="btn light" id="btnOpenWrongbook">打開錯題本</button>
+            </div>
+          </div>
+
+          <!-- Tablet-only: lecture library -->
+          <div class="card only-tablet">
+            <div class="h2">講義閱讀（平板限定）</div>
+            <p class="p">每科一組「圖片講義」。點進去會進入電子閱讀器：上一頁/下一頁＋標注重點。</p>
+            <div class="sep"></div>
+            <div class="grid">
+              <button class="btn ghost" data-action="open-lecture" data-subject="invest">投資學｜講義閱讀</button>
+              <button class="btn ghost" data-action="open-lecture" data-subject="fa">財務分析｜講義閱讀</button>
+              <button class="btn ghost" data-action="open-lecture" data-subject="law">法規｜講義閱讀</button>
+            </div>
+            <div class="footnote">提醒：手機模式下不提供講義閱讀（避免縮小閱讀體驗）。</div>
+          </div>
+
+          <!-- Mobile-only notice -->
+          <div class="card only-mobile">
+            <div class="h2">講義閱讀（手機不開放）</div>
+            <p class="p">手機螢幕太小，先只給速讀工具。若要讀圖檔講義，請用平板直立模式開啟。</p>
+            <div class="sep"></div>
+            <div class="tag">建議：iPad 直立｜寬度 ≥ 768px</div>
           </div>
         </div>
-      </div>
 
-      <div class="card">
-        <div class="h2">選擇科目開始</div>
-        <div class="grid" style="margin-top:10px;">
-          <button class="btn primary" data-subject="invest">投資學（5張卡）</button>
-          <button class="btn primary" data-subject="fa">財務分析（5張卡）</button>
-          <button class="btn primary" data-subject="law">證券交易相關法規（5張卡）</button>
+        <!-- Right: tablet reader preview panel (optional) -->
+        <div class="card only-tablet">
+          <div class="h2">平板模式小提示</div>
+          <p class="p">
+            你可以先用左邊「講義閱讀」進入電子閱讀器，再用「標注」把重點框起來（會保存到本機）。<br/>
+            標注只做 MVP：黃色螢光框。之後可擴充筆記、顏色、匯出。
+          </p>
+          <div class="sep"></div>
+          <div class="tag">標注：拖曳畫框｜刪除：切到「橡皮擦」點框</div>
+          <div class="tag">儲存：localStorage（每科/每頁）</div>
         </div>
       </div>
-
-      <div class="footnote">MVP 版：無後端。資料存在 localStorage。</div>
     </section>
 
-    <!-- VIEW: flashcards -->
+    <!-- Flashcards -->
     <section id="viewCards" class="stack hidden">
       <div class="card">
-        <div class="h2"><span id="subjectName">科目</span>｜翻卡速讀</div>
+        <div class="h2"><span id="cardsSubjectName">科目</span>｜翻卡速讀</div>
         <p class="p">點卡片（手機 tap / 滑鼠 click）翻面。翻到背面後才可標記「我會了 / 我還不熟」。</p>
       </div>
 
       <div class="card">
-        <div class="tag" id="cardMeta">第 1/5 張</div>
+        <div class="tag" id="cardsMeta">第 1/5 張</div>
         <div class="sep"></div>
 
         <div class="flash-stage">
@@ -341,48 +350,85 @@
           </div>
         </div>
 
-        <div id="feedback" class="msg hidden" style="margin-top:12px;"></div>
+        <div id="cardsFeedback" class="msg hidden" style="margin-top:12px;"></div>
 
         <div style="margin-top:12px;" class="grid">
           <button class="btn primary" id="btnKnow" disabled>我會了 ✅</button>
           <button class="btn light" id="btnNotYet" disabled>我還不熟 📝</button>
-          <button class="btn ghost" id="btnNext">下一張</button>
-          <button class="btn ghost" id="btnBackDash">回主頁</button>
+          <button class="btn ghost" id="btnNextCard">下一張</button>
+          <button class="btn ghost" id="btnBackDashFromCards">回主頁</button>
         </div>
-
-        <div class="footnote">小技巧：先自己想答案再翻面，記憶更牢。</div>
       </div>
     </section>
 
-    <!-- VIEW: wrongbook -->
+    <!-- Wrongbook -->
     <section id="viewWrongbook" class="stack hidden">
       <div class="card">
         <div class="h2">錯題本</div>
-        <p class="p">這裡是你標記「還不熟」的卡片。點「開始複習」會依序帶你翻卡回顧。</p>
+        <p class="p">這裡是你標記「還不熟」的卡片。你可以直接開始複習（翻卡）。</p>
         <div class="sep"></div>
-
         <div class="grid" id="wrongList"></div>
-
         <div style="margin-top:10px;" class="grid">
           <button class="btn primary" id="btnReviewWrong">開始複習錯題（翻卡）</button>
           <button class="btn ghost" id="btnBackFromWrong">回主頁</button>
         </div>
       </div>
     </section>
+
+    <!-- Tablet-only Reader -->
+    <section id="viewReader" class="stack hidden">
+      <div class="card">
+        <div class="h2"><span id="readerSubjectName">科目</span>｜講義閱讀器（圖片）</div>
+        <p class="p">上一頁/下一頁切換圖片。標注模式可拖曳畫螢光框；橡皮擦模式可點選刪除框。</p>
+      </div>
+
+      <div class="card reader-wrap">
+        <div class="reader-toolbar">
+          <div class="toolbar-left">
+            <span class="pill" id="readerPageInfo">第 1/1 頁</span>
+            <button class="btn ghost small" id="btnPrevPage">上一頁</button>
+            <button class="btn ghost small" id="btnNextPage">下一頁</button>
+          </div>
+
+          <div class="toolbar-right">
+            <button class="btn primary small" id="btnDrawMode">標注：開</button>
+            <button class="btn light small" id="btnEraseMode">橡皮擦：關</button>
+            <button class="btn ghost small" id="btnClearAnno">清除本頁標注</button>
+            <button class="btn ghost small" id="btnBackDashFromReader">回主頁</button>
+          </div>
+        </div>
+
+        <div class="reader-stage" id="readerStage">
+          <img id="pageImg" class="page-img" alt="講義頁面" />
+          <div id="annoLayer" class="anno-layer draw-mode" aria-label="標注圖層"></div>
+          <div class="page-nav-hint left" aria-hidden="true">←</div>
+          <div class="page-nav-hint right" aria-hidden="true">→</div>
+        </div>
+
+        <div class="kbd">小技巧：標注模式下「拖曳畫框」。要刪除框：先切到橡皮擦模式，再點框。</div>
+      </div>
+    </section>
   </div>
 
   <script>
+    /********************
+     * Device rules
+     * - Mobile (width < 768): ONLY flashcards speed tool
+     * - Tablet portrait/up (width >= 768): flashcards + lecture reader (images) + annotation
+     ********************/
+    const isTablet = () => window.matchMedia("(min-width: 768px)").matches;
+
     // ====== Storage Keys ======
     const K = {
       name: "sr_name",
-      marks: "sr_marks",          // map: cardId -> {known:boolean, ts:number}
-      wrong: "sr_wrongbook",      // map: cardId -> {subjectKey, subjectName, q, aText, ts}
-      last: "sr_last_time"
+      marks: "sr_marks",            // cardId -> { known:boolean, ts:number }
+      wrong: "sr_wrongbook",        // cardId -> { subjectKey, subjectName, q, aText, ts }
+      last: "sr_last_time",
+      anno: "sr_anno_v1"            // subjectKey|pageIndex -> array of rects [{x,y,w,h}]
     };
 
-    // ====== Flashcard Bank (5 per subject) ======
-    // 題目正面、答案背面：這裡答案使用「正確選項文字」當作背面答案
-    const BANK = {
+    // ====== Flashcards bank (same as before) ======
+    const CARD_BANK = {
       invest: {
         name: "投資學",
         cards: [
@@ -415,37 +461,55 @@
       }
     };
 
-    // ====== State ======
-    let state = {
-      mode: "subject",      // subject | wrongReview
-      subjectKey: null,
-      order: [],            // array of card ids in current session
-      idx: 0,
-      revealed: false
+    // ====== Lecture image bank (replace with your real images) ======
+    // 你只要把下面的 placeholder URL 換成：你的講義圖片路徑（例如 ./lectures/invest/001.jpg ...）
+    const LECTURES = {
+      invest: {
+        name: "投資學",
+        pages: [
+          "https://picsum.photos/seed/invest1/1200/1600",
+          "https://picsum.photos/seed/invest2/1200/1600",
+          "https://picsum.photos/seed/invest3/1200/1600",
+        ]
+      },
+      fa: {
+        name: "財務分析",
+        pages: [
+          "https://picsum.photos/seed/fa1/1200/1600",
+          "https://picsum.photos/seed/fa2/1200/1600",
+          "https://picsum.photos/seed/fa3/1200/1600",
+        ]
+      },
+      law: {
+        name: "法規",
+        pages: [
+          "https://picsum.photos/seed/law1/1200/1600",
+          "https://picsum.photos/seed/law2/1200/1600",
+          "https://picsum.photos/seed/law3/1200/1600",
+        ]
+      }
     };
 
-    // ====== DOM helpers ======
-    const $ = (sel) => document.querySelector(sel);
+    // ====== Simple view control ======
+    const $ = (s) => document.querySelector(s);
     const views = {
       onboarding: $("#viewOnboarding"),
       dashboard: $("#viewDashboard"),
       cards: $("#viewCards"),
       wrongbook: $("#viewWrongbook"),
+      reader: $("#viewReader"),
     };
-    function show(viewName){
+    function show(view){
       Object.values(views).forEach(v => v.classList.add("hidden"));
-      views[viewName].classList.remove("hidden");
+      views[view].classList.remove("hidden");
+      $("#deviceHint").textContent = `裝置模式：${isTablet() ? "平板（含講義閱讀）" : "手機（僅速讀工具）"}`;
     }
 
     // ====== Storage helpers ======
-    function nowTs(){ return Date.now(); }
+    const nowTs = () => Date.now();
     function loadJSON(key, fallback){
-      try{
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-      }catch(e){
-        return fallback;
-      }
+      try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+      catch(e){ return fallback; }
     }
     function saveJSON(key, obj){ localStorage.setItem(key, JSON.stringify(obj)); }
     function getName(){ return localStorage.getItem(K.name) || ""; }
@@ -454,38 +518,24 @@
     function setMarks(m){ saveJSON(K.marks, m); }
     function getWrong(){ return loadJSON(K.wrong, {}); }
     function setWrong(m){ saveJSON(K.wrong, m); }
-
-    function totalCards(){
-      return Object.values(BANK).reduce((sum, s)=> sum + s.cards.length, 0);
+    function fmtDate(ts){
+      if(!ts) return "—";
+      const d = new Date(ts);
+      const pad=(n)=>String(n).padStart(2,"0");
+      return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
-
+    function totalCards(){
+      return Object.values(CARD_BANK).reduce((sum, s)=> sum + s.cards.length, 0);
+    }
     function calcProgress(){
       const marks = getMarks();
       const total = totalCards();
       const done = Object.keys(marks).length;
-      const pct = total === 0 ? 0 : Math.round((done/total)*100);
+      const pct = total ? Math.round((done/total)*100) : 0;
       const wrongCount = Object.values(getWrong()).length;
       const last = Number(localStorage.getItem(K.last) || 0);
       return { total, done, pct, wrongCount, last };
     }
-
-    function fmtDate(ts){
-      if(!ts) return "—";
-      const d = new Date(ts);
-      const pad = (n)=> String(n).padStart(2,"0");
-      return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    }
-
-    // ====== Card access ======
-    function findCardById(cardId){
-      for(const [subjectKey, subj] of Object.entries(BANK)){
-        const c = subj.cards.find(x => x.id === cardId);
-        if(c) return { subjectKey, subjectName: subj.name, card: c };
-      }
-      return null;
-    }
-
-    // ====== Dashboard render ======
     function renderDashboard(){
       $("#helloName").textContent = getName() || "同學";
       const { total, done, pct, wrongCount, last } = calcProgress();
@@ -497,12 +547,28 @@
       $("#progressFill").style.width = `${pct}%`;
     }
 
-    // ====== Session start ======
-    function startSubject(subjectKey){
-      state.mode = "subject";
-      state.subjectKey = subjectKey;
-      state.order = BANK[subjectKey].cards.map(c => c.id);
-      state.idx = 0;
+    // ====== Flashcards session ======
+    const cardState = {
+      mode: "subject",      // subject | wrongReview
+      subjectKey: null,
+      order: [],
+      idx: 0,
+      revealed: false
+    };
+
+    function findCardById(cardId){
+      for(const [subjectKey, subj] of Object.entries(CARD_BANK)){
+        const c = subj.cards.find(x => x.id === cardId);
+        if(c) return { subjectKey, subjectName: subj.name, card: c };
+      }
+      return null;
+    }
+
+    function startCardsForSubject(subjectKey){
+      cardState.mode = "subject";
+      cardState.subjectKey = subjectKey;
+      cardState.order = CARD_BANK[subjectKey].cards.map(c => c.id);
+      cardState.idx = 0;
       renderCard();
       show("cards");
     }
@@ -510,30 +576,25 @@
     function startWrongReview(){
       const wrong = getWrong();
       const ids = Object.keys(wrong);
-      if(ids.length === 0){
-        alert("目前沒有錯題可複習 🎉");
-        return;
-      }
-      state.mode = "wrongReview";
-      state.subjectKey = null;
-      // keep a stable order: newest first
+      if(ids.length === 0){ alert("目前沒有錯題可複習 🎉"); return; }
+      cardState.mode = "wrongReview";
+      cardState.subjectKey = null;
       ids.sort((a,b)=> (wrong[b]?.ts||0) - (wrong[a]?.ts||0));
-      state.order = ids;
-      state.idx = 0;
+      cardState.order = ids;
+      cardState.idx = 0;
       renderCard();
       show("cards");
     }
 
     function currentCard(){
-      const cardId = state.order[state.idx];
-      return findCardById(cardId);
+      const id = cardState.order[cardState.idx];
+      return findCardById(id);
     }
 
-    // ====== Flip behavior ======
-    function setRevealed(isRevealed){
-      state.revealed = isRevealed;
-      $("#btnKnow").disabled = !isRevealed;
-      $("#btnNotYet").disabled = !isRevealed;
+    function setRevealed(on){
+      cardState.revealed = on;
+      $("#btnKnow").disabled = !on;
+      $("#btnNotYet").disabled = !on;
     }
     function resetFlip(){
       $("#flipCard").classList.remove("is-flipped");
@@ -544,82 +605,60 @@
       setRevealed($("#flipCard").classList.contains("is-flipped"));
     }
 
-    // ====== Render card ======
     function renderCard(){
       const info = currentCard();
       if(!info){
-        // no card
         renderDashboard();
         show("dashboard");
         return;
       }
-
-      const { subjectName, card } = info;
-
-      $("#subjectName").textContent = subjectName;
-      $("#cardMeta").textContent = `第 ${state.idx + 1}/${state.order.length} 張`;
-
-      $("#cardQuestion").textContent = card.q;
-
-      // answer text: show correct option text (or allow custom in future)
-      const answerText = card.opts?.[card.a] ?? "—";
-      $("#cardAnswer").textContent = answerText;
-
-      // feedback reset
-      const fb = $("#feedback");
-      fb.classList.add("hidden");
-      fb.textContent = "";
-
+      $("#cardsSubjectName").textContent = info.subjectName;
+      $("#cardsMeta").textContent = `第 ${cardState.idx + 1}/${cardState.order.length} 張`;
+      $("#cardQuestion").textContent = info.card.q;
+      $("#cardAnswer").textContent = info.card.opts?.[info.card.a] ?? "—";
+      $("#cardsFeedback").classList.add("hidden");
+      $("#cardsFeedback").textContent = "";
       resetFlip();
-
-      // next button label
-      $("#btnNext").textContent = (state.idx === state.order.length - 1) ? "完成本次速讀" : "下一張";
+      $("#btnNextCard").textContent = (cardState.idx === cardState.order.length - 1) ? "完成本次速讀" : "下一張";
     }
 
     function nextCard(){
-      if(state.idx >= state.order.length - 1){
-        // finish
+      if(cardState.idx >= cardState.order.length - 1){
         renderDashboard();
         show("dashboard");
         return;
       }
-      state.idx += 1;
+      cardState.idx += 1;
       renderCard();
     }
 
-    // ====== Marking ======
     function markCard(known){
       const info = currentCard();
       if(!info) return;
-      const { subjectKey, subjectName, card } = info;
 
-      // store mark
       const marks = getMarks();
-      marks[card.id] = { known: !!known, ts: nowTs() };
+      marks[info.card.id] = { known: !!known, ts: nowTs() };
       setMarks(marks);
-
-      // update last time
       localStorage.setItem(K.last, String(nowTs()));
 
-      // wrongbook update
       const wrong = getWrong();
       if(!known){
-        wrong[card.id] = {
-          subjectKey,
-          subjectName,
-          q: card.q,
-          aText: card.opts?.[card.a] ?? "",
+        wrong[info.card.id] = {
+          subjectKey: info.subjectKey,
+          subjectName: info.subjectName,
+          q: info.card.q,
+          aText: info.card.opts?.[info.card.a] ?? "",
           ts: nowTs()
         };
         setWrong(wrong);
       }else{
-        if(wrong[card.id]){
-          delete wrong[card.id];
+        if(wrong[info.card.id]){
+          delete wrong[info.card.id];
           setWrong(wrong);
         }
       }
 
-      const fb = $("#feedback");
+      const fb = $("#cardsFeedback");
       if(known){
         fb.textContent = "✅ 已標記：我會了（此卡計入完成度）";
         fb.className = "msg ok";
@@ -635,7 +674,6 @@
       const wrong = getWrong();
       const list = $("#wrongList");
       list.innerHTML = "";
-
       const items = Object.entries(wrong)
         .map(([id, it]) => ({ id, ...it }))
         .sort((a,b)=> (b.ts||0) - (a.ts||0));
@@ -648,7 +686,7 @@
         return;
       }
 
-      items.forEach((it) => {
+      items.forEach(it => {
         const box = document.createElement("div");
         box.className = "card";
         box.style.boxShadow = "none";
@@ -663,6 +701,239 @@
       });
     }
 
+    // ====== Reader (Tablet-only) ======
+    const readerState = {
+      subjectKey: null,
+      pageIdx: 0,
+      drawOn: true,
+      eraseOn: false,
+      // drawing temp
+      drawing: false,
+      startX: 0, startY: 0,
+      tempEl: null,
+    };
+
+    function annoKey(subjectKey, pageIdx){
+      return `${subjectKey}|${pageIdx}`;
+    }
+    function loadAnnoAll(){
+      return loadJSON(K.anno, {});
+    }
+    function saveAnnoAll(map){
+      saveJSON(K.anno, map);
+    }
+    function getAnnoRects(subjectKey, pageIdx){
+      const all = loadAnnoAll();
+      return all[annoKey(subjectKey,pageIdx)] || [];
+    }
+    function setAnnoRects(subjectKey, pageIdx, rects){
+      const all = loadAnnoAll();
+      all[annoKey(subjectKey,pageIdx)] = rects;
+      saveAnnoAll(all);
+    }
+
+    function openLecture(subjectKey){
+      if(!isTablet()){
+        alert("手機模式不提供講義閱讀。請用平板直立模式（寬度≥768px）開啟。");
+        return;
+      }
+      readerState.subjectKey = subjectKey;
+      readerState.pageIdx = 0;
+      readerState.drawOn = true;
+      readerState.eraseOn = false;
+      $("#btnDrawMode").textContent = "標注：開";
+      $("#btnEraseMode").textContent = "橡皮擦：關";
+      $("#annoLayer").classList.add("draw-mode");
+      $("#annoLayer").classList.remove("erase-mode");
+      renderReader();
+      show("reader");
+    }
+
+    function renderReader(){
+      const subj = LECTURES[readerState.subjectKey];
+      $("#readerSubjectName").textContent = subj?.name || "—";
+
+      const total = subj?.pages?.length || 0;
+      const idx = readerState.pageIdx;
+
+      $("#readerPageInfo").textContent = `第 ${idx+1}/${total} 頁`;
+      $("#btnPrevPage").disabled = idx <= 0;
+      $("#btnNextPage").disabled = idx >= total - 1;
+
+      $("#pageImg").src = subj.pages[idx];
+
+      // render annotations after image load to ensure correct sizing
+      $("#pageImg").onload = () => {
+        renderAnno();
+      };
+    }
+
+    function renderAnno(){
+      const layer = $("#annoLayer");
+      layer.innerHTML = "";
+      const rects = getAnnoRects(readerState.subjectKey, readerState.pageIdx);
+
+      rects.forEach((r, i) => {
+        const el = document.createElement("div");
+        el.className = "hl";
+        el.dataset.idx = String(i);
+        el.style.left = `${r.x}%`;
+        el.style.top = `${r.y}%`;
+        el.style.width = `${r.w}%`;
+        el.style.height = `${r.h}%`;
+        layer.appendChild(el);
+      });
+    }
+
+    function setModes(drawOn, eraseOn){
+      readerState.drawOn = drawOn;
+      readerState.eraseOn = eraseOn;
+
+      const layer = $("#annoLayer");
+      layer.classList.toggle("draw-mode", drawOn);
+      layer.classList.toggle("erase-mode", eraseOn);
+
+      $("#btnDrawMode").textContent = `標注：${drawOn ? "開" : "關"}`;
+      $("#btnEraseMode").textContent = `橡皮擦：${eraseOn ? "開" : "關"}`;
+    }
+
+    function stagePointToPercent(e){
+      const stage = $("#readerStage");
+      const rect = stage.getBoundingClientRect();
+      const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+      const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+      const x = ((clientX - rect.left) / rect.width) * 100;
+      const y = ((clientY - rect.top) / rect.height) * 100;
+      return {
+        x: Math.max(0, Math.min(100, x)),
+        y: Math.max(0, Math.min(100, y))
+      };
+    }
+
+    let hintTimer = null;
+    function showPageHint(dir){
+      const stage = $("#readerStage");
+      if(!stage) return;
+      stage.classList.remove("show-left-hint","show-right-hint");
+      // force reflow so repeated taps still animate
+      void stage.offsetHeight;
+      stage.classList.add(dir === "left" ? "show-left-hint" : "show-right-hint");
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => {
+        stage.classList.remove("show-left-hint","show-right-hint");
+      }, 260);
+    }
+
+    function startDraw(e){
+      if(!readerState.drawOn || readerState.eraseOn) return;
+      e.preventDefault();
+
+      // Tap left/right 20% to change page (works even in draw mode)
+      const tap = stagePointToPercent(e);
+      if (tap.x <= 20) { prevPage(); return; }
+      if (tap.x >= 80) { nextPage(); return; }
+
+      const layer = $("#annoLayer");
+      readerState.drawing = true;
+
+      const p = tap;
+      readerState.startX = p.x;
+      readerState.startY = p.y;
+
+      const temp = document.createElement("div");
+      temp.className = "hl";
+      temp.style.left = `${p.x}%`;
+      temp.style.top = `${p.y}%`;
+      temp.style.width = `0%`;
+      temp.style.height = `0%`;
+      layer.appendChild(temp);
+      readerState.tempEl = temp;
+    }
+
+    function moveDraw(e){
+      if(!readerState.drawing || !readerState.tempEl) return;
+      // If user is dragging, treat it as drawing (not page turning)
+      e.preventDefault();
+
+      const p = stagePointToPercent(e);
+      const x1 = readerState.startX;
+      const y1 = readerState.startY;
+      const x2 = p.x;
+      const y2 = p.y;
+
+      const left = Math.min(x1, x2);
+      const top = Math.min(y1, y2);
+      const w = Math.abs(x2 - x1);
+      const h = Math.abs(y2 - y1);
+
+      readerState.tempEl.style.left = `${left}%`;
+      readerState.tempEl.style.top = `${top}%`;
+      readerState.tempEl.style.width = `${w}%`;
+      readerState.tempEl.style.height = `${h}%`;
+    }
+
+    function endDraw(e){
+      if(!readerState.drawing) return;
+      e.preventDefault();
+
+      const temp = readerState.tempEl;
+      readerState.drawing = false;
+      readerState.tempEl = null;
+
+      if(!temp) return;
+
+      // convert temp style back to numbers
+      const left = parseFloat(temp.style.left);
+      const top = parseFloat(temp.style.top);
+      const w = parseFloat(temp.style.width);
+      const h = parseFloat(temp.style.height);
+
+      // tiny boxes ignored
+      if(w < 1.2 || h < 1.2){
+        temp.remove();
+        return;
+      }
+
+      // save
+      const rects = getAnnoRects(readerState.subjectKey, readerState.pageIdx);
+      rects.push({ x:left, y:top, w, h });
+      setAnnoRects(readerState.subjectKey, readerState.pageIdx, rects);
+
+      // rerender cleanly
+      renderAnno();
+    }
+
+    function eraseClick(e){
+      if(!readerState.eraseOn) return;
+      const t = e.target;
+      if(!t.classList.contains("hl")) return;
+      const idx = Number(t.dataset.idx);
+      const rects = getAnnoRects(readerState.subjectKey, readerState.pageIdx);
+      rects.splice(idx, 1);
+      setAnnoRects(readerState.subjectKey, readerState.pageIdx, rects);
+      renderAnno();
+    }
+
+    function clearAnno(){
+      setAnnoRects(readerState.subjectKey, readerState.pageIdx, []);
+      renderAnno();
+    }
+
+    function prevPage(){
+      showPageHint("left");
+      const total = LECTURES[readerState.subjectKey]?.pages?.length || 0;
+      if(readerState.pageIdx <= 0) return;
+      readerState.pageIdx -= 1;
+      renderReader();
+    }
+    function nextPage(){
+      showPageHint("right");
+      const total = LECTURES[readerState.subjectKey]?.pages?.length || 0;
+      if(readerState.pageIdx >= total - 1) return;
+      readerState.pageIdx += 1;
+      renderReader();
+    }
+
     // ====== Boot ======
     function boot(){
       const name = getName();
@@ -674,7 +945,7 @@
       }
     }
 
-    // ====== Events ======
+    // ====== Events: common ======
     $("#btnSaveName").addEventListener("click", () => {
       const n = $("#nickname").value.trim();
       if(!n){ alert("請輸入暱稱"); return; }
@@ -683,7 +954,7 @@
       show("dashboard");
     });
 
-    $("#btnGoHome").addEventListener("click", () => {
+    $("#btnHome").addEventListener("click", () => {
       const name = getName();
       if(!name){ show("onboarding"); return; }
       renderDashboard();
@@ -691,17 +962,23 @@
     });
 
     $("#btnReset").addEventListener("click", () => {
-      if(!confirm("確定要清除所有資料？（暱稱、進度、錯題本）")) return;
+      if(!confirm("確定要清除所有資料？（暱稱、進度、錯題本、講義標注）")) return;
       localStorage.removeItem(K.name);
       localStorage.removeItem(K.marks);
       localStorage.removeItem(K.wrong);
       localStorage.removeItem(K.last);
+      localStorage.removeItem(K.anno);
       $("#nickname").value = "";
       show("onboarding");
     });
 
-    document.querySelectorAll('[data-subject]').forEach(btn => {
-      btn.addEventListener("click", () => startSubject(btn.dataset.subject));
+    // dashboard buttons
+    document.querySelectorAll("[data-action='start-cards']").forEach(btn => {
+      btn.addEventListener("click", () => startCardsForSubject(btn.dataset.subject));
+    });
+
+    document.querySelectorAll("[data-action='open-lecture']").forEach(btn => {
+      btn.addEventListener("click", () => openLecture(btn.dataset.subject));
     });
 
     $("#btnOpenWrongbook").addEventListener("click", () => {
@@ -709,29 +986,65 @@
       show("wrongbook");
     });
 
-    $("#btnBackFromWrong").addEventListener("click", () => {
-      renderDashboard();
-      show("dashboard");
-    });
+    $("#btnReviewWrong").addEventListener("click", startWrongReview);
+    $("#btnBackFromWrong").addEventListener("click", () => { renderDashboard(); show("dashboard"); });
 
-    $("#btnReviewWrong").addEventListener("click", () => startWrongReview());
-
-    $("#btnBackDash").addEventListener("click", () => {
-      renderDashboard();
-      show("dashboard");
-    });
-
-    $("#btnNext").addEventListener("click", nextCard);
-
-    $("#btnKnow").addEventListener("click", () => markCard(true));
-    $("#btnNotYet").addEventListener("click", () => markCard(false));
-
-    // flip interactions: tap/click + keyboard (Enter/Space)
+    // cards events
     $("#flipCard").addEventListener("click", toggleFlip);
     $("#flipCard").addEventListener("keydown", (e) => {
       if(e.key === "Enter" || e.key === " "){
-        e.preventDefault();
-        toggleFlip();
+        e.preventDefault(); toggleFlip();
+      }
+    });
+    $("#btnKnow").addEventListener("click", () => markCard(true));
+    $("#btnNotYet").addEventListener("click", () => markCard(false));
+    $("#btnNextCard").addEventListener("click", nextCard);
+    $("#btnBackDashFromCards").addEventListener("click", () => { renderDashboard(); show("dashboard"); });
+
+    // reader events (tablet only)
+    $("#btnBackDashFromReader").addEventListener("click", () => { renderDashboard(); show("dashboard"); });
+    $("#btnPrevPage").addEventListener("click", prevPage);
+    $("#btnNextPage").addEventListener("click", nextPage);
+
+    $("#btnDrawMode").addEventListener("click", () => {
+      // toggle draw; if turning off draw, also turn off erase
+      if(readerState.drawOn){
+        setModes(false, false);
+      }else{
+        setModes(true, false);
+      }
+    });
+
+    $("#btnEraseMode").addEventListener("click", () => {
+      // erase requires draw layer on (for pointer events)
+      if(readerState.eraseOn){
+        setModes(true, false);
+      }else{
+        setModes(false, true);
+      }
+    });
+
+    $("#btnClearAnno").addEventListener("click", () => {
+      if(!confirm("確定要清除本頁所有標注？")) return;
+      clearAnno();
+    });
+
+    // pointer events for drawing on annotation layer
+    const layer = $("#annoLayer");
+    layer.addEventListener("pointerdown", startDraw);
+    layer.addEventListener("pointermove", moveDraw);
+    layer.addEventListener("pointerup", endDraw);
+    layer.addEventListener("pointercancel", endDraw);
+    layer.addEventListener("click", eraseClick);
+
+    // keep mode labels accurate on resize
+    window.addEventListener("resize", () => {
+      $("#deviceHint").textContent = `裝置模式：${isTablet() ? "平板（含講義閱讀）" : "手機（僅速讀工具）"}`;
+      // if user is in reader and resized to mobile, force back to dashboard
+      if(!isTablet() && !views.reader.classList.contains("hidden")){
+        alert("已切換到手機模式：講義閱讀已關閉，回主頁。");
+        renderDashboard();
+        show("dashboard");
       }
     });
 
