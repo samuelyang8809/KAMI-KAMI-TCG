@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  <title>KAMI KAMI 首頁</title>
+  <style>
+    body {
+      font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+      margin: 0;
+      background: url('./img/background.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+    header {
+      background: url('./img/logo.png') no-repeat center center;
+      background-size: contain;
+      height: 70px;
+      display: flex;
+      margin-top: 40px;
+      align-items: center;
+      justify-content: center;
+    }
+    .intro-section { padding: 1em;  }
+    .intro-card {
+      border-radius: 16px;
+      margin: 1em 0;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      margin-top: 0px;
+      margin-bottom: 40px;
+    }
+    .intro-card img { width: 100%; height: auto; display: block; }
+    .intro-card .title {
+      position: absolute;
+      color: white;
+      font-size: 1.5em;
+      font-weight: bold;
+      text-shadow: 0 0 5px #000;
+      width: 100%;
+      text-align: center;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .mainheader, .container, .category-bar-wrapper, .cart-button, .fixed-bottom-bar, #cartPage {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+  </header>
+
+  <div class="intro-section" id="introSection">
+    <div class="intro-card" onclick="goStore('spread-frame')">
+      <div style="position: relative;">
+        <img src="./img/logo/IMG_9568.PNG" style="margin-top: 30px" alt="擴散式卡磚">
+      </div>
+    </div>
+    <div class="intro-card" onclick="goStore('spread-slab')">
+        <div style="position: relative;">
+        <img src="./img/logo/IMG_9572.PNG" alt="擴散式鑑定卡殼">
+      </div>
+    </div>
+    <div class="intro-card" onclick="goStore('card-accessory')">
+      <div style="position: relative;">
+        <img src="./img/logo/IMG_9571.PNG" alt="卡牌周邊">
+      </div>
+    </div>
+  </div>
+  <script>
+
+  // ✅ LINE 內建瀏覽器/LIFF 可能會快取舊版 store.html/JS，導致看起來「殘留」或行為不一致
+  // 用版本參數強制每次導頁都帶上 v=... 以避免快取
+  const APP_VER = '20260115';
+  function goStore(major) {
+    location.href = `store2.html?major=${encodeURIComponent(major)}&v=${encodeURIComponent(APP_VER)}`;
+  }
+
+async function initLiff() {
+  await liff.init({ liffId: "2007344816-9ODNJdlA" });
+  
+  if (!liff.isLoggedIn()) {
+    liff.login();
+  }
+
+  if (!liff.isInClient()) {
+    alert("請從LINE內開啟此頁面！");
+    window.location.href = "https://line.me";
+  }
+}
+//initLiff();
+
+  </script>
+</body>
+</html>
