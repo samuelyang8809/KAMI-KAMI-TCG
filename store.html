@@ -423,7 +423,7 @@
         折扣：<span id="discountAmount" style="color: #27ae60;">尚未套用</span><br>
         <strong>總計：<span id="finalAmount" style="color: #e67e22;">0</span> 元</strong>
       </div>
-      <button onclick="openSubmitOrderConfirmModal()()"
+      <button onclick="openSubmitOrderConfirmModal()"
         style="background: #FF5722; color: white; padding: 0.8em 2em; border-radius: 999px; font-size: 1em; border: none; margin-top: 0.5em;">去下單</button>
     </div>
   </div>
@@ -643,7 +643,9 @@ function openVariantModal(majorCategory, midCategory, item) {
     modal.classList.remove('show');
   }
   
-  function addToCart() {
+function addToCart() {
+    resetDiscountOnCartChange();
+
     const selectedVariantIndex = document.getElementById('variantSelect')?.selectedIndex || 0;
 
     console.log('🧩 選中的 variant:', currentItem);
@@ -746,6 +748,12 @@ function openVariantModal(majorCategory, midCategory, item) {
     setTimeout(() => {
       cartPage.classList.remove('fade-in');
     }, 1000);
+
+    // 若目前沒有已套用折扣，進入購物車時清空折扣碼輸入框
+    const discountInput = document.getElementById('discountCodeInput');
+    if (discountInput && !isDiscountApplied) {
+      discountInput.value = '';
+    }
 
     // 渲染購物車內容
     renderCartItems();
@@ -966,6 +974,7 @@ function increaseItem(index) {
   resetDiscountOnCartChange();
   appliedDiscountCode = "";
 
+  saveCartToStorage();
   renderCartItems();
 }
 
@@ -986,6 +995,7 @@ function decreaseItem(index) {
     discountInput.value = ''; // 清空輸入框，避免誤會仍在生效
   }
 
+  saveCartToStorage();
   renderCartItems();
 }
 
@@ -1115,9 +1125,12 @@ function removeCartItem(index) {
     discountInput.value = '';
   }
 
+  saveCartToStorage();
   renderCartItems();
 }
 function backToHome() {
+  resetDiscountOnCartChange();
+
   const cartPage = document.getElementById('cartPage');
   const container = document.querySelector('.container');
   const categoryBarWrapper = document.querySelector('.category-bar-wrapper');
