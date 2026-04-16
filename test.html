@@ -1,1054 +1,1050 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" />
-  <title>高業平台 MVP（手機：速讀｜平板：講義閱讀＋標注）</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="KAMIKAMI 精品風格一頁式品牌網站，介紹客製卡牌展示設計與收藏展示內容。" />
+  <title>KAMIKAMI — Luxury Collectible Display</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#F7F4EF;
-      --card:#fff;
-      --ink:#1F2937;
-      --muted:#6B7280;
-      --primary:#3B6E6B;
-      --primary2:#6FA6A1;
-      --accent:#D7BFA7;
-      --danger:#B91C1C;
-      --ok:#065F46;
-      --shadow:0 10px 30px rgba(31,41,55,.08);
-      --radius:18px;
+    :root {
+      --bg: #090909;
+      --bg-soft: #101010;
+      --panel: rgba(255,255,255,0.06);
+      --panel-strong: rgba(255,255,255,0.08);
+      --line: rgba(212, 174, 88, 0.24);
+      --gold: #d4ae58;
+      --gold-soft: #f2ddb0;
+      --ivory: #f8f2e7;
+      --muted: rgba(248, 242, 231, 0.72);
+      --text: #f6f2ea;
+      --shadow: 0 20px 80px rgba(0, 0, 0, 0.45);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --container: min(1200px, calc(100% - 32px));
+      --container-wide: min(1320px, calc(100% - 32px));
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial;
-      background: linear-gradient(180deg,#FBF8F3 0%,var(--bg) 60%,#F3F6F5 100%);
-      color:var(--ink);
-      -webkit-text-size-adjust: 100%;
-    }
-    .wrap{max-width:1100px;margin:0 auto;padding:16px 16px 48px;}
-    header{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:10px 4px 14px;
-    }
-    .brand{display:flex;flex-direction:column;gap:2px;}
-    .brand .title{font-weight:900;font-size:18px;letter-spacing:.2px}
-    .brand .sub{font-size:12px;color:var(--muted)}
-    .top-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      appearance:none;border:0;border-radius:14px;padding:12px 12px;
-      font-weight:900;font-size:14px;cursor:pointer;width:100%;
-      transition:transform .05s ease,opacity .2s ease;
-    }
-    .btn:active{transform:translateY(1px)}
-    .btn.primary{background:var(--primary);color:#fff}
-    .btn.ghost{background:rgba(59,110,107,.10);color:var(--primary);border:1px solid rgba(59,110,107,.18)}
-    .btn.light{background:rgba(215,191,167,.25);color:#6b4f3a;border:1px solid rgba(215,191,167,.35)}
-    .btn.danger{background:rgba(185,28,28,.10);color:var(--danger);border:1px solid rgba(185,28,28,.18)}
-    .btn.small{width:auto;padding:10px 12px;border-radius:999px;font-size:12px}
-    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
-    .card{
-      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
-      padding:14px;border:1px solid rgba(31,41,55,.06);
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(212,174,88,0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(212,174,88,0.08), transparent 24%),
+        linear-gradient(180deg, #060606 0%, #0b0b0b 45%, #070707 100%);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
     }
-    .stack{display:flex;flex-direction:column;gap:12px}
-    .grid{display:grid;grid-template-columns:1fr;gap:10px}
-    .row{display:flex;gap:12px;align-items:stretch}
-    .row>.card{flex:1}
-    .h2{margin:0 0 6px;font-size:15px;font-weight:900}
-    .p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
-    .tag{
-      display:inline-flex;align-items:center;gap:6px;
-      padding:6px 10px;border-radius:999px;
-      background:rgba(31,41,55,.06);color:var(--muted);font-size:12px;
-      border:1px solid rgba(31,41,55,.06);
-      width:fit-content;
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    p { margin: 0; }
+
+    .page-glow {
+      position: fixed;
+      inset: auto -10vw -20vh auto;
+      width: 45vw;
+      height: 45vw;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(212,174,88,0.10) 0%, rgba(212,174,88,0.03) 32%, transparent 66%);
+      filter: blur(30px);
+      z-index: 0;
     }
-    .sep{height:1px;background:rgba(31,41,55,.08);margin:10px 0}
-    .hidden{display:none!important}
-    .input{
-      width:100%;padding:12px 12px;border-radius:14px;
-      border:1px solid rgba(31,41,55,.14);outline:none;font-size:16px;background:#fff;
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(180deg, rgba(8,8,8,0.90), rgba(8,8,8,0.62));
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    select, textarea, button {
+
+    .topbar-inner {
+      width: var(--container-wide);
+      margin: 0 auto;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      letter-spacing: 0.2em;
+      font-size: 12px;
+      color: var(--ivory);
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(212,174,88,0.48);
+      display: grid;
+      place-items: center;
+      color: var(--gold-soft);
+      font-family: "Cormorant Garamond", serif;
+      font-size: 18px;
+      background: radial-gradient(circle at 35% 30%, rgba(212,174,88,0.18), rgba(255,255,255,0.02));
+      box-shadow: inset 0 0 18px rgba(255,255,255,0.05);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: rgba(248,242,231,0.76);
+      font-size: 13px;
+    }
+
+    .nav a:hover,
+    .ig-btn:hover,
+    .ghost-btn:hover {
+      color: var(--ivory);
+      transform: translateY(-1px);
+    }
+
+    .ig-btn,
+    .ghost-btn {
+      transition: 0.22s ease;
+    }
+
+    .ig-btn {
+      border: 1px solid rgba(212,174,88,0.48);
+      padding: 12px 18px;
+      border-radius: 999px;
+      color: var(--gold-soft);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+      white-space: nowrap;
+    }
+
+    .hero {
+      position: relative;
+      min-height: min(100svh, 980px);
+      display: grid;
+      align-items: center;
+      overflow: clip;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(5,5,5,0.88) 0%, rgba(5,5,5,0.70) 38%, rgba(5,5,5,0.20) 100%),
+        url('https://images.unsplash.com/photo-1741356474357-72188f76e801?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=2200') center/cover no-repeat;
+      transform: scale(1.02);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 180px;
+      background: linear-gradient(180deg, rgba(8,8,8,0), rgba(8,8,8,0.92));
+    }
+
+    .hero-inner {
+      width: var(--container-wide);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 42px;
+      align-items: center;
+      padding: 72px 0 44px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--gold-soft);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 600;
+      line-height: 0.95;
+      font-size: clamp(56px, 9vw, 116px);
+      letter-spacing: 0.01em;
+      max-width: 9ch;
+    }
+
+    .hero-subtitle {
+      margin-top: 22px;
+      font-size: clamp(16px, 1.8vw, 21px);
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 60ch;
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 30px;
+      max-width: 720px;
+    }
+
+    .meta-card {
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: rgba(248,242,231,0.58);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .meta-value {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--ivory);
+      line-height: 1.4;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      padding: 15px 22px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: 0.24s ease;
+    }
+
+    .primary-btn {
+      color: #14110c;
+      background: linear-gradient(135deg, #f5e3b3 0%, #d7ae56 100%);
+      box-shadow: 0 16px 36px rgba(212,174,88,0.22);
+      font-weight: 700;
+    }
+
+    .secondary-btn {
+      color: var(--ivory);
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .primary-btn:hover,
+    .secondary-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 560px;
+      display: grid;
+      place-items: center;
+    }
+
+    .visual-aura {
+      position: absolute;
+      width: 76%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,174,88,0.22), rgba(212,174,88,0.04) 42%, transparent 70%);
+      filter: blur(8px);
+      opacity: 0.9;
+    }
+
+    .showcase-frame {
+      position: relative;
+      width: min(480px, 92%);
+      aspect-ratio: 0.78;
+      border-radius: 34px;
+      padding: 16px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 30px 100px rgba(0,0,0,0.45);
+      transform: rotate(5deg);
+      overflow: hidden;
+    }
+
+    .showcase-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 24px;
+      filter: saturate(1.02) contrast(1.02);
+    }
+
+    .floating-note,
+    .floating-note-small {
+      position: absolute;
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(10,10,10,0.56);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .floating-note {
+      left: -4%;
+      bottom: 10%;
+      width: min(280px, 58vw);
+      padding: 18px 18px 16px;
+    }
+
+    .floating-note-small {
+      right: -2%;
+      top: 10%;
+      padding: 14px 16px;
+      min-width: 180px;
+    }
+
+    .floating-kicker {
+      color: var(--gold-soft);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .floating-title {
+      font-size: 18px;
+      line-height: 1.4;
+      color: var(--ivory);
+      margin-bottom: 8px;
+    }
+
+    .floating-copy {
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(248,242,231,0.68);
+    }
+
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 84px 0;
+    }
+
+    .section-inner {
+      width: var(--container);
+      margin: 0 auto;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section-kicker {
+      color: var(--gold-soft);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(36px, 5vw, 62px);
+      line-height: 1;
+      font-weight: 600;
+    }
+
+    .section-copy {
+      color: rgba(248,242,231,0.72);
+      line-height: 1.9;
       font-size: 16px;
-    }
-    .input:focus{border-color:rgba(59,110,107,.55);box-shadow:0 0 0 4px rgba(59,110,107,.10)}
-    .msg{
-      font-size:13px;padding:10px 12px;border-radius:14px;
-      border:1px solid rgba(31,41,55,.10);background:#fff;
-    }
-    .msg.ok{border-color:rgba(6,95,70,.25);background:rgba(6,95,70,.06);color:var(--ok)}
-    .msg.bad{border-color:rgba(185,28,28,.25);background:rgba(185,28,28,.06);color:var(--danger)}
-
-    /* progress */
-    .progress-wrap{display:flex;align-items:center;gap:10px;margin-top:10px}
-    .bar{flex:1;height:12px;border-radius:999px;background:rgba(31,41,55,.07);overflow:hidden}
-    .fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--primary) 0%,var(--primary2) 100%)}
-    .pct{font-size:12px;font-weight:900;color:var(--primary);min-width:56px;text-align:right}
-
-    /* flashcards (速讀工具) */
-    .flash-stage{display:flex;justify-content:center}
-    .flip-card{
-      width:100%;max-width:520px;min-height:260px;perspective:1200px;border-radius:18px;
-      outline:none;user-select:none;-webkit-tap-highlight-color:transparent;
-    }
-    .flip-inner{
-      position:relative;width:100%;min-height:260px;transform-style:preserve-3d;
-      transition:transform 560ms cubic-bezier(.2,.8,.2,1);border-radius:18px;
-    }
-    .flip-card.is-flipped .flip-inner{transform:rotateY(180deg)}
-    .flip-face{
-      position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
-      border-radius:18px;border:1px solid rgba(31,41,55,.10);box-shadow:var(--shadow);
-      padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;background:#fff;
-    }
-    .flip-front{background:linear-gradient(180deg, rgba(111,166,161,.14) 0%, rgba(247,244,239,.55) 55%, #fff 100%)}
-    .flip-back{
-      transform:rotateY(180deg);
-      background:linear-gradient(180deg, rgba(215,191,167,.22) 0%, rgba(247,244,239,.55) 55%, #fff 100%);
-    }
-    .flip-badge{
-      display:inline-flex;align-self:flex-start;padding:6px 10px;border-radius:999px;
-      font-size:12px;font-weight:900;border:1px solid rgba(31,41,55,.10);
-      background:rgba(255,255,255,.70);color:var(--muted);
-    }
-    .flip-title{font-size:18px;font-weight:900;line-height:1.5;letter-spacing:.2px;white-space:pre-wrap}
-    .flip-hint{
-      font-size:12px;color:var(--muted);text-align:center;padding-top:8px;
-      border-top:1px dashed rgba(31,41,55,.12);
-    }
-    .flip-card:focus-visible{box-shadow:0 0 0 4px rgba(59,110,107,.14);border-radius:18px}
-
-    /* layout: mobile vs tablet */
-    .layout{
-      display:grid;
-      grid-template-columns: 1fr; /* mobile default */
-      gap:12px;
-    }
-    .only-tablet{display:none;}
-    .only-mobile{display:block;}
-
-    /* Tablet portrait & up: show lecture reader, and split layout */
-    @media (min-width: 768px){
-      .layout{grid-template-columns: 1.05fr 1.95fr; align-items:start;}
-      .only-tablet{display:block;}
-      .only-mobile{display:none;}
-      .row{flex-direction:row;}
+      max-width: 62ch;
     }
 
-    /* Reader */
-    .reader-wrap{
-      display:flex;flex-direction:column;gap:10px;
-    }
-    .reader-toolbar{
-      display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
-    }
-    .toolbar-left,.toolbar-right{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    .kbd{font-size:12px;color:var(--muted)}
-    .reader-stage{
-      position:relative;
-      border-radius:18px;
-      border:1px solid rgba(31,41,55,.10);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      background:#fff;
-      min-height: 520px;
-    }
-    .page-img{
-      width:100%;height:100%;display:block;object-fit:contain;background:#fff;
-      touch-action: none;
-    }
-    /* highlight overlay */
-    .anno-layer{
-      position:absolute; inset:0;
-      pointer-events:none; /* enable only in draw mode via class */
-    }
-    .anno-layer.draw-mode{ pointer-events:auto; }
-    .hl{
-      position:absolute;
-      background: rgba(255, 235, 59, .35);
-      border: 1px solid rgba(255, 235, 59, .65);
-      border-radius: 8px;
-    }
-    .anno-layer.erase-mode .hl{ pointer-events:auto; cursor:pointer; }
-    .anno-layer.erase-mode{ pointer-events:auto; }
-
-    .page-nav-hint{
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      width:64px;
-      height:64px;
-      border-radius:999px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:28px;
-      font-weight:900;
-      color:#fff;
-      background: rgba(31, 41, 55, .55);
-      box-shadow: 0 10px 30px rgba(31,41,55,.18);
-      opacity:0;
-      pointer-events:none;
-      transition: opacity 220ms ease, transform 220ms ease;
-    }
-    .page-nav-hint.left{ left:14px; transform:translateY(-50%) translateX(-6px); }
-    .page-nav-hint.right{ right:14px; transform:translateY(-50%) translateX(6px); }
-    .reader-stage.show-left-hint .page-nav-hint.left{
-      opacity:1;
-      transform:translateY(-50%) translateX(0);
-    }
-    .reader-stage.show-right-hint .page-nav-hint.right{
-      opacity:1;
-      transform:translateY(-50%) translateX(0);
+    .split-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
     }
 
-    .pill{
-      font-size:12px;padding:8px 10px;border-radius:999px;
-      background:rgba(59,110,107,.10);color:var(--primary);
-      border:1px solid rgba(59,110,107,.18);white-space:nowrap;
+    .panel {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-media {
+      aspect-ratio: 1.06;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .panel:hover .panel-media img {
+      transform: scale(1.04);
+    }
+
+    .panel-body {
+      padding: 24px;
+    }
+
+    .panel-title {
+      font-size: 24px;
+      font-family: "Cormorant Garamond", serif;
+      margin-bottom: 10px;
+    }
+
+    .panel-text {
+      color: rgba(248,242,231,0.70);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .collections-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .collection-card {
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      min-height: 280px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+        linear-gradient(145deg, rgba(212,174,88,0.12), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .collection-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -24% auto;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,174,88,0.18), transparent 62%);
+      filter: blur(2px);
+    }
+
+    .collection-no {
+      color: rgba(248,242,231,0.44);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .collection-title {
+      margin-top: 46px;
+      margin-bottom: 12px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .collection-text {
+      color: rgba(248,242,231,0.70);
+      line-height: 1.8;
+      font-size: 15px;
+      max-width: 26ch;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .feature-item {
+      padding: 22px 20px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .feature-item strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 10px;
+      color: var(--ivory);
+      font-weight: 600;
+    }
+
+    .feature-item span {
+      display: block;
+      color: rgba(248,242,231,0.68);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.9fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .gallery-card {
+      position: relative;
+      min-height: 280px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+      background: #0f0f0f;
+    }
+
+    .gallery-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-overlay {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.84));
+    }
+
+    .gallery-label {
+      color: var(--gold-soft);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .gallery-title {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 28px;
+      line-height: 1.05;
+    }
+
+    .cta-section {
+      padding-bottom: 110px;
+    }
+
+    .cta-panel {
+      position: relative;
+      overflow: hidden;
+      border-radius: 34px;
+      padding: clamp(28px, 5vw, 54px);
+      border: 1px solid rgba(255,255,255,0.08);
+      background:
+        linear-gradient(90deg, rgba(8,8,8,0.92), rgba(8,8,8,0.70)),
+        url('https://images.unsplash.com/photo-1750742680965-e935e134cef1?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=2200') center/cover no-repeat;
+      box-shadow: var(--shadow);
+    }
+
+    .cta-title {
+      margin: 0 0 12px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(40px, 5vw, 70px);
+      line-height: 0.98;
+      max-width: 10ch;
+    }
+
+    .cta-copy {
+      color: rgba(248,242,231,0.74);
+      line-height: 1.9;
+      max-width: 56ch;
+      margin-bottom: 22px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .footer {
+      width: var(--container);
+      margin: 0 auto;
+      padding: 0 0 38px;
+      color: rgba(248,242,231,0.50);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 24px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      border: 1px solid rgba(212,174,88,0.26);
+      color: rgba(248,242,231,0.84);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      background: rgba(255,255,255,0.03);
+    }
+
+    @media (max-width: 1180px) {
+      .hero-inner,
+      .section-head,
+      .split-panel,
+      .gallery-grid,
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        min-height: 460px;
+      }
+
+      .collections-grid,
+      .feature-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .topbar-inner {
+        min-height: 64px;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .hero-inner {
+        gap: 26px;
+        padding-top: 44px;
+      }
+
+      .hero h1 {
+        max-width: 12ch;
+      }
+
+      .hero-meta,
+      .collections-grid,
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+
+      .showcase-frame {
+        width: min(380px, 90%);
+      }
+
+      .floating-note {
+        left: 2%;
+        bottom: 5%;
+        width: min(250px, 66vw);
+      }
+
+      .floating-note-small {
+        right: 2%;
+        top: 6%;
+      }
+
+      .footer {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 640px) {
+      section {
+        padding: 64px 0;
+      }
+
+      .topbar-inner {
+        width: min(100% - 24px, 1200px);
+      }
+
+      .section-inner,
+      .footer,
+      .hero-inner {
+        width: min(100% - 24px, 1200px);
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero::before {
+        background-position: 70% center;
+      }
+
+      .brand span:last-child {
+        display: none;
+      }
+
+      .ig-btn {
+        padding: 11px 15px;
+        font-size: 12px;
+      }
+
+      .hero-subtitle,
+      .section-copy,
+      .cta-copy {
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
+      .meta-card,
+      .panel-body,
+      .collection-card,
+      .feature-item {
+        padding: 18px;
+      }
+
+      .showcase-frame {
+        padding: 12px;
+        border-radius: 26px;
+      }
+
+      .showcase-frame img {
+        border-radius: 18px;
+      }
+
+      .floating-note,
+      .floating-note-small {
+        position: static;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .hero-visual {
+        gap: 14px;
+        min-height: auto;
+      }
+
+      .gallery-card {
+        min-height: 240px;
+      }
+
+      .cta-panel {
+        border-radius: 26px;
+      }
     }
   </style>
 </head>
-
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="title">高業平台 MVP</div>
-        <div class="sub">手機：速讀翻卡｜平板：講義閱讀（圖片）＋標注重點</div>
-      </div>
-      <div class="top-actions">
-        <button class="btn ghost small" id="btnHome">主頁</button>
-        <button class="btn danger small" id="btnReset">重置</button>
-      </div>
-    </header>
+  <div class="page-glow" aria-hidden="true"></div>
 
-    <!-- Onboarding -->
-    <section id="viewOnboarding" class="stack hidden">
-      <div class="card">
-        <div class="h2">第一次使用</div>
-        <p class="p">輸入暱稱後開始。手機模式只顯示速讀工具；平板模式會多「講義閱讀＋標注」。</p>
-        <div class="sep"></div>
-        <div class="grid">
-          <input class="input" id="nickname" placeholder="例如：Chenghan / 小楊" maxlength="20" />
-          <button class="btn primary" id="btnSaveName">開始使用</button>
-        </div>
-        <div class="p" style="margin-top:10px;">
-          <span class="tag" id="deviceHint">裝置模式：—</span>
-        </div>
-      </div>
-    </section>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="KAMIKAMI 首頁">
+        <span class="brand-mark">K</span>
+        <span>KAMIKAMI · Luxury Collectible Display</span>
+      </a>
 
-    <!-- Dashboard -->
-    <section id="viewDashboard" class="stack hidden">
-      <div class="card">
-        <div class="h2">你好，<span id="helloName">同學</span> 👋</div>
-        <p class="p">
-          <span class="only-mobile">你目前是手機模式：只提供速讀工具（翻卡）。</span>
-          <span class="only-tablet">你目前是平板模式：可使用速讀工具＋講義閱讀（圖片）＋標注重點。</span>
-        </p>
+      <nav class="nav" aria-label="主選單">
+        <a href="#about">About</a>
+        <a href="#collections">Collections</a>
+        <a href="#craft">Craft</a>
+        <a href="#gallery">Gallery</a>
+      </nav>
 
-        <div class="progress-wrap">
-          <div class="bar"><div class="fill" id="progressFill"></div></div>
-          <div class="pct" id="progressPct">0%</div>
-        </div>
+      <a class="ig-btn" href="https://www.instagram.com/kamikami_taiwan/" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </div>
+  </header>
 
-        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
-          <span class="tag">已標記：<b id="doneCount">0</b>/<span id="totalCount">15</span></span>
-          <span class="tag">還不熟：<b id="wrongCount">0</b></span>
-          <span class="tag">最後操作：<b id="lastTime">—</b></span>
-        </div>
-      </div>
-
-      <div class="layout">
-        <!-- Left: tools -->
-        <div class="stack">
-          <div class="card">
-            <div class="h2">速讀工具（翻卡）</div>
-            <p class="p">手機/平板都能用：點卡片翻面看答案，再標記「我會了 / 我還不熟」。</p>
-            <div class="sep"></div>
-            <div class="grid">
-              <button class="btn primary" data-action="start-cards" data-subject="invest">投資學（5張卡）</button>
-              <button class="btn primary" data-action="start-cards" data-subject="fa">財務分析（5張卡）</button>
-              <button class="btn primary" data-action="start-cards" data-subject="law">證券交易相關法規（5張卡）</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="h2">錯題本</div>
-            <p class="p">你標記「還不熟」的卡片會在這裡。平板也可以邊讀講義邊回顧。</p>
-            <div class="sep"></div>
-            <div class="grid">
-              <button class="btn light" id="btnOpenWrongbook">打開錯題本</button>
-            </div>
-          </div>
-
-          <!-- Tablet-only: lecture library -->
-          <div class="card only-tablet">
-            <div class="h2">講義閱讀（平板限定）</div>
-            <p class="p">每科一組「圖片講義」。點進去會進入電子閱讀器：上一頁/下一頁＋標注重點。</p>
-            <div class="sep"></div>
-            <div class="grid">
-              <button class="btn ghost" data-action="open-lecture" data-subject="invest">投資學｜講義閱讀</button>
-              <button class="btn ghost" data-action="open-lecture" data-subject="fa">財務分析｜講義閱讀</button>
-              <button class="btn ghost" data-action="open-lecture" data-subject="law">法規｜講義閱讀</button>
-            </div>
-            <div class="footnote">提醒：手機模式下不提供講義閱讀（避免縮小閱讀體驗）。</div>
-          </div>
-
-          <!-- Mobile-only notice -->
-          <div class="card only-mobile">
-            <div class="h2">講義閱讀（手機不開放）</div>
-            <p class="p">手機螢幕太小，先只給速讀工具。若要讀圖檔講義，請用平板直立模式開啟。</p>
-            <div class="sep"></div>
-            <div class="tag">建議：iPad 直立｜寬度 ≥ 768px</div>
-          </div>
-        </div>
-
-        <!-- Right: tablet reader preview panel (optional) -->
-        <div class="card only-tablet">
-          <div class="h2">平板模式小提示</div>
-          <p class="p">
-            你可以先用左邊「講義閱讀」進入電子閱讀器，再用「標注」把重點框起來（會保存到本機）。<br/>
-            標注只做 MVP：黃色螢光框。之後可擴充筆記、顏色、匯出。
+  <main id="top">
+    <section class="hero" aria-label="品牌主視覺">
+      <div class="hero-inner">
+        <div>
+          <div class="eyebrow">Collector piece · premium presentation</div>
+          <h1>KAMIKAMI</h1>
+          <p class="hero-subtitle">
+            讓珍藏不只被保存，而是被完整呈現。以精品感視覺語言，重新包裝卡牌、展示框與收藏故事，讓每一張值得留下的作品，都有屬於自己的舞台。
           </p>
-          <div class="sep"></div>
-          <div class="tag">標注：拖曳畫框｜刪除：切到「橡皮擦」點框</div>
-          <div class="tag">儲存：localStorage（每科/每頁）</div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Flashcards -->
-    <section id="viewCards" class="stack hidden">
-      <div class="card">
-        <div class="h2"><span id="cardsSubjectName">科目</span>｜翻卡速讀</div>
-        <p class="p">點卡片（手機 tap / 滑鼠 click）翻面。翻到背面後才可標記「我會了 / 我還不熟」。</p>
-      </div>
-
-      <div class="card">
-        <div class="tag" id="cardsMeta">第 1/5 張</div>
-        <div class="sep"></div>
-
-        <div class="flash-stage">
-          <div class="flip-card" id="flipCard" role="button" tabindex="0" aria-label="翻轉卡片">
-            <div class="flip-inner">
-              <div class="flip-face flip-front">
-                <div class="flip-badge">題目</div>
-                <div class="flip-title" id="cardQuestion">—</div>
-                <div class="flip-hint">點一下翻面</div>
-              </div>
-              <div class="flip-face flip-back">
-                <div class="flip-badge">答案</div>
-                <div class="flip-title" id="cardAnswer">—</div>
-                <div class="flip-hint">點一下翻回來</div>
-              </div>
+          <div class="hero-meta">
+            <div class="meta-card">
+              <div class="meta-label">Focus</div>
+              <div class="meta-value">Extended art display<br>for serious collectors</div>
+            </div>
+            <div class="meta-card">
+              <div class="meta-label">Signature</div>
+              <div class="meta-value">PSA / BGS case<br>and evolution sets</div>
+            </div>
+            <div class="meta-card">
+              <div class="meta-label">Direction</div>
+              <div class="meta-value">Boutique look,<br>Instagram first</div>
             </div>
           </div>
-        </div>
 
-        <div id="cardsFeedback" class="msg hidden" style="margin-top:12px;"></div>
-
-        <div style="margin-top:12px;" class="grid">
-          <button class="btn primary" id="btnKnow" disabled>我會了 ✅</button>
-          <button class="btn light" id="btnNotYet" disabled>我還不熟 📝</button>
-          <button class="btn ghost" id="btnNextCard">下一張</button>
-          <button class="btn ghost" id="btnBackDashFromCards">回主頁</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Wrongbook -->
-    <section id="viewWrongbook" class="stack hidden">
-      <div class="card">
-        <div class="h2">錯題本</div>
-        <p class="p">這裡是你標記「還不熟」的卡片。你可以直接開始複習（翻卡）。</p>
-        <div class="sep"></div>
-        <div class="grid" id="wrongList"></div>
-        <div style="margin-top:10px;" class="grid">
-          <button class="btn primary" id="btnReviewWrong">開始複習錯題（翻卡）</button>
-          <button class="btn ghost" id="btnBackFromWrong">回主頁</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tablet-only Reader -->
-    <section id="viewReader" class="stack hidden">
-      <div class="card">
-        <div class="h2"><span id="readerSubjectName">科目</span>｜講義閱讀器（圖片）</div>
-        <p class="p">上一頁/下一頁切換圖片。標注模式可拖曳畫螢光框；橡皮擦模式可點選刪除框。</p>
-      </div>
-
-      <div class="card reader-wrap">
-        <div class="reader-toolbar">
-          <div class="toolbar-left">
-            <span class="pill" id="readerPageInfo">第 1/1 頁</span>
-            <button class="btn ghost small" id="btnPrevPage">上一頁</button>
-            <button class="btn ghost small" id="btnNextPage">下一頁</button>
+          <div class="hero-actions">
+            <a class="primary-btn" href="https://www.instagram.com/kamikami_taiwan/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+            <a class="secondary-btn" href="#collections">Explore Collections</a>
           </div>
 
-          <div class="toolbar-right">
-            <button class="btn primary small" id="btnDrawMode">標注：開</button>
-            <button class="btn light small" id="btnEraseMode">橡皮擦：關</button>
-            <button class="btn ghost small" id="btnClearAnno">清除本頁標注</button>
-            <button class="btn ghost small" id="btnBackDashFromReader">回主頁</button>
+          <div class="badge-row">
+            <span class="badge">Luxury one-page presentation</span>
+            <span class="badge">Mobile · Tablet · Desktop responsive</span>
+            <span class="badge">No cart · IG redirect flow</span>
           </div>
         </div>
 
-        <div class="reader-stage" id="readerStage">
-          <img id="pageImg" class="page-img" alt="講義頁面" />
-          <div id="annoLayer" class="anno-layer draw-mode" aria-label="標注圖層"></div>
-          <div class="page-nav-hint left" aria-hidden="true">←</div>
-          <div class="page-nav-hint right" aria-hidden="true">→</div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="visual-aura"></div>
+          <div class="showcase-frame">
+            <img
+              src="https://images.unsplash.com/photo-1672759043182-dde5467f8f76?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=1400"
+              alt="收藏卡片精品展示意象"
+              loading="eager"
+            >
+          </div>
+          <div class="floating-note-small">
+            <div class="floating-kicker">Visual direction</div>
+            <div class="floating-title">Dark luxury<br>with gold accents</div>
+          </div>
+          <div class="floating-note">
+            <div class="floating-kicker">Brand mood</div>
+            <div class="floating-title">Not a shop window.<br>More like a private gallery.</div>
+            <div class="floating-copy">首頁導向 Instagram，集中品牌感、作品陳列與收藏者信任，不走一般電商版型。</div>
+          </div>
         </div>
-
-        <div class="kbd">小技巧：標注模式下「拖曳畫框」。要刪除框：先切到橡皮擦模式，再點框。</div>
       </div>
     </section>
-  </div>
 
-  <script>
-    /********************
-     * Device rules
-     * - Mobile (width < 768): ONLY flashcards speed tool
-     * - Tablet portrait/up (width >= 768): flashcards + lecture reader (images) + annotation
-     ********************/
-    const isTablet = () => window.matchMedia("(min-width: 768px)").matches;
-
-    // ====== Storage Keys ======
-    const K = {
-      name: "sr_name",
-      marks: "sr_marks",            // cardId -> { known:boolean, ts:number }
-      wrong: "sr_wrongbook",        // cardId -> { subjectKey, subjectName, q, aText, ts }
-      last: "sr_last_time",
-      anno: "sr_anno_v1"            // subjectKey|pageIndex -> array of rects [{x,y,w,h}]
-    };
-
-    // ====== Flashcards bank (same as before) ======
-    const CARD_BANK = {
-      invest: {
-        name: "投資學",
-        cards: [
-          { id:"invest-1", q:"下列何者屬於貨幣市場工具？", opts:["公司債","商業本票（CP）","特別股","可轉換公司債"], a:1 },
-          { id:"invest-2", q:"風險與報酬的關係，較符合下列何者？", opts:["高報酬必然低風險","高風險通常伴隨較高期待報酬","低風險必然高報酬","風險與報酬無關"], a:1 },
-          { id:"invest-3", q:"ETF 最常見的特性是？", opts:["只能盤後交易","追蹤指數、可於交易所買賣","保證本金","不需揭露持股"], a:1 },
-          { id:"invest-4", q:"分散投資的主要目的為？", opts:["提高單一標的曝險","降低非系統性風險","保證獲利","增加交易成本"], a:1 },
-          { id:"invest-5", q:"債券殖利率上升時，債券價格通常？", opts:["上升","下跌","不變","與票息高低無關"], a:1 },
-        ]
-      },
-      fa: {
-        name: "財務分析",
-        cards: [
-          { id:"fa-1", q:"流動比率上升通常代表？", opts:["短期償債能力可能提高","獲利能力必然提高","負債比必然上升","現金流必然變差"], a:0 },
-          { id:"fa-2", q:"ROE（股東權益報酬率）主要衡量？", opts:["公司對股東投入資本的獲利能力","存貨周轉效率","短期償債能力","營收成長率"], a:0 },
-          { id:"fa-3", q:"杜邦分析中 ROE 常拆解為：", opts:["毛利率 × 存貨周轉率","淨利率 × 總資產週轉率 × 權益乘數","營收 × 成本 × 費用","現金流量 × 負債比"], a:1 },
-          { id:"fa-4", q:"折舊費用在間接法現金流量表中通常？", opts:["是現金支出，需減回","非現金費用，需加回","非現金費用，需扣除","是現金支出，不調整"], a:1 },
-          { id:"fa-5", q:"應收帳款大幅增加，可能代表？", opts:["收現速度變快","收現速度變慢、信用風險上升","存貨一定下降","現金一定增加"], a:1 },
-        ]
-      },
-      law: {
-        name: "證券交易相關法規",
-        cards: [
-          { id:"law-1", q:"內線交易重點在於？", opts:["資訊公開後交易","資訊未公開且具重大性","只要買賣就算內線","只限法人會犯"], a:1 },
-          { id:"law-2", q:"公開說明書與財報揭露的目的主要是？", opts:["增加市場不對稱","提升資訊透明、保護投資人","保證投資報酬","降低交易量"], a:1 },
-          { id:"law-3", q:"「不實陳述」風險通常與哪種行為相關？", opts:["虛偽或誤導性資訊揭露","正常公告財報","依法申報持股變動","公司依法召開股東會"], a:0 },
-          { id:"law-4", q:"較接近「操縱市場」的概念是？", opts:["長期投資","以虛假交易造成價格或成交量假象","分散投資","定期定額"], a:1 },
-          { id:"law-5", q:"投資人保護機制常見目的為？", opts:["鼓勵不揭露資訊","降低資訊不對稱與交易不公平","保證每筆投資獲利","限制市場流動性"], a:1 },
-        ]
-      }
-    };
-
-    // ====== Lecture image bank (replace with your real images) ======
-    // 你只要把下面的 placeholder URL 換成：你的講義圖片路徑（例如 ./lectures/invest/001.jpg ...）
-    const LECTURES = {
-      invest: {
-        name: "投資學",
-        pages: [
-          "https://picsum.photos/seed/invest1/1200/1600",
-          "https://picsum.photos/seed/invest2/1200/1600",
-          "https://picsum.photos/seed/invest3/1200/1600",
-        ]
-      },
-      fa: {
-        name: "財務分析",
-        pages: [
-          "https://picsum.photos/seed/fa1/1200/1600",
-          "https://picsum.photos/seed/fa2/1200/1600",
-          "https://picsum.photos/seed/fa3/1200/1600",
-        ]
-      },
-      law: {
-        name: "法規",
-        pages: [
-          "https://picsum.photos/seed/law1/1200/1600",
-          "https://picsum.photos/seed/law2/1200/1600",
-          "https://picsum.photos/seed/law3/1200/1600",
-        ]
-      }
-    };
-
-    // ====== Simple view control ======
-    const $ = (s) => document.querySelector(s);
-    const views = {
-      onboarding: $("#viewOnboarding"),
-      dashboard: $("#viewDashboard"),
-      cards: $("#viewCards"),
-      wrongbook: $("#viewWrongbook"),
-      reader: $("#viewReader"),
-    };
-    function show(view){
-      Object.values(views).forEach(v => v.classList.add("hidden"));
-      views[view].classList.remove("hidden");
-      $("#deviceHint").textContent = `裝置模式：${isTablet() ? "平板（含講義閱讀）" : "手機（僅速讀工具）"}`;
-    }
-
-    // ====== Storage helpers ======
-    const nowTs = () => Date.now();
-    function loadJSON(key, fallback){
-      try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
-      catch(e){ return fallback; }
-    }
-    function saveJSON(key, obj){ localStorage.setItem(key, JSON.stringify(obj)); }
-    function getName(){ return localStorage.getItem(K.name) || ""; }
-    function setName(n){ localStorage.setItem(K.name, n); }
-    function getMarks(){ return loadJSON(K.marks, {}); }
-    function setMarks(m){ saveJSON(K.marks, m); }
-    function getWrong(){ return loadJSON(K.wrong, {}); }
-    function setWrong(m){ saveJSON(K.wrong, m); }
-    function fmtDate(ts){
-      if(!ts) return "—";
-      const d = new Date(ts);
-      const pad=(n)=>String(n).padStart(2,"0");
-      return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    }
-    function totalCards(){
-      return Object.values(CARD_BANK).reduce((sum, s)=> sum + s.cards.length, 0);
-    }
-    function calcProgress(){
-      const marks = getMarks();
-      const total = totalCards();
-      const done = Object.keys(marks).length;
-      const pct = total ? Math.round((done/total)*100) : 0;
-      const wrongCount = Object.values(getWrong()).length;
-      const last = Number(localStorage.getItem(K.last) || 0);
-      return { total, done, pct, wrongCount, last };
-    }
-    function renderDashboard(){
-      $("#helloName").textContent = getName() || "同學";
-      const { total, done, pct, wrongCount, last } = calcProgress();
-      $("#totalCount").textContent = total;
-      $("#doneCount").textContent = done;
-      $("#wrongCount").textContent = wrongCount;
-      $("#lastTime").textContent = last ? fmtDate(last) : "—";
-      $("#progressPct").textContent = `${pct}%`;
-      $("#progressFill").style.width = `${pct}%`;
-    }
-
-    // ====== Flashcards session ======
-    const cardState = {
-      mode: "subject",      // subject | wrongReview
-      subjectKey: null,
-      order: [],
-      idx: 0,
-      revealed: false
-    };
-
-    function findCardById(cardId){
-      for(const [subjectKey, subj] of Object.entries(CARD_BANK)){
-        const c = subj.cards.find(x => x.id === cardId);
-        if(c) return { subjectKey, subjectName: subj.name, card: c };
-      }
-      return null;
-    }
-
-    function startCardsForSubject(subjectKey){
-      cardState.mode = "subject";
-      cardState.subjectKey = subjectKey;
-      cardState.order = CARD_BANK[subjectKey].cards.map(c => c.id);
-      cardState.idx = 0;
-      renderCard();
-      show("cards");
-    }
-
-    function startWrongReview(){
-      const wrong = getWrong();
-      const ids = Object.keys(wrong);
-      if(ids.length === 0){ alert("目前沒有錯題可複習 🎉"); return; }
-      cardState.mode = "wrongReview";
-      cardState.subjectKey = null;
-      ids.sort((a,b)=> (wrong[b]?.ts||0) - (wrong[a]?.ts||0));
-      cardState.order = ids;
-      cardState.idx = 0;
-      renderCard();
-      show("cards");
-    }
-
-    function currentCard(){
-      const id = cardState.order[cardState.idx];
-      return findCardById(id);
-    }
-
-    function setRevealed(on){
-      cardState.revealed = on;
-      $("#btnKnow").disabled = !on;
-      $("#btnNotYet").disabled = !on;
-    }
-    function resetFlip(){
-      $("#flipCard").classList.remove("is-flipped");
-      setRevealed(false);
-    }
-    function toggleFlip(){
-      $("#flipCard").classList.toggle("is-flipped");
-      setRevealed($("#flipCard").classList.contains("is-flipped"));
-    }
-
-    function renderCard(){
-      const info = currentCard();
-      if(!info){
-        renderDashboard();
-        show("dashboard");
-        return;
-      }
-      $("#cardsSubjectName").textContent = info.subjectName;
-      $("#cardsMeta").textContent = `第 ${cardState.idx + 1}/${cardState.order.length} 張`;
-      $("#cardQuestion").textContent = info.card.q;
-      $("#cardAnswer").textContent = info.card.opts?.[info.card.a] ?? "—";
-      $("#cardsFeedback").classList.add("hidden");
-      $("#cardsFeedback").textContent = "";
-      resetFlip();
-      $("#btnNextCard").textContent = (cardState.idx === cardState.order.length - 1) ? "完成本次速讀" : "下一張";
-    }
-
-    function nextCard(){
-      if(cardState.idx >= cardState.order.length - 1){
-        renderDashboard();
-        show("dashboard");
-        return;
-      }
-      cardState.idx += 1;
-      renderCard();
-    }
-
-    function markCard(known){
-      const info = currentCard();
-      if(!info) return;
-
-      const marks = getMarks();
-      marks[info.card.id] = { known: !!known, ts: nowTs() };
-      setMarks(marks);
-      localStorage.setItem(K.last, String(nowTs()));
-
-      const wrong = getWrong();
-      if(!known){
-        wrong[info.card.id] = {
-          subjectKey: info.subjectKey,
-          subjectName: info.subjectName,
-          q: info.card.q,
-          aText: info.card.opts?.[info.card.a] ?? "",
-          ts: nowTs()
-        };
-        setWrong(wrong);
-      }else{
-        if(wrong[info.card.id]){
-          delete wrong[info.card.id];
-          setWrong(wrong);
-        }
-      }
-
-      const fb = $("#cardsFeedback");
-      if(known){
-        fb.textContent = "✅ 已標記：我會了（此卡計入完成度）";
-        fb.className = "msg ok";
-      }else{
-        fb.textContent = "📝 已標記：我還不熟（已加入錯題本）";
-        fb.className = "msg bad";
-      }
-      fb.classList.remove("hidden");
-    }
-
-    // ====== Wrongbook ======
-    function renderWrongbook(){
-      const wrong = getWrong();
-      const list = $("#wrongList");
-      list.innerHTML = "";
-      const items = Object.entries(wrong)
-        .map(([id, it]) => ({ id, ...it }))
-        .sort((a,b)=> (b.ts||0) - (a.ts||0));
-
-      if(items.length === 0){
-        const empty = document.createElement("div");
-        empty.className = "msg ok";
-        empty.textContent = "目前沒有錯題 🎉 你很猛。";
-        list.appendChild(empty);
-        return;
-      }
-
-      items.forEach(it => {
-        const box = document.createElement("div");
-        box.className = "card";
-        box.style.boxShadow = "none";
-        box.style.border = "1px solid rgba(31,41,55,.08)";
-        box.innerHTML = `
-          <div class="tag">${it.subjectName || "—"}｜${fmtDate(it.ts)}</div>
-          <div class="sep"></div>
-          <div style="font-weight:900; font-size:14px; margin-bottom:8px; white-space:pre-wrap;">${it.q}</div>
-          <div class="p">答案：<b style="color: var(--ok);">${it.aText || "—"}</b></div>
-        `;
-        list.appendChild(box);
-      });
-    }
-
-    // ====== Reader (Tablet-only) ======
-    const readerState = {
-      subjectKey: null,
-      pageIdx: 0,
-      drawOn: true,
-      eraseOn: false,
-      // drawing temp
-      drawing: false,
-      startX: 0, startY: 0,
-      tempEl: null,
-    };
-
-    function annoKey(subjectKey, pageIdx){
-      return `${subjectKey}|${pageIdx}`;
-    }
-    function loadAnnoAll(){
-      return loadJSON(K.anno, {});
-    }
-    function saveAnnoAll(map){
-      saveJSON(K.anno, map);
-    }
-    function getAnnoRects(subjectKey, pageIdx){
-      const all = loadAnnoAll();
-      return all[annoKey(subjectKey,pageIdx)] || [];
-    }
-    function setAnnoRects(subjectKey, pageIdx, rects){
-      const all = loadAnnoAll();
-      all[annoKey(subjectKey,pageIdx)] = rects;
-      saveAnnoAll(all);
-    }
-
-    function openLecture(subjectKey){
-      if(!isTablet()){
-        alert("手機模式不提供講義閱讀。請用平板直立模式（寬度≥768px）開啟。");
-        return;
-      }
-      readerState.subjectKey = subjectKey;
-      readerState.pageIdx = 0;
-      readerState.drawOn = true;
-      readerState.eraseOn = false;
-      $("#btnDrawMode").textContent = "標注：開";
-      $("#btnEraseMode").textContent = "橡皮擦：關";
-      $("#annoLayer").classList.add("draw-mode");
-      $("#annoLayer").classList.remove("erase-mode");
-      renderReader();
-      show("reader");
-    }
-
-    function renderReader(){
-      const subj = LECTURES[readerState.subjectKey];
-      $("#readerSubjectName").textContent = subj?.name || "—";
-
-      const total = subj?.pages?.length || 0;
-      const idx = readerState.pageIdx;
-
-      $("#readerPageInfo").textContent = `第 ${idx+1}/${total} 頁`;
-      $("#btnPrevPage").disabled = idx <= 0;
-      $("#btnNextPage").disabled = idx >= total - 1;
-
-      $("#pageImg").src = subj.pages[idx];
-
-      // render annotations after image load to ensure correct sizing
-      $("#pageImg").onload = () => {
-        renderAnno();
-      };
-    }
-
-    function renderAnno(){
-      const layer = $("#annoLayer");
-      layer.innerHTML = "";
-      const rects = getAnnoRects(readerState.subjectKey, readerState.pageIdx);
-
-      rects.forEach((r, i) => {
-        const el = document.createElement("div");
-        el.className = "hl";
-        el.dataset.idx = String(i);
-        el.style.left = `${r.x}%`;
-        el.style.top = `${r.y}%`;
-        el.style.width = `${r.w}%`;
-        el.style.height = `${r.h}%`;
-        layer.appendChild(el);
-      });
-    }
-
-    function setModes(drawOn, eraseOn){
-      readerState.drawOn = drawOn;
-      readerState.eraseOn = eraseOn;
-
-      const layer = $("#annoLayer");
-      layer.classList.toggle("draw-mode", drawOn);
-      layer.classList.toggle("erase-mode", eraseOn);
-
-      $("#btnDrawMode").textContent = `標注：${drawOn ? "開" : "關"}`;
-      $("#btnEraseMode").textContent = `橡皮擦：${eraseOn ? "開" : "關"}`;
-    }
-
-    function stagePointToPercent(e){
-      const stage = $("#readerStage");
-      const rect = stage.getBoundingClientRect();
-      const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-      const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-      const x = ((clientX - rect.left) / rect.width) * 100;
-      const y = ((clientY - rect.top) / rect.height) * 100;
-      return {
-        x: Math.max(0, Math.min(100, x)),
-        y: Math.max(0, Math.min(100, y))
-      };
-    }
-
-    let hintTimer = null;
-    function showPageHint(dir){
-      const stage = $("#readerStage");
-      if(!stage) return;
-      stage.classList.remove("show-left-hint","show-right-hint");
-      // force reflow so repeated taps still animate
-      void stage.offsetHeight;
-      stage.classList.add(dir === "left" ? "show-left-hint" : "show-right-hint");
-      clearTimeout(hintTimer);
-      hintTimer = setTimeout(() => {
-        stage.classList.remove("show-left-hint","show-right-hint");
-      }, 260);
-    }
-
-    function startDraw(e){
-      if(!readerState.drawOn || readerState.eraseOn) return;
-      e.preventDefault();
-
-      // Tap left/right 20% to change page (works even in draw mode)
-      const tap = stagePointToPercent(e);
-      if (tap.x <= 20) { prevPage(); return; }
-      if (tap.x >= 80) { nextPage(); return; }
-
-      const layer = $("#annoLayer");
-      readerState.drawing = true;
-
-      const p = tap;
-      readerState.startX = p.x;
-      readerState.startY = p.y;
-
-      const temp = document.createElement("div");
-      temp.className = "hl";
-      temp.style.left = `${p.x}%`;
-      temp.style.top = `${p.y}%`;
-      temp.style.width = `0%`;
-      temp.style.height = `0%`;
-      layer.appendChild(temp);
-      readerState.tempEl = temp;
-    }
-
-    function moveDraw(e){
-      if(!readerState.drawing || !readerState.tempEl) return;
-      // If user is dragging, treat it as drawing (not page turning)
-      e.preventDefault();
-
-      const p = stagePointToPercent(e);
-      const x1 = readerState.startX;
-      const y1 = readerState.startY;
-      const x2 = p.x;
-      const y2 = p.y;
-
-      const left = Math.min(x1, x2);
-      const top = Math.min(y1, y2);
-      const w = Math.abs(x2 - x1);
-      const h = Math.abs(y2 - y1);
-
-      readerState.tempEl.style.left = `${left}%`;
-      readerState.tempEl.style.top = `${top}%`;
-      readerState.tempEl.style.width = `${w}%`;
-      readerState.tempEl.style.height = `${h}%`;
-    }
-
-    function endDraw(e){
-      if(!readerState.drawing) return;
-      e.preventDefault();
-
-      const temp = readerState.tempEl;
-      readerState.drawing = false;
-      readerState.tempEl = null;
-
-      if(!temp) return;
-
-      // convert temp style back to numbers
-      const left = parseFloat(temp.style.left);
-      const top = parseFloat(temp.style.top);
-      const w = parseFloat(temp.style.width);
-      const h = parseFloat(temp.style.height);
-
-      // tiny boxes ignored
-      if(w < 1.2 || h < 1.2){
-        temp.remove();
-        return;
-      }
-
-      // save
-      const rects = getAnnoRects(readerState.subjectKey, readerState.pageIdx);
-      rects.push({ x:left, y:top, w, h });
-      setAnnoRects(readerState.subjectKey, readerState.pageIdx, rects);
-
-      // rerender cleanly
-      renderAnno();
-    }
-
-    function eraseClick(e){
-      if(!readerState.eraseOn) return;
-      const t = e.target;
-      if(!t.classList.contains("hl")) return;
-      const idx = Number(t.dataset.idx);
-      const rects = getAnnoRects(readerState.subjectKey, readerState.pageIdx);
-      rects.splice(idx, 1);
-      setAnnoRects(readerState.subjectKey, readerState.pageIdx, rects);
-      renderAnno();
-    }
-
-    function clearAnno(){
-      setAnnoRects(readerState.subjectKey, readerState.pageIdx, []);
-      renderAnno();
-    }
-
-    function prevPage(){
-      showPageHint("left");
-      const total = LECTURES[readerState.subjectKey]?.pages?.length || 0;
-      if(readerState.pageIdx <= 0) return;
-      readerState.pageIdx -= 1;
-      renderReader();
-    }
-    function nextPage(){
-      showPageHint("right");
-      const total = LECTURES[readerState.subjectKey]?.pages?.length || 0;
-      if(readerState.pageIdx >= total - 1) return;
-      readerState.pageIdx += 1;
-      renderReader();
-    }
-
-    // ====== Boot ======
-    function boot(){
-      const name = getName();
-      if(!name){
-        show("onboarding");
-      }else{
-        renderDashboard();
-        show("dashboard");
-      }
-    }
-
-    // ====== Events: common ======
-    $("#btnSaveName").addEventListener("click", () => {
-      const n = $("#nickname").value.trim();
-      if(!n){ alert("請輸入暱稱"); return; }
-      setName(n);
-      renderDashboard();
-      show("dashboard");
-    });
-
-    $("#btnHome").addEventListener("click", () => {
-      const name = getName();
-      if(!name){ show("onboarding"); return; }
-      renderDashboard();
-      show("dashboard");
-    });
-
-    $("#btnReset").addEventListener("click", () => {
-      if(!confirm("確定要清除所有資料？（暱稱、進度、錯題本、講義標注）")) return;
-      localStorage.removeItem(K.name);
-      localStorage.removeItem(K.marks);
-      localStorage.removeItem(K.wrong);
-      localStorage.removeItem(K.last);
-      localStorage.removeItem(K.anno);
-      $("#nickname").value = "";
-      show("onboarding");
-    });
-
-    // dashboard buttons
-    document.querySelectorAll("[data-action='start-cards']").forEach(btn => {
-      btn.addEventListener("click", () => startCardsForSubject(btn.dataset.subject));
-    });
-
-    document.querySelectorAll("[data-action='open-lecture']").forEach(btn => {
-      btn.addEventListener("click", () => openLecture(btn.dataset.subject));
-    });
-
-    $("#btnOpenWrongbook").addEventListener("click", () => {
-      renderWrongbook();
-      show("wrongbook");
-    });
-
-    $("#btnReviewWrong").addEventListener("click", startWrongReview);
-    $("#btnBackFromWrong").addEventListener("click", () => { renderDashboard(); show("dashboard"); });
-
-    // cards events
-    $("#flipCard").addEventListener("click", toggleFlip);
-    $("#flipCard").addEventListener("keydown", (e) => {
-      if(e.key === "Enter" || e.key === " "){
-        e.preventDefault(); toggleFlip();
-      }
-    });
-    $("#btnKnow").addEventListener("click", () => markCard(true));
-    $("#btnNotYet").addEventListener("click", () => markCard(false));
-    $("#btnNextCard").addEventListener("click", nextCard);
-    $("#btnBackDashFromCards").addEventListener("click", () => { renderDashboard(); show("dashboard"); });
-
-    // reader events (tablet only)
-    $("#btnBackDashFromReader").addEventListener("click", () => { renderDashboard(); show("dashboard"); });
-    $("#btnPrevPage").addEventListener("click", prevPage);
-    $("#btnNextPage").addEventListener("click", nextPage);
-
-    $("#btnDrawMode").addEventListener("click", () => {
-      // toggle draw; if turning off draw, also turn off erase
-      if(readerState.drawOn){
-        setModes(false, false);
-      }else{
-        setModes(true, false);
-      }
-    });
-
-    $("#btnEraseMode").addEventListener("click", () => {
-      // erase requires draw layer on (for pointer events)
-      if(readerState.eraseOn){
-        setModes(true, false);
-      }else{
-        setModes(false, true);
-      }
-    });
-
-    $("#btnClearAnno").addEventListener("click", () => {
-      if(!confirm("確定要清除本頁所有標注？")) return;
-      clearAnno();
-    });
-
-    // pointer events for drawing on annotation layer
-    const layer = $("#annoLayer");
-    layer.addEventListener("pointerdown", startDraw);
-    layer.addEventListener("pointermove", moveDraw);
-    layer.addEventListener("pointerup", endDraw);
-    layer.addEventListener("pointercancel", endDraw);
-    layer.addEventListener("click", eraseClick);
-
-    // keep mode labels accurate on resize
-    window.addEventListener("resize", () => {
-      $("#deviceHint").textContent = `裝置模式：${isTablet() ? "平板（含講義閱讀）" : "手機（僅速讀工具）"}`;
-      // if user is in reader and resized to mobile, force back to dashboard
-      if(!isTablet() && !views.reader.classList.contains("hidden")){
-        alert("已切換到手機模式：講義閱讀已關閉，回主頁。");
-        renderDashboard();
-        show("dashboard");
-      }
-    });
-
-    boot();
-  </script>
+    <section id="about">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">About the brand</div>
+            <h2 class="section-title">精品感，不只是排版。</h2>
+          </div>
+          <p class="section-copy">
+            KAMIKAMI 的網站不需要像大量商品頁堆疊資訊，而是更像一個為收藏者打造的品牌展示頁。
+            這版設計把重點放在作品氛圍、展示工藝、系列分類與導流效率，讓使用者在手機、平板與桌機上都能快速理解品牌價值，再自然導向 Instagram 私訊或瀏覽作品。
+          </p>
+        </div>
+
+        <div class="split-panel">
+          <article class="panel">
+            <div class="panel-media">
+              <img
+                src="https://images.unsplash.com/photo-1703023689733-6a4281149189?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=1600"
+                alt="卡牌收藏展示氛圍"
+                loading="lazy"
+              >
+            </div>
+            <div class="panel-body">
+              <div class="panel-title">收藏，不該只被收納</div>
+              <p class="panel-text">
+                將卡牌本身、延伸畫面、壓克力展示與收藏故事視為同一件作品。這種網站敘事方式比單純列商品更能建立高單價與客製化的合理性。
+              </p>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-media">
+              <img
+                src="https://images.unsplash.com/photo-1750742680965-e935e134cef1?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=1600"
+                alt="精品收藏空間氛圍"
+                loading="lazy"
+              >
+            </div>
+            <div class="panel-body">
+              <div class="panel-title">像畫廊，而不是像商城</div>
+              <p class="panel-text">
+                版型以留白、黑金色階、大片視覺與高對比字體為核心，讓品牌更接近 boutique collectibles，而不是制式電商頁面。
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="collections">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Collections</div>
+            <h2 class="section-title">三種最適合 KAMIKAMI 的內容呈現。</h2>
+          </div>
+          <p class="section-copy">
+            不做購物車，改做品牌導覽。首頁只需要清楚回答三件事：你做什麼、你的作品有什麼特色、我要去哪裡聯繫你。
+          </p>
+        </div>
+
+        <div class="collections-grid">
+          <article class="collection-card">
+            <div class="collection-no">01</div>
+            <div class="collection-title">Evolution Sets</div>
+            <p class="collection-text">
+              適合多張連作、進化鏈、主題組合。以敘事方式呈現卡片彼此之間的關係，強化收藏完整感。
+            </p>
+          </article>
+
+          <article class="collection-card">
+            <div class="collection-no">02</div>
+            <div class="collection-title">Graded Cases</div>
+            <p class="collection-text">
+              以單張重點作品為核心，突出 PSA / BGS 類型收藏卡的視覺份量與展示價值。
+            </p>
+          </article>
+
+          <article class="collection-card">
+            <div class="collection-no">03</div>
+            <div class="collection-title">Specialty Frames</div>
+            <p class="collection-text">
+              面向高辨識度收藏主題與客製需求，讓品牌從「卡牌展示」提升到「收藏陳列設計」。
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="craft">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Craftsmanship</div>
+            <h2 class="section-title">讓人願意私訊的理由。</h2>
+          </div>
+          <p class="section-copy">
+            高質感網站真正的任務，不是承載所有資訊，而是把信任感、品味與作品完整度先交代清楚。之後再把流量導去 Instagram 完成互動與成交。
+          </p>
+        </div>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <strong>精品黑金視覺</strong>
+            <span>用高級珠寶與精品官網常見的深色基底，建立高單價與收藏感。</span>
+          </div>
+          <div class="feature-item">
+            <strong>強化作品陳列</strong>
+            <span>卡牌不是零散商品，而是作為系列作品、主題作品與代表作來被理解。</span>
+          </div>
+          <div class="feature-item">
+            <strong>首頁即導流</strong>
+            <span>所有 CTA 聚焦 Instagram，降低頁面分流，讓流量集中在品牌互動與私訊。</span>
+          </div>
+          <div class="feature-item">
+            <strong>全裝置自適應</strong>
+            <span>字級、圖片比例、區塊留白與按鈕尺寸都隨視窗伸縮，不做固定死尺寸。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Gallery direction</div>
+            <h2 class="section-title">網站應該像你的作品一樣有展示感。</h2>
+          </div>
+          <p class="section-copy">
+            這個區塊適合未來替換成你自己的成品照、收藏牆、包裝細節與近拍。現在先用公開視覺做示範，版型本身已可直接延伸成真正品牌頁。
+          </p>
+        </div>
+
+        <div class="gallery-grid">
+          <article class="gallery-card">
+            <img
+              src="https://images.unsplash.com/photo-1703023689733-6a4281149189?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=1800"
+              alt="卡牌平鋪展示"
+              loading="lazy"
+            >
+            <div class="gallery-overlay">
+              <div class="gallery-label">Signature mood</div>
+              <div class="gallery-title">Collector energy,<br>refined presentation.</div>
+            </div>
+          </article>
+
+          <article class="gallery-card">
+            <img
+              src="https://images.unsplash.com/photo-1672759043182-dde5467f8f76?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=1200"
+              alt="單張卡牌精品展示"
+              loading="lazy"
+            >
+            <div class="gallery-overlay">
+              <div class="gallery-label">Hero product</div>
+              <div class="gallery-title">Single piece focus</div>
+            </div>
+          </article>
+
+          <article class="gallery-card">
+            <img
+              src="https://images.unsplash.com/photo-1750742680965-e935e134cef1?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=1200"
+              alt="收藏空間氣氛圖"
+              loading="lazy"
+            >
+            <div class="gallery-overlay">
+              <div class="gallery-label">Lifestyle cue</div>
+              <div class="gallery-title">Private gallery feeling</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="section-inner">
+        <div class="cta-panel">
+          <div class="section-kicker">Instagram-first conversion</div>
+          <h2 class="cta-title">See more. DM for details.</h2>
+          <p class="cta-copy">
+            這個版本已經把流程簡化成最適合品牌導購的形式：首頁建立質感與信任，使用者點擊後直接前往 Instagram。之後你只要把真實商品照與作品敘述換上去，就能作為正式對外頁面使用。
+          </p>
+          <div class="cta-row">
+            <a class="primary-btn" href="https://www.instagram.com/kamikami_taiwan/" target="_blank" rel="noopener noreferrer">Open Instagram</a>
+            <a class="secondary-btn" href="#top">Back to Top</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>KAMIKAMI — Luxury collectible presentation page</div>
+    <div>Designed for phone, tablet and desktop · Instagram redirect only</div>
+  </footer>
 </body>
 </html>
