@@ -563,6 +563,409 @@
       line-height: 1.05;
     }
 
+    .search-demo-shell {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .search-demo-card,
+    .search-demo-preview {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      box-shadow: var(--shadow);
+    }
+
+    .search-demo-card {
+      padding: 28px;
+    }
+
+    .search-demo-preview {
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top right, rgba(212,174,88,0.18), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+    }
+
+    .search-demo-preview::after {
+      content: "";
+      position: absolute;
+      inset: auto -12% -18% auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,174,88,0.18), transparent 65%);
+      filter: blur(8px);
+    }
+
+    .demo-kicker {
+      color: var(--gold-soft);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .demo-title {
+      margin: 0 0 12px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(32px, 4vw, 50px);
+      line-height: 0.96;
+    }
+
+    .demo-copy {
+      color: rgba(248,242,231,0.72);
+      font-size: 15px;
+      line-height: 1.8;
+      max-width: 54ch;
+    }
+
+    .demo-points {
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 12px;
+    }
+
+    .demo-points li {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: rgba(248,242,231,0.82);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .demo-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .demo-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .demo-stat {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(10px);
+    }
+
+    .demo-stat-label {
+      color: rgba(248,242,231,0.54);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .demo-stat-value {
+      font-size: clamp(24px, 4vw, 34px);
+      color: var(--ivory);
+      font-weight: 700;
+    }
+
+    .demo-stat-note {
+      margin-top: 6px;
+      color: rgba(248,242,231,0.66);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .search-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
+      align-items: end;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(2,2,2,0.62);
+      backdrop-filter: blur(10px);
+    }
+
+    .search-overlay.is-open {
+      display: flex;
+    }
+
+    .search-dialog {
+      width: min(100%, 1120px);
+      max-height: min(92vh, 900px);
+      display: grid;
+      grid-template-columns: 1fr;
+      overflow: hidden;
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #f7f4ee;
+      color: #171717;
+      box-shadow: 0 36px 90px rgba(0,0,0,0.35);
+    }
+
+    .search-dialog-main {
+      min-height: 0;
+      overflow: auto;
+      padding: 24px 20px 18px;
+    }
+
+    .search-panel-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .search-panel-title {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .search-panel-subtitle {
+      margin-top: 8px;
+      color: #8e8a82;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .search-close {
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 16px;
+      background: rgba(23,23,23,0.05);
+      color: #222;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .search-tab-row,
+    .search-language-row {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .search-tab-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .search-language-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 20px;
+    }
+
+    .search-tab {
+      border: 0;
+      border-radius: 18px;
+      padding: 16px 18px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #9a968f;
+      background: #ece9e2;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .search-tab.is-active {
+      color: #171717;
+      background: linear-gradient(135deg, #ffd90c 0%, #f2be00 100%);
+      box-shadow: 0 10px 24px rgba(242,190,0,0.25);
+    }
+
+    .search-controls {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr 0.95fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .search-input-wrap,
+    .search-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 62px;
+      padding: 0 18px;
+      border-radius: 20px;
+      background: #ece9e2;
+      color: #97928a;
+    }
+
+    .search-input-wrap input,
+    .search-select-wrap select {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #232323;
+      font-size: 16px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .search-select-wrap select {
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .series-trigger {
+      border: 0;
+      border-radius: 20px;
+      min-height: 62px;
+      padding: 0 20px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #171717;
+      background: linear-gradient(135deg, #ffd90c 0%, #f2be00 100%);
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(242,190,0,0.25);
+    }
+
+    .search-result-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+      color: #736f68;
+      font-size: 14px;
+    }
+
+    .series-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .series-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      border: 0;
+      padding: 18px 4px;
+      background: transparent;
+      border-bottom: 1px solid rgba(20,20,20,0.08);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .series-code {
+      flex: 0 0 auto;
+      min-width: 78px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: #ece9e2;
+      color: #505050;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .series-info {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .series-name {
+      font-size: 19px;
+      font-weight: 900;
+      color: #202020;
+      line-height: 1.3;
+    }
+
+    .series-en {
+      margin-top: 4px;
+      color: #9a968e;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .series-arrow {
+      flex: 0 0 auto;
+      color: #aba69f;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .search-dialog-side {
+      display: none;
+      background: linear-gradient(180deg, #19130f 0%, #0f0d0a 100%);
+      color: var(--ivory);
+      padding: 28px 24px;
+      position: relative;
+    }
+
+    .search-side-kicker {
+      color: rgba(242,221,176,0.86);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .search-side-title {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 42px;
+      line-height: 0.96;
+    }
+
+    .search-side-copy {
+      margin-top: 14px;
+      color: rgba(248,242,231,0.72);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .search-side-card {
+      margin-top: 24px;
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .search-side-card strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .search-side-card span {
+      display: block;
+      color: rgba(248,242,231,0.68);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .search-empty {
+      padding: 36px 18px;
+      border-radius: 24px;
+      background: #efebe4;
+      color: #6f6a63;
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
     .cta-section {
       padding-bottom: 110px;
     }
@@ -648,6 +1051,10 @@
       .feature-list {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .search-demo-shell {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 900px) {
@@ -691,6 +1098,10 @@
 
       .footer {
         flex-direction: column;
+      }
+
+      .search-controls {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -767,6 +1178,97 @@
 
       .cta-panel {
         border-radius: 26px;
+      }
+
+      .search-demo-card,
+      .search-demo-preview {
+        padding: 20px;
+        border-radius: 24px;
+      }
+
+      .demo-stat-grid,
+      .search-tab-row,
+      .search-language-row {
+        grid-template-columns: 1fr;
+      }
+
+      .search-overlay {
+        padding: 0;
+        align-items: end;
+      }
+
+      .search-dialog {
+        width: 100%;
+        max-height: 88svh;
+        border-radius: 30px 30px 0 0;
+      }
+
+      .search-dialog-main {
+        padding: 20px 16px 16px;
+      }
+
+      .search-panel-top {
+        align-items: center;
+      }
+
+      .search-panel-subtitle {
+        font-size: 13px;
+      }
+
+      .search-close {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+      }
+
+      .series-item {
+        gap: 12px;
+        padding: 16px 2px;
+      }
+
+      .series-code {
+        min-width: 64px;
+        font-size: 12px;
+      }
+
+      .series-name {
+        font-size: 17px;
+      }
+
+      .series-en {
+        font-size: 13px;
+      }
+    }
+
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .search-overlay {
+        align-items: center;
+        padding: 24px;
+      }
+
+      .search-dialog {
+        max-width: 760px;
+        border-radius: 30px;
+      }
+    }
+
+    @media (min-width: 1025px) {
+      .search-overlay {
+        align-items: center;
+        padding: 32px;
+      }
+
+      .search-dialog {
+        grid-template-columns: minmax(0, 1.2fr) 320px;
+        border-radius: 34px;
+      }
+
+      .search-dialog-main {
+        padding: 30px 28px 22px;
+      }
+
+      .search-dialog-side {
+        display: block;
       }
     }
   </style>
@@ -1025,6 +1527,69 @@
       </div>
     </section>
 
+    <section id="search-demo">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Search feature demo</div>
+            <h2 class="section-title">這個搜尋功能可以做，而且能先用假資料上版。</h2>
+          </div>
+          <p class="section-copy">
+            你貼的畫面本質上是「卡片搜尋 / 系列篩選 / 語言切換」的浮層介面。這裡先把互動流程做成 demo，
+            資料先寫死在前端，之後再把假資料改接真正 API 即可。
+          </p>
+        </div>
+
+        <div class="search-demo-shell">
+          <div class="search-demo-card">
+            <div class="demo-kicker">Flow preview</div>
+            <h3 class="demo-title">卡片搜尋浮層<br>先做成可展示的版本。</h3>
+            <p class="demo-copy">
+              目前這版支援寶可夢 / 航海王切換、日文 / 英文 / 中文、關鍵字搜尋、角色篩選與系列清單。
+              互動資料都是假的，但資料結構已經照正式功能方向設計。
+            </p>
+
+            <ul class="demo-points">
+              <li>手機：做成底部彈出的 sheet，單手操作優先。</li>
+              <li>平板：做成置中彈窗，保留列表高度與更舒適的點擊距離。</li>
+              <li>電腦：加右側資訊欄，讓搜尋結果與功能說明同時存在。</li>
+            </ul>
+
+            <div class="demo-actions">
+              <button class="primary-btn" type="button" id="openSearchDemo">打開搜尋 Demo</button>
+              <a class="secondary-btn" href="#craft">看版型說明</a>
+            </div>
+          </div>
+
+          <aside class="search-demo-preview" aria-label="搜尋功能摘要">
+            <div class="demo-kicker">Responsive analysis</div>
+            <div class="demo-stat-grid">
+              <div class="demo-stat">
+                <div class="demo-stat-label">Phone</div>
+                <div class="demo-stat-value">Bottom sheet</div>
+                <div class="demo-stat-note">滿版寬度、單欄控制列、系列列表為主要視圖。</div>
+              </div>
+              <div class="demo-stat">
+                <div class="demo-stat-label">Tablet</div>
+                <div class="demo-stat-value">Centered modal</div>
+                <div class="demo-stat-note">保留卡片感與滾動區，適合雙手操作與展示。</div>
+              </div>
+              <div class="demo-stat">
+                <div class="demo-stat-label">Desktop</div>
+                <div class="demo-stat-value">Split panel</div>
+                <div class="demo-stat-note">左邊查詢結果，右邊補上假 API 摘要與 UX 說明。</div>
+              </div>
+              <div class="demo-stat">
+                <div class="demo-stat-label">Data mode</div>
+                <div class="demo-stat-value">Mock JSON</div>
+                <div class="demo-stat-note">後續可替換成 `fetch()`、Supabase 或你自己的後端。</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
     <section class="cta-section">
       <div class="section-inner">
         <div class="cta-panel">
@@ -1046,5 +1611,260 @@
     <div>KAMIKAMI — Luxury collectible presentation page</div>
     <div>Designed for phone, tablet and desktop · Instagram redirect only</div>
   </footer>
+
+  <div class="search-overlay" id="searchOverlay" aria-hidden="true">
+    <div class="search-dialog" role="dialog" aria-modal="true" aria-labelledby="searchPanelTitle">
+      <div class="search-dialog-main">
+        <div class="search-panel-top">
+          <div>
+            <h2 class="search-panel-title" id="searchPanelTitle">皮卡屋 | 卡片搜尋</h2>
+            <div class="search-panel-subtitle">mock.api.kamikami.local · 假資料示意</div>
+          </div>
+          <button class="search-close" type="button" id="closeSearchDemo" aria-label="關閉搜尋">×</button>
+        </div>
+
+        <div class="search-tab-row" id="gameTabs"></div>
+        <div class="search-language-row" id="languageTabs"></div>
+
+        <div class="search-controls">
+          <label class="search-input-wrap" aria-label="文字搜尋">
+            <span>⌕</span>
+            <input id="searchKeyword" type="text" placeholder="文字搜尋">
+          </label>
+
+          <label class="search-select-wrap" aria-label="選擇角色">
+            <span>◉</span>
+            <select id="characterSelect"></select>
+          </label>
+
+          <button class="series-trigger" type="button" id="seriesTrigger">選擇系列</button>
+        </div>
+
+        <div class="search-result-meta">
+          <span id="resultSummary">共 0 筆</span>
+          <span id="deviceSummary">手機 / 平板 / 電腦皆可用</span>
+        </div>
+
+        <div class="series-list" id="seriesList"></div>
+      </div>
+
+      <aside class="search-dialog-side" aria-label="功能說明">
+        <div class="search-side-kicker">Mock API panel</div>
+        <h3 class="search-side-title">Search<br>System</h3>
+        <p class="search-side-copy">
+          這個版本先模擬正式查詢流程。之後可以把資料來源替換成真實卡池 API，保留目前 UI 結構即可。
+        </p>
+
+        <div class="search-side-card">
+          <strong>目前已做</strong>
+          <span>關鍵字搜尋、作品語系切換、角色篩選、系列列表渲染、裝置響應式調整。</span>
+        </div>
+
+        <div class="search-side-card">
+          <strong>下一步可接</strong>
+          <span>系列詳情頁、卡片列表、價格走勢、最近成交、收藏數據與登入後偏好設定。</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const mockSearchData = [
+      { game: "pokemon", language: "jp", character: "夢幻", code: "M2A", name: "超級進化夢想 ex", english: "M2a-MEGA DREAM ex" },
+      { game: "pokemon", language: "zh", character: "皮卡丘", code: "SV2A", name: "151 寶可夢卡牌", english: "SV2a- 151" },
+      { game: "pokemon", language: "jp", character: "莉莉艾", code: "SV-P", name: "朱紫特典", english: "SV-P PROMO" },
+      { game: "pokemon", language: "en", character: "噴火龍", code: "S-P", name: "劍盾特典", english: "S PROMO" },
+      { game: "pokemon", language: "zh", character: "伊布", code: "SV8A", name: "太晶慶典 ex", english: "SV8a-TERASTAL FEST ex" },
+      { game: "pokemon", language: "jp", character: "阿爾宙斯", code: "S12A", name: "天地萬物 VSTAR", english: "SWORD & SHIELD VSTAR UNIVERSE" },
+      { game: "pokemon", language: "zh", character: "噴火龍", code: "M2", name: "烈獄狂火 X", english: "M2-INFERNO X" },
+      { game: "pokemon", language: "en", character: "皮卡丘", code: "XY-P", name: "XY 特典", english: "XY PROMO" },
+      { game: "onepiece", language: "jp", character: "魯夫", code: "OP-05", name: "新時代主角", english: "AWAKENING OF THE NEW ERA" },
+      { game: "onepiece", language: "zh", character: "索隆", code: "OP-06", name: "雙翼決戰", english: "WINGS OF THE CAPTAIN" },
+      { game: "onepiece", language: "en", character: "娜美", code: "ST-12", name: "豪華起始套組", english: "STARTER DECK ZORO & SANJI" },
+      { game: "onepiece", language: "zh", character: "羅", code: "OP-P", name: "航海王特典", english: "ONE PIECE PROMO" }
+    ];
+
+    const gameOptions = [
+      { value: "pokemon", label: "寶可夢" },
+      { value: "onepiece", label: "航海王" }
+    ];
+
+    const languageOptions = [
+      { value: "jp", label: "日文" },
+      { value: "en", label: "英文" },
+      { value: "zh", label: "中文" }
+    ];
+
+    const searchState = {
+      game: "pokemon",
+      language: "jp",
+      keyword: "",
+      character: "all"
+    };
+
+    const searchOverlay = document.getElementById("searchOverlay");
+    const seriesList = document.getElementById("seriesList");
+    const resultSummary = document.getElementById("resultSummary");
+    const deviceSummary = document.getElementById("deviceSummary");
+    const characterSelect = document.getElementById("characterSelect");
+    const searchKeyword = document.getElementById("searchKeyword");
+
+    function renderTabs(containerId, options, activeValue, onClick) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+
+      options.forEach((option) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "search-tab" + (option.value === activeValue ? " is-active" : "");
+        button.textContent = option.label;
+        button.addEventListener("click", () => onClick(option.value));
+        container.appendChild(button);
+      });
+    }
+
+    function getFilteredData() {
+      const keyword = searchState.keyword.trim().toLowerCase();
+
+      return mockSearchData.filter((item) => {
+        const matchGame = item.game === searchState.game;
+        const matchLanguage = item.language === searchState.language;
+        const matchCharacter = searchState.character === "all" || item.character === searchState.character;
+        const matchKeyword =
+          !keyword ||
+          item.name.toLowerCase().includes(keyword) ||
+          item.english.toLowerCase().includes(keyword) ||
+          item.code.toLowerCase().includes(keyword) ||
+          item.character.toLowerCase().includes(keyword);
+
+        return matchGame && matchLanguage && matchCharacter && matchKeyword;
+      });
+    }
+
+    function renderCharacters() {
+      const characters = [...new Set(
+        mockSearchData
+          .filter((item) => item.game === searchState.game)
+          .map((item) => item.character)
+      )];
+
+      characterSelect.innerHTML = "";
+
+      const allOption = document.createElement("option");
+      allOption.value = "all";
+      allOption.textContent = "選擇角色";
+      characterSelect.appendChild(allOption);
+
+      characters.forEach((character) => {
+        const option = document.createElement("option");
+        option.value = character;
+        option.textContent = character;
+        characterSelect.appendChild(option);
+      });
+
+      if (!characters.includes(searchState.character)) {
+        searchState.character = "all";
+      }
+
+      characterSelect.value = searchState.character;
+    }
+
+    function renderSeries() {
+      const filtered = getFilteredData();
+      seriesList.innerHTML = "";
+
+      resultSummary.textContent = `共 ${filtered.length} 筆系列`;
+      deviceSummary.textContent =
+        window.innerWidth <= 640 ? "手機模式：底部 sheet" :
+        window.innerWidth <= 1024 ? "平板模式：置中彈窗" :
+        "桌機模式：左右分欄";
+
+      if (!filtered.length) {
+        const empty = document.createElement("div");
+        empty.className = "search-empty";
+        empty.textContent = "目前沒有符合條件的系列。之後接真 API 時，可改成顯示 loading、錯誤狀態與重新查詢。";
+        seriesList.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach((item) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "series-item";
+        button.innerHTML = `
+          <span class="series-code">${item.code}</span>
+          <span class="series-info">
+            <span class="series-name">${item.name}</span>
+            <span class="series-en">${item.english}</span>
+          </span>
+          <span class="series-arrow">›</span>
+        `;
+        button.addEventListener("click", () => {
+          alert("這裡之後可以接到系列詳細頁或卡片列表頁。\n目前為假資料 demo：" + item.name);
+        });
+        seriesList.appendChild(button);
+      });
+    }
+
+    function renderSearchDemo() {
+      renderTabs("gameTabs", gameOptions, searchState.game, (value) => {
+        searchState.game = value;
+        searchState.character = "all";
+        renderSearchDemo();
+      });
+
+      renderTabs("languageTabs", languageOptions, searchState.language, (value) => {
+        searchState.language = value;
+        renderSearchDemo();
+      });
+
+      renderCharacters();
+      renderSeries();
+    }
+
+    document.getElementById("openSearchDemo").addEventListener("click", () => {
+      renderSearchDemo();
+      searchOverlay.classList.add("is-open");
+      searchOverlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    });
+
+    document.getElementById("closeSearchDemo").addEventListener("click", () => {
+      searchOverlay.classList.remove("is-open");
+      searchOverlay.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    });
+
+    document.getElementById("seriesTrigger").addEventListener("click", () => {
+      document.getElementById("searchKeyword").focus();
+    });
+
+    searchOverlay.addEventListener("click", (event) => {
+      if (event.target === searchOverlay) {
+        searchOverlay.classList.remove("is-open");
+        searchOverlay.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+    });
+
+    characterSelect.addEventListener("change", (event) => {
+      searchState.character = event.target.value;
+      renderSeries();
+    });
+
+    searchKeyword.addEventListener("input", (event) => {
+      searchState.keyword = event.target.value;
+      renderSeries();
+    });
+
+    window.addEventListener("resize", renderSeries);
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && searchOverlay.classList.contains("is-open")) {
+        searchOverlay.classList.remove("is-open");
+        searchOverlay.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+    });
+  </script>
 </body>
 </html>

@@ -2,100 +2,261 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
   <title>KAMI KAMI 首頁</title>
   <style>
+    :root {
+      --page-width: min(1120px, calc(100% - 32px));
+      --card-radius: 24px;
+      --card-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+      --section-gap: clamp(16px, 2vw, 24px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
       margin: 0;
+      min-height: 100vh;
       background: url('./img/background.png') no-repeat center center fixed;
       background-size: cover;
-      color: #333;
+      color: #fff;
+      overflow-x: hidden;
     }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.28));
+      pointer-events: none;
+    }
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      width: var(--page-width);
+      margin: 0 auto;
+      padding:
+        max(24px, env(safe-area-inset-top))
+        0
+        max(28px, env(safe-area-inset-bottom));
+    }
+
     header {
+      width: min(100%, 520px);
+      height: clamp(64px, 10vw, 108px);
+      margin: clamp(12px, 4vw, 40px) auto 0;
       background: url('./img/logo.png') no-repeat center center;
       background-size: contain;
-      height: 70px;
+    }
+
+    .intro-heading {
+      max-width: 760px;
+      margin: clamp(20px, 4vw, 34px) auto clamp(20px, 4vw, 30px);
+      text-align: center;
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    .intro-heading h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 3.1rem);
+      line-height: 1.06;
+    }
+
+    .intro-heading p {
+      margin: 12px 0 0;
+      font-size: clamp(0.95rem, 1.5vw, 1.08rem);
+      line-height: 1.8;
+    }
+
+    .intro-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--section-gap);
+      padding: 0;
+    }
+
+    .intro-card {
+      position: relative;
+      margin: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: var(--card-radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
+      box-shadow: var(--card-shadow);
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .intro-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 26px 54px rgba(0, 0, 0, 0.24);
+    }
+
+    .intro-card:active {
+      transform: translateY(-1px);
+    }
+
+    .intro-card-frame {
+      min-height: clamp(180px, 42vw, 300px);
       display: flex;
-      margin-top: 40px;
       align-items: center;
       justify-content: center;
+      padding: clamp(18px, 3vw, 32px);
     }
-    .intro-section { padding: 1em;  }
-    .intro-card {
-      border-radius: 16px;
-      margin: 1em 0;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      cursor: pointer;
-      margin-top: 0px;
-      margin-bottom: 40px;
-    }
-    .intro-card img { width: 100%; height: auto; display: block; }
-    .intro-card .title {
-      position: absolute;
-      color: white;
-      font-size: 1.5em;
-      font-weight: bold;
-      text-shadow: 0 0 5px #000;
+
+    .intro-card img {
       width: 100%;
-      text-align: center;
-      top: 50%;
-      transform: translateY(-50%);
+      max-width: 430px;
+      height: auto;
+      display: block;
+      object-fit: contain;
     }
-    .mainheader, .container, .category-bar-wrapper, .cart-button, .fixed-bottom-bar, #cartPage {
+
+    .intro-card-copy {
+      padding: 0 20px 22px;
+      text-align: center;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.24);
+    }
+
+    .intro-card-copy strong {
+      display: block;
+      font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+      margin-bottom: 6px;
+    }
+
+    .intro-card-copy span {
+      display: block;
+      font-size: clamp(0.85rem, 1.25vw, 0.98rem);
+      line-height: 1.7;
+      opacity: 0.94;
+    }
+
+    .mainheader,
+    .container,
+    .category-bar-wrapper,
+    .cart-button,
+    .fixed-bottom-bar,
+    #cartPage {
       display: none;
+    }
+
+    @media (min-width: 641px) {
+      :root {
+        --page-width: min(1120px, calc(100% - 48px));
+      }
+
+      .intro-section {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .intro-card:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (min-width: 1025px) {
+      :root {
+        --page-width: min(1240px, calc(100% - 72px));
+      }
+
+      .intro-section {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: stretch;
+      }
+
+      .intro-card:first-child {
+        grid-column: auto;
+      }
+
+      .intro-card-frame {
+        min-height: 320px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      :root {
+        --page-width: min(100% - 20px, 1120px);
+        --card-radius: 20px;
+      }
+
+      body {
+        background-attachment: scroll;
+      }
+
+      .intro-card-frame {
+        min-height: 160px;
+        padding: 16px;
+      }
+
+      .intro-card-copy {
+        padding: 0 14px 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-  </header>
+  <div class="page-shell">
+    <header aria-label="KAMI KAMI Logo"></header>
 
-  <div class="intro-section" id="introSection">
-    <div class="intro-card" onclick="goStore('spread-frame')">
-      <div style="position: relative;">
-        <img src="./img/logo/IMG_9568.PNG" style="margin-top: 30px" alt="擴散式卡磚">
-      </div>
+    <div class="intro-heading">
+      <h1>選擇你要進入的系列分類</h1>
+      <p>這個首頁已調整為支援手機、平板與桌機版面，會依裝置寬度自動調整圖片比例、間距與卡片尺寸。</p>
     </div>
-    <div class="intro-card" onclick="goStore('spread-slab')">
-        <div style="position: relative;">
-        <img src="./img/logo/IMG_9572.PNG" alt="擴散式鑑定卡殼">
+
+    <div class="intro-section" id="introSection">
+      <div class="intro-card" onclick="goStore('spread-frame')">
+        <div class="intro-card-frame">
+          <img src="./img/logo/IMG_9568.PNG" alt="擴散式卡磚">
+        </div>
+        <div class="intro-card-copy">
+          <strong>擴散式卡磚</strong>
+          <span>適合主題系列、進化鏈與延伸構圖展示。</span>
+        </div>
       </div>
-    </div>
-    <div class="intro-card" onclick="goStore('card-accessory')">
-      <div style="position: relative;">
-        <img src="./img/logo/IMG_9571.PNG" alt="卡牌周邊">
+
+      <div class="intro-card" onclick="goStore('spread-slab')">
+        <div class="intro-card-frame">
+          <img src="./img/logo/IMG_9572.PNG" alt="擴散式鑑定卡殼">
+        </div>
+        <div class="intro-card-copy">
+          <strong>擴散式鑑定卡殼</strong>
+          <span>聚焦單張高價卡與 PSA / BGS 類收藏展示。</span>
+        </div>
+      </div>
+
+      <div class="intro-card" onclick="goStore('card-accessory')">
+        <div class="intro-card-frame">
+          <img src="./img/logo/IMG_9571.PNG" alt="卡牌周邊">
+        </div>
+        <div class="intro-card-copy">
+          <strong>卡牌周邊</strong>
+          <span>收納、配件與展示相關商品入口。</span>
+        </div>
       </div>
     </div>
   </div>
+
   <script>
+    // LINE 內建瀏覽器/LIFF 可能會快取舊版 store.html/JS，導致行為不一致。
+    // 用版本參數強制每次導頁都帶上 v=... 以避免快取。
+    const APP_VER = '20260413';
 
-  // ✅ LINE 內建瀏覽器/LIFF 可能會快取舊版 store.html/JS，導致看起來「殘留」或行為不一致
-  // 用版本參數強制每次導頁都帶上 v=... 以避免快取
-  const APP_VER = '20260115';
-  function goStore(major) {
-    location.href = `store2.html?major=${encodeURIComponent(major)}&v=${encodeURIComponent(APP_VER)}`;
-  }
-
-async function initLiff() {
-  await liff.init({ liffId: "2007344816-9ODNJdlA" });
-  
-  if (!liff.isLoggedIn()) {
-    liff.login();
-  }
-
-  if (!liff.isInClient()) {
-    alert("請從LINE內開啟此頁面！");
-    window.location.href = "https://line.me";
-  }
-}
-//initLiff();
-
+    function goStore(major) {
+      location.href = `store2.html?major=${encodeURIComponent(major)}&v=${encodeURIComponent(APP_VER)}`;
+    }
   </script>
 </body>
 </html>
