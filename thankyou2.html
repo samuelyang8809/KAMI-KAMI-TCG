@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>訂單確認 - KAMI KAMI</title>
+  <style>
+    :root {
+      --page-width: min(920px, calc(100% - 24px));
+      --panel-bg: rgba(255,255,255,0.92);
+      --panel-border: 1px solid rgba(255,255,255,0.2);
+      --shadow: 0 20px 46px rgba(0,0,0,0.16);
+      --orange: #ff8b1f;
+      --orange-strong: #ff6f00;
+      --text: #2d2d2d;
+      --muted: #6b6b6b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+      color: var(--text);
+      background: url('./img/background.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.10), rgba(0,0,0,0.24));
+      pointer-events: none;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: var(--page-width);
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) 0 max(24px, env(safe-area-inset-bottom));
+    }
+
+    .mainheader {
+      width: min(100%, 520px);
+      height: clamp(78px, 12vw, 128px);
+      margin: 0 auto 18px;
+      background-image: url('./img/logo.png');
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 8px 20px rgba(0,0,0,0.18));
+    }
+
+    .panel {
+      border-radius: 28px;
+      background: var(--panel-bg);
+      border: var(--panel-border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+
+    .headline {
+      text-align: center;
+    }
+
+    .headline h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+    }
+
+    .headline p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .status {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .status-card {
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
+      padding: 14px;
+      text-align: center;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .status-card.active {
+      background: linear-gradient(135deg, #ffcb6b 0%, var(--orange) 100%);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(255,111,0,0.18);
+    }
+
+    .status-label {
+      font-size: 0.86rem;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      font-weight: 800;
+    }
+
+    .help-text {
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 0 0 14px;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .summary-item {
+      border-radius: 16px;
+      background: rgba(255,255,255,0.76);
+      border: 1px solid rgba(0,0,0,0.06);
+      padding: 12px 14px;
+    }
+
+    .summary-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.96rem;
+    }
+
+    .summary-item span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .order-textarea {
+      width: 100%;
+      min-height: 320px;
+      border-radius: 18px;
+      border: 1px solid rgba(0,0,0,0.08);
+      padding: 14px;
+      font: inherit;
+      line-height: 1.7;
+      resize: vertical;
+      background: #fff;
+      color: #222;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    button,
+    a.action-link {
+      min-height: 50px;
+      border-radius: 999px;
+      border: 0;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: 0.2s ease;
+      padding: 0 16px;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #ffcb6b 0%, var(--orange) 100%);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(255,111,0,0.16);
+    }
+
+    .secondary {
+      background: rgba(255,255,255,0.84);
+      color: var(--text);
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .notice {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-top: 14px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    @media (max-width: 720px) {
+      .status,
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 18px;
+        border-radius: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="mainheader" aria-hidden="true"></header>
+
+    <section class="panel headline">
+      <h1>訂單確認頁</h1>
+      <p>請將下面的訂單資訊複製貼給 Instagram 客服，客服會協助後續處理。</p>
+      <div class="status">
+        <div class="status-card active"><div class="status-label">已送出需求</div></div>
+        <div class="status-card"><div class="status-label">等待客服確認</div></div>
+        <div class="status-card"><div class="status-label">訂單成立後處理</div></div>
+      </div>
+    </section>
+
+    <section class="panel" id="orderPanel" style="display:none;">
+      <h2 class="section-title">聯絡資訊</h2>
+      <div class="summary-list" id="contactSummary"></div>
+
+      <h2 class="section-title">可複製訂單內容</h2>
+      <p class="help-text">內容以純文字為主，方便直接貼給 Instagram 客服。若訂單尚未成立，也可以先下載文字檔留存。</p>
+      <textarea id="orderText" class="order-textarea" readonly></textarea>
+
+      <div class="actions">
+        <button type="button" class="primary" id="copyBtn">複製訂單內容</button>
+        <button type="button" class="secondary" id="downloadBtn">下載未成立訂單</button>
+        <a class="action-link secondary" href="store2.html">返回商品頁</a>
+      </div>
+      <div class="notice" id="actionMessage">複製後直接貼給 Instagram 客服即可。</div>
+    </section>
+
+    <section class="panel empty-state" id="emptyPanel" style="display:none;">
+      查無可顯示的訂單資料。<br>
+      請先回商品頁完成送單流程，再回到這裡查看。
+    </section>
+  </div>
+
+  <script>
+    const LAST_ORDER_STORAGE_KEY = 'kami-last-order';
+    const orderRaw = localStorage.getItem(LAST_ORDER_STORAGE_KEY);
+    const orderPanel = document.getElementById('orderPanel');
+    const emptyPanel = document.getElementById('emptyPanel');
+    const contactSummary = document.getElementById('contactSummary');
+    const orderText = document.getElementById('orderText');
+    const actionMessage = document.getElementById('actionMessage');
+
+    function renderContactItem(label, value) {
+      const div = document.createElement('div');
+      div.className = 'summary-item';
+      div.innerHTML = `<strong>${label}</strong><span>${value || '未提供'}</span>`;
+      return div;
+    }
+
+    function downloadTextFile(filename, text) {
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function copyOrderText() {
+      try {
+        await navigator.clipboard.writeText(orderText.value);
+        actionMessage.textContent = '已複製訂單內容，現在可以貼給 Instagram 客服。';
+      } catch (error) {
+        orderText.select();
+        document.execCommand('copy');
+        actionMessage.textContent = '已選取訂單內容，若未自動複製，請手動複製後貼給 Instagram 客服。';
+      }
+    }
+
+    if (!orderRaw) {
+      emptyPanel.style.display = 'block';
+    } else {
+      const order = JSON.parse(orderRaw);
+      orderPanel.style.display = 'block';
+
+      contactSummary.appendChild(renderContactItem('聯絡人', order.customer?.contactName));
+      contactSummary.appendChild(renderContactItem('手機號碼', order.customer?.phone));
+      contactSummary.appendChild(renderContactItem('Email', order.customer?.email));
+      contactSummary.appendChild(renderContactItem('建立時間', order.createdAt));
+
+      orderText.value = order.text || '';
+
+      document.getElementById('copyBtn').addEventListener('click', copyOrderText);
+      document.getElementById('downloadBtn').addEventListener('click', () => {
+        const timestamp = (order.createdAt || 'order').replace(/[^\d]/g, '').slice(0, 14) || Date.now().toString();
+        downloadTextFile(`kami-order-${timestamp}.txt`, orderText.value);
+        actionMessage.textContent = '已下載未成立訂單內容，可作為留存備份。';
+      });
+    }
+  </script>
+</body>
+</html>

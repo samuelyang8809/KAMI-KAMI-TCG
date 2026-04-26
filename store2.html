@@ -500,6 +500,21 @@
       font: inherit;
     }
 
+    .customer-form {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 0.9em;
+    }
+
+    .customer-form input {
+      width: 100%;
+      padding: 0.75em 0.9em;
+      border: 1px solid rgba(0,0,0,0.10);
+      border-radius: 14px;
+      background: #fff;
+    }
+
     #cartItems select {
       border: 1px solid rgba(255,255,255,0.18);
       border-radius: 12px;
@@ -633,6 +648,10 @@
       .orderfooter {
         width: calc(100% - 20px) !important;
         border-radius: 22px;
+      }
+
+      .customer-form {
+        grid-template-columns: 1fr;
       }
 
       #cartItems > div {
@@ -799,6 +818,11 @@
 
   <!-- 總金額+結帳按鈕 -->
   <div class="orderfooter" style="position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 1em; border-top: 1px solid #ccc;">
+    <div class="customer-form">
+      <input id="customerNameInput" type="text" placeholder="聯絡人">
+      <input id="customerPhoneInput" type="tel" inputmode="tel" placeholder="手機號碼">
+      <input id="customerEmailInput" type="email" inputmode="email" placeholder="Email">
+    </div>
     <!-- 折扣碼輸入 -->
     <div style="display: flex; gap: 8px; margin-bottom: 0.8em;">
       <input id="discountCodeInput" type="text" placeholder="輸入折扣碼"
@@ -928,6 +952,7 @@ let cart = [];
 let currentDiscount = 0;
 let isDiscountApplied = false;
 let finalAmountLocked = 0;
+const LAST_ORDER_STORAGE_KEY = 'kami-last-order';
 
 let appliedDiscountCode = "";
 
@@ -1217,6 +1242,11 @@ function openSubmitOrderConfirmModal() {
     showAlertModal("購物車是空的喔！", true);
     return;
   }
+  const validation = validateCustomerForm();
+  if (!validation.ok) {
+    showAlertModal(validation.message, true);
+    return;
+  }
   document.getElementById('submitOrderConfirmModal').classList.add('show');
 }
 
@@ -1227,6 +1257,84 @@ function closeSubmitOrderConfirmModal() {
 async function confirmSubmitOrder() {
   closeSubmitOrderConfirmModal();
   await submitOrder();
+}
+
+function getCustomerFormData() {
+  return {
+    contactName: document.getElementById('customerNameInput').value.trim(),
+    phone: document.getElementById('customerPhoneInput').value.trim(),
+    email: document.getElementById('customerEmailInput').value.trim()
+  };
+}
+
+function validateCustomerForm() {
+  const { contactName, phone, email } = getCustomerFormData();
+  if (!contactName) return { ok: false, message: '請填寫聯絡人。' };
+  if (!phone) return { ok: false, message: '請填寫手機號碼。' };
+  if (!email) return { ok: false, message: '請填寫 Email。' };
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    return { ok: false, message: 'Email 格式看起來不正確。' };
+  }
+
+  return { ok: true };
+}
+
+function buildOrderSummaryData(customer, pricing, orderTime, userProfile) {
+  const items = cart.map((item) => {
+    const unitPrice = Number(item.商品小小項價格 ?? item.商品小項價格 ?? 0);
+    const quantity = Number(item.數量 ?? 0);
+    const subtotal = Math.round(unitPrice * quantity);
+    const itemName = `${item.大項名稱} / ${item.中項名稱} / ${item.商品小項名稱}${item.小小項名稱 ? `（${item.小小項名稱}）` : ''}`;
+    return {
+      name: itemName,
+      unitPrice,
+      quantity,
+      subtotal
+    };
+  });
+
+  const lines = [
+    'KAMI KAMI 訂單資訊',
+    `訂購時間：${orderTime}`,
+    `聯絡人：${customer.contactName}`,
+    `手機號碼：${customer.phone}`,
+    `Email：${customer.email}`,
+    '',
+    '商品明細：'
+  ];
+
+  items.forEach((item, index) => {
+    lines.push(`${index + 1}. ${item.name}`);
+    lines.push(`   數量：${item.quantity}`);
+    lines.push(`   單價：$${item.unitPrice}`);
+    lines.push(`   小計：$${item.subtotal}`);
+  });
+
+  lines.push('');
+  lines.push(`原價：$${pricing.total}`);
+  if (pricing.discountAmount > 0) {
+    lines.push(`折扣：-${pricing.discountAmount}${pricing.discountCode ? `（${pricing.discountCode}）` : ''}`);
+  } else {
+    lines.push('折扣：未套用');
+  }
+  lines.push(`運費：$${pricing.shippingFee}`);
+  lines.push(`總計：$${pricing.finalGrandTotal}`);
+  lines.push('');
+  lines.push('請將以上訂單資訊複製貼給 Instagram 客服，客服會協助後續處理。');
+
+  return {
+    createdAt: orderTime,
+    customer,
+    pricing,
+    userProfile: {
+      displayName: userProfile.displayName || '(匿名)',
+      userId: userProfile.userId || ''
+    },
+    items,
+    text: lines.join('\n')
+  };
 }
 
 
@@ -1563,7 +1671,13 @@ async function submitOrder() {
     showAlertModal("購物車是空的，無法送出訂單。", true);
     return;
   }
-  console.log(cart);
+  const validation = validateCustomerForm();
+  if (!validation.ok) {
+    showAlertModal(validation.message, true);
+    return;
+  }
+
+  const customer = getCustomerFormData();
   // ✅ total 必須與 applyDiscount() 用同一套單價邏輯，避免金額不一致導致折扣變成負數
   const total = cart.reduce((sum, item) => {
     const price = Number(item.商品小小項價格 ?? item.商品小項價格 ?? 0);
@@ -1657,12 +1771,27 @@ async function submitOrder() {
   ];
 
   let userProfile = { displayName: "(匿名)", userId: "" };
+  const orderTime = new Date().toLocaleString('zh-TW');
 
   try {
     userProfile = await liff.getProfile();
   } catch (e) {
     console.error("取得用戶資料失敗", e);
   }
+
+  const orderSummary = buildOrderSummaryData(
+    customer,
+    {
+      total: Math.round(total),
+      discountAmount,
+      discountCode: appliedDiscountCode,
+      discountedTotal,
+      shippingFee,
+      finalGrandTotal
+    },
+    orderTime,
+    userProfile
+  );
 
   try {
     await liff.sendMessages([
@@ -1686,7 +1815,7 @@ async function submitOrder() {
               },
               {
                 type: "text",
-                text: `訂購時間：${new Date().toLocaleString()}\n訂購名字：${userProfile.displayName}`,
+                text: `訂購時間：${orderTime}\nLINE 名稱：${userProfile.displayName}\n聯絡人：${customer.contactName}\n手機：${customer.phone}\nEmail：${customer.email}`,
                 size: "sm",
                 color: "#555555",
                 wrap: true
@@ -1749,14 +1878,15 @@ async function submitOrder() {
     console.error("發送LINE訊息失敗", error);
   }
 
-  showCheckoutModal();
+  localStorage.setItem(LAST_ORDER_STORAGE_KEY, JSON.stringify(orderSummary));
   cart = [];
   localStorage.removeItem('kami-cart');
   cartButton.innerText = `購物車 (0)`;
+  document.getElementById('customerNameInput').value = '';
+  document.getElementById('customerPhoneInput').value = '';
+  document.getElementById('customerEmailInput').value = '';
 
-  setTimeout(() => {
-    window.location.href = 'thankyou.html';
-  }, 2000);
+  window.location.href = 'thankyou2.html';
 }
 
 
